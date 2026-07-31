@@ -31,6 +31,26 @@ work.** Deploying only the `vite build` output leaves `/api/*` returning 404,
 and because each section is gated on its data, the home page renders with
 Music, Videos, Merch and Tour silently missing.
 
+### Vercel (current host)
+
+`vercel.json` + `api/[...path].ts` run the Express app as a serverless
+function, so `/api/*` is answered and every section renders. `server.ts`
+exports the app and skips `app.listen()` when `VERCEL` is set; the catch-all
+filename means requests arrive with their original path, so no rewrites are
+needed.
+
+**Caveat you need to know about:** Vercel's filesystem is read-only apart from
+`/tmp`, which is per-instance and wiped on cold starts. `DATA_DIR` defaults to
+`/tmp/shedstar-data` there, so the site always *displays* correctly, but
+anything visitors submit — booking inquiries, contact messages, newsletter
+signups, orders — is **not durably saved**, and admin edits revert. Confirm
+with `/api/health`: it reports `"storage": "ephemeral"`.
+
+For a deployment where that data survives, use the Render blueprint below,
+or move the JSON store to a real database.
+
+### Render (persistent)
+
 `render.yaml` in this repo describes a working deployment:
 
 - Build `npm ci --include=dev && npm run build`, start `npm run start`.
@@ -59,6 +79,11 @@ curl https://<your-host>/api/health
 { "ok": true, "storage": "disk", "persistent": true }
 ```
 
-`"storage": "memory"` means the data directory isn't writable — the site still
-serves the built-in default content, but **nothing visitors submit is saved**.
-A 404 from this endpoint means no backend is deployed at all.
+| `storage`   | Meaning                                                        |
+| ----------- | -------------------------------------------------------------- |
+| `disk`      | A real volume. Submissions are saved. This is what you want.     |
+| `ephemeral` | Writable but wiped on restart (Vercel `/tmp`). Nothing is saved. |
+| `memory`    | Data dir unwritable; serving built-in defaults. Nothing is saved.|
+
+A **404** from this endpoint means no backend is deployed at all — the symptom
+that makes every data-driven section vanish from the page.

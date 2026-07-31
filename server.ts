@@ -8,7 +8,6 @@ import express from 'express';
 import path from 'path';
 import fs from 'fs';
 import Stripe from 'stripe';
-import { createServer as createViteServer } from 'vite';
 import { Song, Video, Product, Tour, GalleryItem, BlogPost, Booking, ContactMessage, Subscriber, DashboardStats, EBook, AdUnit, AdConfig, Partnership, Order, OrderItem } from './src/types';
 
 const app = express();
@@ -65,13 +64,22 @@ app.post('/api/stripe/webhook', express.raw({ type: 'application/json' }), (req,
 app.use(express.json());
 
 // Where the JSON "database" lives. Overridable via DATA_DIR so a host can point
-// it at a mounted persistent disk (see render.yaml) instead of the repo folder —
-// on a container with an ephemeral filesystem, anything written here is lost on
-// restart, which is why DATA_DIR must be a real volume in production.
+// it at a mounted persistent disk (see render.yaml) instead of the repo folder.
+// On Vercel the deployment bundle is read-only and /tmp is the only writable
+// path, so default there rather than failing every write.
+const DEFAULT_DATA_DIR = process.env.VERCEL
+  ? '/tmp/shedstar-data'
+  : path.join(process.cwd(), 'data');
 const DATA_DIR = process.env.DATA_DIR
   ? path.resolve(process.env.DATA_DIR)
-  : path.join(process.cwd(), 'data');
+  : DEFAULT_DATA_DIR;
 const DB_FILE = path.join(DATA_DIR, 'db.json');
+
+// /tmp and serverless instances are wiped between cold starts, so writes there
+// are not durable even though they succeed. Tracked so /api/health can say so
+// instead of reporting a healthy-looking "disk".
+const DATA_DIR_IS_EPHEMERAL =
+  Boolean(process.env.VERCEL) || DATA_DIR === '/tmp' || DATA_DIR.startsWith('/tmp/');
 
 // Builds a complete database from the shipped defaults. Pure — touches no
 // filesystem — so it doubles as the in-memory fallback when disk is unusable.
@@ -918,13 +926,14 @@ initializeDatabase();
 // answer to "is the API even deployed, and is its data persistent?" — the exact
 // question that a statically-hosted build (no backend at all) fails to answer.
 app.get('/api/health', (req, res) => {
+  const storage = usingMemoryDb ? 'memory' : DATA_DIR_IS_EPHEMERAL ? 'ephemeral' : 'disk';
   res.json({
     ok: true,
-    storage: usingMemoryDb ? 'memory' : 'disk',
+    storage,
     dataDir: DATA_DIR,
-    // 'memory' means writes are lost on restart — the data dir is not a real
-    // persistent volume. Bookings, contacts and orders will NOT survive.
-    persistent: !usingMemoryDb
+    // Only a real mounted volume is durable. 'memory' and 'ephemeral' both mean
+    // bookings, contacts, subscribers and orders are lost when the host recycles.
+    persistent: storage === 'disk'
   });
 });
 
@@ -1786,6 +1795,9 @@ app.post('/api/admin/send-campaign', (req, res) => {
 // --- VITE MIDDLEWARE SETUP ---
 async function startServer() {
   if (process.env.NODE_ENV !== 'production') {
+    // Imported lazily so production and serverless bundles don't pull in Vite,
+    // which is a dev-only dependency here and very large.
+    const { createServer: createViteServer } = await import('vite');
     const vite = await createViteServer({
       server: { middlewareMode: true },
       appType: 'spa',
@@ -1804,4 +1816,13 @@ async function startServer() {
   });
 }
 
-startServer();
+// Serverless hosts import this module and run the HTTP layer themselves, so
+// only bind a port when this process owns the server (local dev, Render, any
+// plain `node dist-server/server.cjs`).
+if (!process.env.VERCEL) {
+  startServer();
+}
+
+// Vercel's Node runtime calls the default export as its request handler; an
+// Express app is already a (req, res) handler. See api/[...path].ts.
+export default app;
