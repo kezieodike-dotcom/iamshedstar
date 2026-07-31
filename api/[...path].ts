@@ -37,14 +37,15 @@ export default async function handler(req: IncomingMessage, res: ServerResponse)
     }
     return cached(req, res);
   } catch (error: any) {
+    // Full stack to the platform log; only a short message to the caller, so a
+    // failure is still diagnosable from a request without publishing internals.
     console.error('[api] failed to load the Express app:', error);
     res.statusCode = 500;
     res.setHeader('content-type', 'application/json');
     res.end(
       JSON.stringify({
         error: 'API failed to start',
-        message: String(error?.message ?? error),
-        stack: String(error?.stack ?? '').split('\n').slice(0, 12)
+        message: String(error?.message ?? error)
       })
     );
   }
