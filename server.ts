@@ -1792,35 +1792,32 @@ app.post('/api/admin/send-campaign', (req, res) => {
   res.json({ success: true, sentCount: getDb().subscribers.length });
 });
 
-// --- VITE MIDDLEWARE SETUP ---
-async function startServer() {
-  if (process.env.NODE_ENV !== 'production') {
-    // Imported lazily so production and serverless bundles don't pull in Vite,
-    // which is a dev-only dependency here and very large.
-    const { createServer: createViteServer } = await import('vite');
-    const vite = await createViteServer({
-      server: { middlewareMode: true },
-      appType: 'spa',
-    });
-    app.use(vite.middlewares);
-  } else {
-    const distPath = path.join(process.cwd(), 'dist');
-    app.use(express.static(distPath));
-    app.get('*', (req, res) => {
-      res.sendFile(path.join(distPath, 'index.html'));
-    });
-  }
+/* ---------- Serving the built client ----------
+   Deliberately no Vite anywhere in this module. Vite is a dev-only dependency
+   that drags in esbuild's require.resolve('esbuild') and lightningcss's native
+   .node bindings; bundled into a serverless function those fail at load and
+   crash every request. Even a lazy `await import('vite')` inside a dead branch
+   is followed by bundlers, so the dev bootstrap lives in dev-server.ts. */
+export function serveClientBuild() {
+  const distPath = path.join(process.cwd(), 'dist');
+  app.use(express.static(distPath));
+  app.get('*', (req, res) => {
+    res.sendFile(path.join(distPath, 'index.html'));
+  });
+}
 
+export function listen() {
   app.listen(PORT, '0.0.0.0', () => {
     console.log(`Server running on http://localhost:${PORT}`);
   });
 }
 
-// Serverless hosts import this module and run the HTTP layer themselves, so
-// only bind a port when this process owns the server (local dev, Render, any
-// plain `node dist-server/server.cjs`).
-if (!process.env.VERCEL) {
-  startServer();
+// Bind a port only when this process owns the server: a standalone production
+// run (Render, `node dist-server/server.cjs`). Serverless hosts import the app
+// and run the HTTP layer themselves; dev-server.ts handles local development.
+if (!process.env.VERCEL && process.env.NODE_ENV === 'production') {
+  serveClientBuild();
+  listen();
 }
 
 // Vercel's Node runtime calls the default export as its request handler; an

@@ -20,9 +20,15 @@ View in AI Studio: https://ai.studio/apps/ceca87cd-c847-4eeb-88f9-cf4fab55dc60
    error instead of charging anyone.
 3. `npm run dev` — serves the app and the API together on http://localhost:3000
 
-`npm run dev` runs `server.ts`, which mounts Vite as middleware. Opening Vite's
-own port directly (5173) gives you a front end with no API behind it, and every
-data-driven section will be empty.
+`npm run dev` runs `dev-server.ts`, which mounts Vite in front of the API from
+`server.ts`. Opening Vite's own port directly (5173) gives you a front end with
+no API behind it, and every data-driven section will be empty.
+
+Vite is imported only by `dev-server.ts`, never by `server.ts`. That separation
+is load-bearing: `server.ts` is bundled into the Vercel function, and bundlers
+follow even a lazy `await import('vite')` in an unreachable branch, pulling in
+esbuild's `require.resolve('esbuild')` and lightningcss's native `.node`
+bindings — which then fail at load and crash the function on every request.
 
 ## Deploying
 
