@@ -10,8 +10,35 @@
  *
  * server.ts skips app.listen() when VERCEL is set — Vercel owns the HTTP layer
  * and just invokes this handler.
+ *
+ * The app is imported lazily inside the handler so that a failure while loading
+ * it becomes a readable JSON response instead of an opaque
+ * FUNCTION_INVOCATION_FAILED with the stack buried in the platform's logs.
  */
 
-import app from '../server';
+import type { IncomingMessage, ServerResponse } from 'http';
 
-export default app;
+type ExpressLike = (req: IncomingMessage, res: ServerResponse) => void;
+
+let cached: ExpressLike | null = null;
+
+export default async function handler(req: IncomingMessage, res: ServerResponse) {
+  try {
+    if (!cached) {
+      const mod = await import('../server');
+      cached = (mod.default ?? mod) as unknown as ExpressLike;
+    }
+    return cached(req, res);
+  } catch (error: any) {
+    console.error('[api] failed to load the Express app:', error);
+    res.statusCode = 500;
+    res.setHeader('content-type', 'application/json');
+    res.end(
+      JSON.stringify({
+        error: 'API failed to start',
+        message: String(error?.message ?? error),
+        stack: String(error?.stack ?? '').split('\n').slice(0, 12)
+      })
+    );
+  }
+}
