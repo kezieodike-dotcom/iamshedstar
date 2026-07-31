@@ -14,6 +14,13 @@
  * The app is imported lazily inside the handler so that a failure while loading
  * it becomes a readable JSON response instead of an opaque
  * FUNCTION_INVOCATION_FAILED with the stack buried in the platform's logs.
+ *
+ * The '../server.js' specifier must keep its extension. Vercel transpiles this
+ * file rather than bundling it and runs it as ESM (package.json sets
+ * "type": "module"), and Node's ESM resolver does not add extensions — an
+ * extensionless '../server' is not resolvable, so Vercel's file tracer never
+ * includes server.ts in the deployment and the import fails at runtime with
+ * ERR_MODULE_NOT_FOUND. TypeScript maps the .js specifier back to server.ts.
  */
 
 import type { IncomingMessage, ServerResponse } from 'http';
@@ -25,7 +32,7 @@ let cached: ExpressLike | null = null;
 export default async function handler(req: IncomingMessage, res: ServerResponse) {
   try {
     if (!cached) {
-      const mod = await import('../server');
+      const mod = await import('../server.js');
       cached = (mod.default ?? mod) as unknown as ExpressLike;
     }
     return cached(req, res);
