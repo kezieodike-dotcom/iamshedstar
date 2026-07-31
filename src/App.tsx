@@ -315,29 +315,6 @@ export default function App() {
           transparent fixed navbar; every other page gets top padding to clear it. */}
       <main className={`flex-1 pb-24 ${activeTab === 'home' ? '' : 'pt-16 md:pt-20'}`}>
 
-        {/* Content failed to load — say so, rather than quietly rendering a
-            page with whole sections missing. The home hero sits under the fixed
-            navbar, so the banner clears it itself on that tab. */}
-        {loadError && (
-          <div
-            role="alert"
-            className={`bg-cream border-b-2 border-ink px-4 md:px-8 py-3 ${activeTab === 'home' ? 'pt-20 md:pt-24' : ''}`}
-          >
-            <div className="max-w-7xl mx-auto flex flex-col sm:flex-row sm:items-center gap-3">
-              <p className="flex-1 font-mono text-[11px] uppercase tracking-wider text-ink leading-relaxed">
-                ⚠ {loadError}
-              </p>
-              <button
-                onClick={fetchData}
-                disabled={isReloading}
-                className="btn-ink text-xs shrink-0 disabled:opacity-60"
-              >
-                {isReloading ? 'Retrying…' : 'Retry'}
-              </button>
-            </div>
-          </div>
-        )}
-
         {activeTab === 'home' && (
           <HomeSection
             setActiveTab={handleNavigate}
@@ -440,6 +417,35 @@ export default function App() {
           />
         )}
       </main>
+
+      {/* Content failed to load. Rendered as a dismissible corner toast rather
+          than a top banner so it never intrudes on the full-bleed home hero,
+          while still explaining why sections are missing. */}
+      {loadError && (
+        <div
+          role="alert"
+          className="fixed z-40 bottom-4 left-4 right-4 sm:right-auto sm:max-w-sm bg-cream border-2 border-ink shadow-[4px_4px_0_rgba(10,10,10,0.35)] p-4 animate-fadeIn"
+        >
+          <p className="font-mono text-[10px] uppercase tracking-wider text-ink leading-relaxed">
+            ⚠ {loadError}
+          </p>
+          <div className="flex items-center gap-2 mt-3">
+            <button
+              onClick={fetchData}
+              disabled={isReloading}
+              className="btn-ink text-xs px-4 py-2 disabled:opacity-60"
+            >
+              {isReloading ? 'Retrying…' : 'Retry'}
+            </button>
+            <button
+              onClick={() => setLoadError(null)}
+              className="btn-outline text-xs px-4 py-2"
+            >
+              Dismiss
+            </button>
+          </div>
+        </div>
+      )}
 
       {/* Global Music floating widget */}
       <AudioPlayer

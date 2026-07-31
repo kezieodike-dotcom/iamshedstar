@@ -1,0 +1,42 @@
+services:
+  - type: web
+    name: shedstar
+    runtime: node
+    plan: starter # a persistent disk requires a paid instance; the free plan has none
+    region: oregon
+    branch: main
+
+    # --include=dev is required: the build needs esbuild + typescript, which are
+    # devDependencies, and npm skips those when NODE_ENV=production.
+    buildCommand: npm ci --include=dev && npm run build
+    startCommand: npm run start
+
+    healthCheckPath: /api/health
+
+    # The JSON database lives on this volume, NOT in the repo folder. Without it
+    # the container filesystem is ephemeral and every booking, contact message,
+    # subscriber and order is lost on each restart or redeploy.
+    disk:
+      name: shedstar-data
+      mountPath: /var/data
+      sizeGB: 1
+
+    envVars:
+      - key: NODE_ENV
+        value: production
+      - key: DATA_DIR
+        value: /var/data
+
+      # Set these in the Render dashboard — never commit real keys.
+      # APP_URL must be the live site origin, or Stripe redirects come back
+      # to localhost after checkout.
+      - key: APP_URL
+        sync: false
+      - key: STRIPE_SECRET_KEY
+        sync: false
+      - key: STRIPE_PUBLISHABLE_KEY
+        sync: false
+      - key: STRIPE_WEBHOOK_SECRET
+        sync: false
+      - key: CURRENCY
+        value: usd

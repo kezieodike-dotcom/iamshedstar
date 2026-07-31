@@ -64,7 +64,13 @@ app.post('/api/stripe/webhook', express.raw({ type: 'application/json' }), (req,
 
 app.use(express.json());
 
-const DATA_DIR = path.join(process.cwd(), 'data');
+// Where the JSON "database" lives. Overridable via DATA_DIR so a host can point
+// it at a mounted persistent disk (see render.yaml) instead of the repo folder —
+// on a container with an ephemeral filesystem, anything written here is lost on
+// restart, which is why DATA_DIR must be a real volume in production.
+const DATA_DIR = process.env.DATA_DIR
+  ? path.resolve(process.env.DATA_DIR)
+  : path.join(process.cwd(), 'data');
 const DB_FILE = path.join(DATA_DIR, 'db.json');
 
 // Builds a complete database from the shipped defaults. Pure — touches no
@@ -907,6 +913,20 @@ function saveDb(data: any) {
 initializeDatabase();
 
 // --- API ROUTES ---
+
+// 0. Health check. Doubles as the host's readiness probe and as a one-request
+// answer to "is the API even deployed, and is its data persistent?" — the exact
+// question that a statically-hosted build (no backend at all) fails to answer.
+app.get('/api/health', (req, res) => {
+  res.json({
+    ok: true,
+    storage: usingMemoryDb ? 'memory' : 'disk',
+    dataDir: DATA_DIR,
+    // 'memory' means writes are lost on restart — the data dir is not a real
+    // persistent volume. Bookings, contacts and orders will NOT survive.
+    persistent: !usingMemoryDb
+  });
+});
 
 // 1. Songs Endpoints
 app.get('/api/songs', (req, res) => {
