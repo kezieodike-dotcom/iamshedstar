@@ -1,0 +1,6 @@
+{
+  "name": "Shedstar Official Website",
+  "description": "Premium, immersive, dark-luxury website for global music artist Shedstar. Features seamless music streaming, tours, official merchandise store with checkout, media gallery, booking forms, fan club, and a full-featured admin dashboard.",
+  "requestFramePermissions": [],
+  "majorCapabilities": ["MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"]
+}

@@ -1,0 +1,238 @@
+@import url('https://fonts.googleapis.com/css2?family=Anton&family=Archivo:wght@400;500;600;700;800;900&family=Archivo+Black&family=Inter:wght@400;500;600;700&display=swap');
+@import "tailwindcss";
+
+@theme {
+  /* Typography — heavy condensed poster headers (Anton) + grotesque + body */
+  --font-sans: "Inter", ui-sans-serif, system-ui, sans-serif;
+  --font-display: "Archivo", "Inter", sans-serif;
+  --font-condensed: "Anton", "Archivo", sans-serif;
+  /* Heavy grotesque for hero-scale headlines (Teddy Swims reference look) */
+  --font-heavy: "Archivo Black", "Archivo", sans-serif;
+  --font-mono: "Inter", ui-monospace, monospace;
+
+  /* Light "Picasso Blue" palette */
+  --color-brand: #1f74c8;
+  --color-brand-dark: #165a9e;
+  --color-brand-soft: #e4f0fb;
+  --color-ink: #0a0a0a;
+  --color-paper: #ffffff;
+  --color-cream: #f4f2ec;
+  --color-cream-dark: #ece9e0;
+  --color-line: #e4e1d8;
+  --color-muted: #6a6a6a;
+
+  /* Back-compat aliases so any legacy class names map to the light system */
+  --color-gold: #1f74c8;
+  --color-gold-hover: #165a9e;
+  --color-luxury-black: #ffffff;
+  --color-luxury-dark: #f4f2ec;
+  --color-luxury-purple: #e4f0fb;
+  --color-electric-blue: #1f74c8;
+}
+
+/* ---------- Global base ---------- */
+html {
+  scroll-behavior: smooth;
+  background-color: #e4e1da;
+  color: #0a0a0a;
+  font-family: var(--font-sans);
+  -webkit-font-smoothing: antialiased;
+}
+
+body {
+  background-color: #e4e1da;
+  color: #0a0a0a;
+}
+
+/* Safety-pin custom cursor while navigating the site (text fields keep their caret) */
+:root {
+  --pin-cursor: url("data:image/svg+xml,%3Csvg%20xmlns='http://www.w3.org/2000/svg'%20width='44'%20height='20'%20viewBox='-6%20-6%20112%2052'%20fill='none'%20stroke='%231f74c8'%20stroke-width='5'%20stroke-linecap='round'%3E%3Cpath%20d='M12%2026%20C4%2022%204%2012%2014%2010%20L82%204'/%3E%3Cpath%20d='M12%2026%20C22%2030%2030%2024%2030%2016%20L30%2010'/%3E%3Cpath%20d='M14%2010%20L86%2030%20C94%2033%2096%2022%2088%2020'/%3E%3Ccircle%20cx='12'%20cy='26'%20r='5'%20fill='%231f74c8'%20stroke='none'/%3E%3C/svg%3E") 7 12;
+}
+body { cursor: var(--pin-cursor), auto; }
+a, button, [role="button"], summary, select { cursor: var(--pin-cursor), pointer; }
+
+::selection {
+  background: #1f74c8;
+  color: #ffffff;
+}
+
+/* Big display headings: tight, uppercase, heavy */
+.display-hd {
+  font-family: var(--font-condensed);
+  font-weight: 400;
+  text-transform: uppercase;
+  letter-spacing: 0.01em;
+  line-height: 0.9;
+}
+
+/* Huge poster/section titles (MUSIC, VIDEOS, MERCH, TOUR) */
+.poster-title {
+  font-family: var(--font-condensed);
+  font-weight: 400;
+  text-transform: uppercase;
+  letter-spacing: 0.02em;
+  line-height: 0.85;
+}
+
+/* ---------- Buttons — rectangular DIY-poster style ---------- */
+.btn-ink {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.5rem;
+  background: #0a0a0a;
+  color: #ffffff;
+  font-family: var(--font-condensed);
+  font-weight: 400;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  border-radius: 2px;
+  padding: 0.8rem 2rem;
+  transition: all 0.15s ease;
+}
+.btn-ink:hover { background: #1f74c8; }
+
+.btn-brand {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.5rem;
+  background: #1f74c8;
+  color: #ffffff;
+  font-family: var(--font-condensed);
+  font-weight: 400;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  border-radius: 2px;
+  padding: 0.8rem 2rem;
+  transition: all 0.15s ease;
+}
+.btn-brand:hover { background: #0a0a0a; }
+
+.btn-outline {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.5rem;
+  background: transparent;
+  color: #0a0a0a;
+  border: 2px solid #0a0a0a;
+  font-family: var(--font-condensed);
+  font-weight: 400;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  border-radius: 2px;
+  padding: 0.75rem 2rem;
+  transition: all 0.15s ease;
+}
+.btn-outline:hover { background: #0a0a0a; color: #ffffff; }
+
+/* ---------- Collage / punk-zine helpers ---------- */
+/* Blue torn painted-tape banner behind section titles */
+.tape-band {
+  position: relative;
+  display: inline-block;
+  background: #1f74c8;
+  color: #ffffff;
+  padding: 0.35em 1.1em 0.3em;
+  transform: rotate(-1.5deg);
+  clip-path: polygon(1% 8%, 12% 2%, 30% 6%, 52% 0%, 74% 5%, 92% 1%, 100% 10%, 99% 88%, 88% 96%, 66% 90%, 44% 98%, 22% 92%, 6% 97%, 0% 86%);
+}
+
+/* Watercolor wash section backgrounds */
+.bg-wash-blue {
+  background:
+    radial-gradient(120% 90% at 10% 10%, rgba(31,116,200,0.28), transparent 60%),
+    radial-gradient(120% 90% at 90% 80%, rgba(18,74,130,0.30), transparent 55%),
+    linear-gradient(120deg, #cfe0ff, #a9c2f5 55%, #7fa0e6);
+}
+.bg-wash-green {
+  background:
+    radial-gradient(120% 90% at 15% 20%, rgba(31,116,200,0.30), transparent 55%),
+    radial-gradient(120% 90% at 85% 75%, rgba(60,150,90,0.35), transparent 55%),
+    linear-gradient(120deg, #bfe6cf, #7fc6b0 50%, #4aa3c0);
+}
+.bg-silver {
+  background: linear-gradient(160deg, #e9e7e2, #d6d3cc 60%, #c9c6bf);
+}
+
+/* Subtle print grain overlay (apply to a positioned parent) */
+.grain::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  opacity: 0.10;
+  mix-blend-mode: multiply;
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='120' height='120'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='2'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E");
+}
+
+/* Distressed / photocopied edges for the logo wordmark (SVG filter defined in Navbar) */
+.grunge-text {
+  filter: url(#logo-grunge);
+}
+
+/* Heavy gritty film-grain layer — apply to an overlay div for a rough, non-smooth surface */
+.grain-heavy {
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='200' height='200'%3E%3Cfilter id='hn'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.68' numOctaves='3' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23hn)'/%3E%3C/svg%3E");
+  background-size: 200px 200px;
+}
+
+/* Grainy high-contrast B&W treatment for hero-style photos.
+   High contrast clips the photo's light backdrop to pure white so that,
+   combined with mix-blend-multiply, it drops out into the hero background. */
+.photo-grunge {
+  filter: grayscale(1) contrast(1.35) brightness(1.03);
+}
+
+/* ---------- Horizontal carousel row (Teddy Swims signature) ---------- */
+.carousel-row {
+  display: flex;
+  gap: 1.25rem;
+  overflow-x: auto;
+  scroll-snap-type: x mandatory;
+  padding-bottom: 0.5rem;
+}
+.carousel-row > * {
+  scroll-snap-align: start;
+  flex: 0 0 auto;
+}
+
+/* Hide scrollbars for carousels / horizontal elements but keep scroll */
+.no-scrollbar::-webkit-scrollbar { display: none; }
+.no-scrollbar { -ms-overflow-style: none; scrollbar-width: none; }
+
+/* Mobile one-up carousel (Teddy Swims mobile): show a single item per view,
+   snapped to center, so users page through with the side arrows. On >= sm the
+   card's own width classes take over and several show at once. */
+@media (max-width: 639px) {
+  .carousel-1up {
+    padding-left: 9%;
+    padding-right: 9%;
+    scroll-snap-type: x mandatory;
+  }
+  .carousel-1up > * {
+    flex: 0 0 82% !important;
+    width: auto !important;
+    scroll-snap-align: center;
+  }
+}
+
+/* Custom light scrollbar for main page */
+::-webkit-scrollbar { width: 10px; height: 10px; }
+::-webkit-scrollbar-track { background: #f4f2ec; }
+::-webkit-scrollbar-thumb { background: #d8d5cc; border-radius: 4px; }
+::-webkit-scrollbar-thumb:hover { background: #1f74c8; }
+
+/* Marquee strip (announcement bar) */
+@keyframes marquee {
+  from { transform: translateX(0); }
+  to { transform: translateX(-50%); }
+}
+.animate-marquee { animation: marquee 25s linear infinite; }
+
+@keyframes fadeIn {
+  from { opacity: 0; transform: translateY(6px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+.animate-fadeIn { animation: fadeIn 0.3s ease-out; }
