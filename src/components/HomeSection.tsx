@@ -35,10 +35,40 @@ export default function HomeSection({
   const [subStatus, setSubStatus] = useState<'idle' | 'loading' | 'success' | 'error'>('idle');
   const [ebooks, setEbooks] = useState<EBook[]>([]);
   const [videos, setVideos] = useState<Video[]>([]);
+  // These two feeds are loaded here rather than by App, so their failures have
+  // to be reported here too — otherwise the Videos and Read blocks just vanish.
+  const [feedError, setFeedError] = useState<string | null>(null);
+
+  const loadFeeds = async () => {
+    const feeds: { label: string; url: string; apply: (data: any) => void }[] = [
+      { label: 'Videos', url: '/api/videos', apply: setVideos },
+      { label: 'Read', url: '/api/ebooks', apply: setEbooks },
+    ];
+
+    const failed: string[] = [];
+
+    await Promise.all(
+      feeds.map(async ({ label, url, apply }) => {
+        try {
+          const res = await fetch(url);
+          if (!res.ok) {
+            console.error(`Failed to load ${url}: HTTP ${res.status}`);
+            failed.push(label);
+            return;
+          }
+          apply(await res.json());
+        } catch (error) {
+          console.error(`Failed to reach ${url}:`, error);
+          failed.push(label);
+        }
+      })
+    );
+
+    setFeedError(failed.length > 0 ? failed.join(' and ') : null);
+  };
 
   useEffect(() => {
-    fetch('/api/ebooks').then((r) => (r.ok ? r.json() : [])).then(setEbooks).catch(() => {});
-    fetch('/api/videos').then((r) => (r.ok ? r.json() : [])).then(setVideos).catch(() => {});
+    loadFeeds();
   }, []);
 
   const latestSingle = songs.find((s) => s.id === 'song-1') || songs[0];
@@ -155,6 +185,17 @@ export default function HomeSection({
               </div>
             </TornPanel>
           </div>
+        </section>
+      )}
+
+      {/* One of the self-loaded feeds failed — hold the space the Videos / Read
+          blocks would occupy so the gap reads as an error, not as missing content. */}
+      {feedError && (
+        <section className="relative bg-cream grain border-t-4 border-ink px-4 md:px-8 py-12 text-center">
+          <p className="font-mono text-[11px] uppercase tracking-wider text-muted">
+            ⚠ {feedError} couldn't be loaded right now.
+          </p>
+          <button onClick={loadFeeds} className="btn-ink text-xs mt-5">Try Again</button>
         </section>
       )}
 

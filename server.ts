@@ -67,12 +67,9 @@ app.use(express.json());
 const DATA_DIR = path.join(process.cwd(), 'data');
 const DB_FILE = path.join(DATA_DIR, 'db.json');
 
-// Helper to ensure database file exists and load it
-function initializeDatabase() {
-  if (!fs.existsSync(DATA_DIR)) {
-    fs.mkdirSync(DATA_DIR, { recursive: true });
-  }
-
+// Builds a complete database from the shipped defaults. Pure — touches no
+// filesystem — so it doubles as the in-memory fallback when disk is unusable.
+function buildDefaultDb() {
   const initialSongs: Song[] = [
     {
       id: 'song-1',
@@ -641,7 +638,7 @@ function initializeDatabase() {
     }
   ];
 
-  const defaultDb = {
+  return {
     songs: initialSongs,
     videos: initialVideos,
     products: initialProducts,
@@ -658,17 +655,51 @@ function initializeDatabase() {
     orders: [],
     stats: initialStats
   };
+}
 
-  if (!fs.existsSync(DB_FILE)) {
-    fs.writeFileSync(DB_FILE, JSON.stringify(defaultDb, null, 2), 'utf-8');
+/* ---------- Database access with an in-memory fallback ----------
+   Production containers often have a read-only or ephemeral filesystem. If
+   db.json can't be created, read, or parsed, every /api route used to throw a
+   500 — and because each front-end section is gated on its data being present,
+   the site rendered with whole sections silently missing rather than an error.
+   Falling back to the shipped defaults keeps the API serving real content;
+   writes are then process-local and lost on restart, which is logged loudly. */
+let memoryDb: any = null;
+let usingMemoryDb = false;
+
+function useMemoryDb(reason: unknown) {
+  if (!usingMemoryDb) {
+    usingMemoryDb = true;
+    console.error(
+      `[db] ${DB_FILE} is unusable — serving the built-in defaults from memory. ` +
+      `Admin changes will NOT persist across restarts. Cause:`, reason
+    );
+  }
+  if (!memoryDb) memoryDb = buildDefaultDb();
+  return memoryDb;
+}
+
+// Ensure the database file exists, falling back to memory if disk is unusable.
+function initializeDatabase() {
+  try {
+    if (!fs.existsSync(DATA_DIR)) {
+      fs.mkdirSync(DATA_DIR, { recursive: true });
+    }
+    if (!fs.existsSync(DB_FILE)) {
+      fs.writeFileSync(DB_FILE, JSON.stringify(buildDefaultDb(), null, 2), 'utf-8');
+    }
+  } catch (error) {
+    useMemoryDb(error);
   }
 }
 
 // Read database helper
 function getDb() {
+  if (usingMemoryDb) return memoryDb;
   try {
     if (!fs.existsSync(DB_FILE)) {
       initializeDatabase();
+      if (usingMemoryDb) return memoryDb;
     }
     const content = fs.readFileSync(DB_FILE, 'utf-8');
     const db = JSON.parse(content);
@@ -830,23 +861,46 @@ function getDb() {
     }
 
     if (mutated) {
-      fs.writeFileSync(DB_FILE, JSON.stringify(db, null, 2), 'utf-8');
+      // A failed migration write is not fatal — the migrated shape is already
+      // in `db`, so keep serving this request and retry on the next read.
+      try {
+        fs.writeFileSync(DB_FILE, JSON.stringify(db, null, 2), 'utf-8');
+      } catch (error) {
+        console.error('[db] could not persist schema migration:', error);
+      }
     }
 
     return db;
   } catch (error) {
-    console.error('Error reading db file:', error);
-    initializeDatabase();
-    return JSON.parse(fs.readFileSync(DB_FILE, 'utf-8'));
+    // Missing, unreadable, or corrupt db.json — restore the defaults on disk,
+    // and if disk itself is the problem, serve them from memory instead.
+    console.error(`[db] could not read ${DB_FILE} — restoring defaults:`, error);
+    const fresh = buildDefaultDb();
+    try {
+      if (!fs.existsSync(DATA_DIR)) {
+        fs.mkdirSync(DATA_DIR, { recursive: true });
+      }
+      fs.writeFileSync(DB_FILE, JSON.stringify(fresh, null, 2), 'utf-8');
+      return fresh;
+    } catch (writeError) {
+      return useMemoryDb(writeError);
+    }
   }
 }
 
 // Save database helper
 function saveDb(data: any) {
+  if (usingMemoryDb) {
+    memoryDb = data;
+    return;
+  }
   try {
     fs.writeFileSync(DB_FILE, JSON.stringify(data, null, 2), 'utf-8');
   } catch (error) {
-    console.error('Error writing to db file:', error);
+    // Disk went away mid-flight — keep the write in memory so the change is at
+    // least visible for the life of this process.
+    memoryDb = data;
+    useMemoryDb(error);
   }
 }
 

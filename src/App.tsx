@@ -63,6 +63,12 @@ export default function App() {
     return sessionStorage.getItem('shedstar_admin') === 'true';
   });
 
+  // Content load failures. Every section is gated on its data being present, so
+  // without this a failing API renders a page with sections missing and no
+  // explanation — indistinguishable from that content having been deleted.
+  const [loadError, setLoadError] = useState<string | null>(null);
+  const [isReloading, setIsReloading] = useState<boolean>(false);
+
   // Policy Modal state overlays
   const [policyType, setPolicyType] = useState<'privacy' | 'terms' | null>(null);
 
@@ -124,38 +130,59 @@ export default function App() {
     }
   }, []);
 
-  // Initial Server Data Hydration
+  // Initial Server Data Hydration. Each endpoint is loaded independently so one
+  // failure can't blank the rest, and every failure is recorded and surfaced.
   const fetchData = async () => {
-    try {
-      const [songsRes, videosRes, productsRes, toursRes, blogRes, galleryRes] = await Promise.all([
-        fetch('/api/songs'),
-        fetch('/api/videos'),
-        fetch('/api/products'),
-        fetch('/api/tours'),
-        fetch('/api/blog'),
-        fetch('/api/gallery')
-      ]);
+    setIsReloading(true);
 
-      if (songsRes.ok) {
-        const songsData = await songsRes.json();
-        setSongs(songsData);
-        // Default first song to avoid empty player states
-        if (songsData.length > 0) {
-          setCurrentSong(songsData[0]);
+    const endpoints: { label: string; url: string; apply: (data: any) => void }[] = [
+      {
+        label: 'Music',
+        url: '/api/songs',
+        apply: (songsData: Song[]) => {
+          setSongs(songsData);
+          // Default first song to avoid empty player states
+          if (songsData.length > 0) {
+            setCurrentSong(songsData[0]);
+          }
         }
-      }
-      if (videosRes.ok) setVideos(await videosRes.json());
-      if (productsRes.ok) setProducts(await productsRes.json());
-      if (toursRes.ok) setTours(await toursRes.json());
-      if (blogRes.ok) setBlog(await blogRes.json());
-      if (galleryRes.ok) setGallery(await galleryRes.json());
+      },
+      { label: 'Videos', url: '/api/videos', apply: setVideos },
+      { label: 'Merch', url: '/api/products', apply: setProducts },
+      { label: 'Tour', url: '/api/tours', apply: setTours },
+      { label: 'News', url: '/api/blog', apply: setBlog },
+      { label: 'Gallery', url: '/api/gallery', apply: setGallery }
+    ];
 
-      // Fetch admin data if logged in
-      if (isAdmin) {
-        fetchAdminOnlyData();
-      }
-    } catch (error) {
-      console.error('Failed to load initial API context:', error);
+    const failed: string[] = [];
+
+    await Promise.all(
+      endpoints.map(async ({ label, url, apply }) => {
+        try {
+          const res = await fetch(url);
+          if (!res.ok) {
+            console.error(`Failed to load ${url}: HTTP ${res.status}`);
+            failed.push(`${label} (${res.status})`);
+            return;
+          }
+          apply(await res.json());
+        } catch (error) {
+          console.error(`Failed to reach ${url}:`, error);
+          failed.push(`${label} (unreachable)`);
+        }
+      })
+    );
+
+    setLoadError(
+      failed.length > 0
+        ? `Couldn't load ${failed.join(', ')} from the server. Those sections are hidden until it responds.`
+        : null
+    );
+    setIsReloading(false);
+
+    // Fetch admin data if logged in
+    if (isAdmin) {
+      fetchAdminOnlyData();
     }
   };
 
@@ -287,6 +314,30 @@ export default function App() {
       {/* Main Content Area Routing pane. The home hero sits full-bleed under the
           transparent fixed navbar; every other page gets top padding to clear it. */}
       <main className={`flex-1 pb-24 ${activeTab === 'home' ? '' : 'pt-16 md:pt-20'}`}>
+
+        {/* Content failed to load — say so, rather than quietly rendering a
+            page with whole sections missing. The home hero sits under the fixed
+            navbar, so the banner clears it itself on that tab. */}
+        {loadError && (
+          <div
+            role="alert"
+            className={`bg-cream border-b-2 border-ink px-4 md:px-8 py-3 ${activeTab === 'home' ? 'pt-20 md:pt-24' : ''}`}
+          >
+            <div className="max-w-7xl mx-auto flex flex-col sm:flex-row sm:items-center gap-3">
+              <p className="flex-1 font-mono text-[11px] uppercase tracking-wider text-ink leading-relaxed">
+                ⚠ {loadError}
+              </p>
+              <button
+                onClick={fetchData}
+                disabled={isReloading}
+                className="btn-ink text-xs shrink-0 disabled:opacity-60"
+              >
+                {isReloading ? 'Retrying…' : 'Retry'}
+              </button>
+            </div>
+          </div>
+        )}
+
         {activeTab === 'home' && (
           <HomeSection
             setActiveTab={handleNavigate}
