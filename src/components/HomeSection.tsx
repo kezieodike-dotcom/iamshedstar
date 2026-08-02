@@ -1,4 +1,4 @@
-/**
+﻿/**
  * @license
  * SPDX-License-Identifier: Apache-2.0
  */
@@ -36,7 +36,7 @@ export default function HomeSection({
   const [ebooks, setEbooks] = useState<EBook[]>([]);
   const [videos, setVideos] = useState<Video[]>([]);
   // These two feeds are loaded here rather than by App, so their failures have
-  // to be reported here too — otherwise the Videos and Read blocks just vanish.
+  // to be reported here too â€” otherwise the Videos and Read blocks just vanish.
   const [feedError, setFeedError] = useState<string | null>(null);
 
   const loadFeeds = async () => {
@@ -104,8 +104,8 @@ export default function HomeSection({
   return (
     <div className="w-full text-ink overflow-hidden">
 
-      {/* HERO — grainy portrait on the cool light blue-gray backdrop from the reference */}
-      <section className="relative grain min-h-[100svh] flex items-end overflow-hidden bg-[#cccfd7]">
+      {/* HERO â€” grainy portrait on the cool light blue-gray backdrop from the reference */}
+      <section className="relative grain min-h-[100svh] flex items-end overflow-hidden bg-[#cccdd2]">
         {/* Portrait: full-bleed on phones (Teddy Swims fills the screen edge-to-edge),
             letterboxed from md up so the whole figure shows. Multiply drops its light
             backdrop into the hero bg. */}
@@ -114,12 +114,12 @@ export default function HomeSection({
           alt="Shedstar"
           className="absolute inset-0 w-full h-full object-cover object-top md:object-contain md:object-center photo-grunge mix-blend-multiply"
         />
-        {/* cool-blue light-leak — soft wash + organic turbulence streaks, concentrated on the left */}
+        {/* cool-blue light-leak â€” soft wash + organic turbulence streaks, concentrated on the left */}
         <div
           className="absolute inset-0 pointer-events-none mix-blend-screen"
           style={{
             background:
-              'linear-gradient(100deg, rgba(31,116,200,0.60) 0%, rgba(120,160,220,0.22) 24%, transparent 48%)',
+              'linear-gradient(100deg, rgba(31,116,189,0.60) 0%, rgba(120,152,205,0.22) 24%, transparent 48%)',
           }}
         />
         <div
@@ -137,25 +137,25 @@ export default function HomeSection({
         <div className="absolute inset-0 bg-gradient-to-tr from-white/60 via-white/10 to-transparent" />
         {/* bottom-up light scrim keeps the dark headline legible over the full-bleed photo on phones */}
         <div className="absolute inset-x-0 bottom-0 h-1/2 bg-gradient-to-t from-white/70 via-white/25 to-transparent md:hidden" />
-        {/* heavy film grain — dark speckle (multiply) + light speckle (screen) so the surface is rough, not smooth */}
+        {/* heavy film grain â€” dark speckle (multiply) + light speckle (screen) so the surface is rough, not smooth */}
         <div className="absolute inset-0 pointer-events-none opacity-[0.55] mix-blend-multiply grain-heavy" />
         <div className="absolute inset-0 pointer-events-none opacity-[0.20] mix-blend-screen grain-heavy" />
         <div className="relative z-10 w-full px-6 sm:px-10 lg:px-16 pb-16 md:pb-24">
           <h1 className="font-heavy leading-[0.9] tracking-tight text-ink text-6xl sm:text-7xl md:text-8xl mb-6 max-w-[18rem] sm:max-w-md">
             Shedding<br />Light
           </h1>
-          <button onClick={playLatest} className="btn-ink text-sm tracking-[0.15em]">
+          <button onClick={playLatest} className="btn-ink btn-cta text-sm tracking-[0.15em]">
             Listen Now
           </button>
         </div>
       </section>
 
-      {/* MUSIC — blue torn-paper panel on a grungy backdrop (Teddy Swims reference) */}
+      {/* MUSIC â€” blue torn-paper panel on a grungy backdrop (Teddy Swims reference) */}
       {songs.length > 0 && (
         <section className="relative bg-silver grain px-4 sm:px-6 md:px-8 py-14 md:py-24 border-t-4 border-ink overflow-hidden">
           <div className="max-w-6xl mx-auto">
             <TornPanel className="px-4 sm:px-10 py-12 md:py-16">
-              <h2 className="poster-title text-white text-center text-6xl sm:text-7xl md:text-8xl mb-10 md:mb-12 drop-shadow-[0_3px_0_rgba(0,0,0,0.22)]">
+              <h2 className="poster-title section-title text-white text-center text-6xl sm:text-7xl md:text-8xl mb-10 md:mb-12 drop-shadow-[0_3px_0_rgba(0,0,0,0.22)]">
                 Music
               </h2>
               <div className="relative">
@@ -181,19 +181,19 @@ export default function HomeSection({
                 <SideNav targetId="row-music" />
               </div>
               <div className="flex justify-center mt-10 md:mt-12">
-                <button onClick={() => setActiveTab('music')} className="btn-ink text-base">See All Music</button>
+                <button onClick={() => setActiveTab('music')} className="btn-ink btn-cta-wide text-base">See All Music</button>
               </div>
             </TornPanel>
           </div>
         </section>
       )}
 
-      {/* One of the self-loaded feeds failed — hold the space the Videos / Read
+      {/* One of the self-loaded feeds failed â€” hold the space the Videos / Read
           blocks would occupy so the gap reads as an error, not as missing content. */}
       {feedError && (
         <section className="relative bg-cream grain border-t-4 border-ink px-4 md:px-8 py-12 text-center">
           <p className="font-mono text-[11px] uppercase tracking-wider text-muted">
-            ⚠ {feedError} couldn't be loaded right now.
+            âš  {feedError} couldn't be loaded right now.
           </p>
           <button onClick={loadFeeds} className="btn-ink text-xs mt-5">Try Again</button>
         </section>
@@ -236,18 +236,18 @@ export default function HomeSection({
               </div>
             )}
             <div className="flex justify-center mt-10">
-              <button onClick={() => setActiveTab('videos')} className="btn-brand text-base">See All Videos</button>
+              <button onClick={() => setActiveTab('videos')} className="btn-brand btn-cta-wide text-base">See All Videos</button>
             </div>
           </div>
         </section>
       )}
 
-      {/* MERCH — teal watercolor wash, floating product shots, BUY NOW!! (Teddy Swims reference) */}
+      {/* MERCH â€” teal watercolor wash, floating product shots, BUY NOW!! (Teddy Swims reference) */}
       {featuredProducts.length > 0 && (
         <section className="relative bg-wash-green grain px-4 sm:px-6 md:px-8 py-14 md:py-24 overflow-hidden">
           <SafetyPin className="absolute top-8 left-6 sm:left-10 -rotate-[18deg] hidden sm:block" size={68} />
           <div className="max-w-6xl mx-auto relative">
-            <h2 className="poster-title text-white text-center text-6xl sm:text-7xl md:text-8xl mb-10 md:mb-12 drop-shadow-[0_3px_0_rgba(0,0,0,0.22)]">
+            <h2 className="poster-title section-title text-white text-center text-6xl sm:text-7xl md:text-8xl mb-10 md:mb-12 drop-shadow-[0_3px_0_rgba(0,0,0,0.22)]">
               Merch
             </h2>
             <div className="relative">
@@ -258,9 +258,9 @@ export default function HomeSection({
                       <div className="relative aspect-square">
                         <img src={p.images[0]} alt={p.title} className="w-full h-full object-contain drop-shadow-lg group-hover:scale-[1.04] transition-transform duration-500" />
                       </div>
-                      <h3 className="mt-3 poster-title text-white text-lg sm:text-xl leading-tight tracking-tight line-clamp-3 min-h-[3.5rem] drop-shadow-[0_1px_0_rgba(0,0,0,0.25)]">{p.title}</h3>
+                      <h3 className="mt-3 poster-title item-title text-white text-lg sm:text-xl leading-tight tracking-tight line-clamp-3 min-h-[3.5rem] drop-shadow-[0_1px_0_rgba(0,0,0,0.25)]">{p.title}</h3>
                     </button>
-                    <button onClick={() => setActiveTab('merchandise')} className="btn-ink w-full mt-3 text-base">Buy Now!!</button>
+                    <button onClick={() => setActiveTab('merchandise')} className="btn-ink btn-cta w-full mt-3 text-base">Buy Now!!</button>
                   </div>
                 ))}
               </div>
@@ -287,7 +287,7 @@ export default function HomeSection({
                     </div>
                     <h3 className="mt-2 font-display font-bold uppercase text-sm tracking-wide text-ink line-clamp-2">{b.title}</h3>
                   </button>
-                  <button onClick={() => setActiveTab('ebooks')} className="btn-ink text-xs w-full mt-1">Buy · ${b.price.toFixed(2)}</button>
+                  <button onClick={() => setActiveTab('ebooks')} className="btn-ink text-xs w-full mt-1">Buy Â· ${b.price.toFixed(2)}</button>
                 </div>
               ))}
             </div>
@@ -322,7 +322,7 @@ export default function HomeSection({
               ))}
             </div>
             <div className="flex justify-center mt-8">
-              <button onClick={() => setActiveTab('tour')} className="btn-ink text-sm">All Tour Dates</button>
+              <button onClick={() => setActiveTab('tour')} className="btn-ink btn-cta-wide text-sm">All Tour Dates</button>
             </div>
           </div>
         </section>
@@ -366,8 +366,8 @@ export default function HomeSection({
               {subStatus === 'loading' ? 'Joining...' : 'Sign Up'}
             </button>
           </form>
-          {subStatus === 'success' && <p className="text-sm font-mono">✓ Welcome to the Star Club! Check your inbox.</p>}
-          {subStatus === 'error' && <p className="text-sm font-mono">Something went wrong — try another email.</p>}
+          {subStatus === 'success' && <p className="text-sm font-mono">âœ“ Welcome to the Star Club! Check your inbox.</p>}
+          {subStatus === 'error' && <p className="text-sm font-mono">Something went wrong â€” try another email.</p>}
         </div>
       </section>
 

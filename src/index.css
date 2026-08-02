@@ -1,8 +1,8 @@
-@import url('https://fonts.googleapis.com/css2?family=Anton&family=Archivo:wght@400;500;600;700;800;900&family=Archivo+Black&family=Inter:wght@400;500;600;700&display=swap');
+﻿@import url('https://fonts.googleapis.com/css2?family=Anton&family=Archivo:wght@400;500;600;700;800;900&family=Archivo+Black&family=Inter:wght@400;500;600;700&display=swap');
 @import "tailwindcss";
 
 @theme {
-  /* Typography — heavy condensed poster headers (Anton) + grotesque + body */
+  /* Typography â€” heavy condensed poster headers (Anton) + grotesque + body */
   --font-sans: "Inter", ui-sans-serif, system-ui, sans-serif;
   --font-display: "Archivo", "Inter", sans-serif;
   --font-condensed: "Anton", "Archivo", sans-serif;
@@ -10,49 +10,56 @@
   --font-heavy: "Archivo Black", "Archivo", sans-serif;
   --font-mono: "Inter", ui-monospace, monospace;
 
-  /* Light "Picasso Blue" palette */
-  --color-brand: #1f74c8;
-  --color-brand-dark: #165a9e;
+  /* Palette taken from the reference site's own custom properties:
+     --dark-blue #1F74BD, --blue-color #4366A8, --Black-color #393534,
+     --Grey-color #CCCDD2, --green-color #95AE9B, --white-color #FFFFFF. */
+  --color-brand: #1f74bd;
+  --color-brand-dark: #17588f;
+  --color-brand-alt: #4366a8;
   --color-brand-soft: #e4f0fb;
-  --color-ink: #0a0a0a;
+  --color-accent: #95ae9b;
+  /* Warm near-black, not pure black â€” this is what keeps their surfaces from
+     reading as harsh on a phone screen. */
+  --color-ink: #393534;
   --color-paper: #ffffff;
-  --color-cream: #f4f2ec;
-  --color-cream-dark: #ece9e0;
-  --color-line: #e4e1d8;
-  --color-muted: #6a6a6a;
+  --color-grey: #cccdd2;
+  --color-cream: #f1f0ec;
+  --color-cream-dark: #e3e2de;
+  --color-line: #cccdd2;
+  --color-muted: #6f6c6a;
 
   /* Back-compat aliases so any legacy class names map to the light system */
-  --color-gold: #1f74c8;
-  --color-gold-hover: #165a9e;
+  --color-gold: #1f74bd;
+  --color-gold-hover: #17588f;
   --color-luxury-black: #ffffff;
-  --color-luxury-dark: #f4f2ec;
+  --color-luxury-dark: #f1f0ec;
   --color-luxury-purple: #e4f0fb;
-  --color-electric-blue: #1f74c8;
+  --color-electric-blue: #1f74bd;
 }
 
 /* ---------- Global base ---------- */
 html {
   scroll-behavior: smooth;
-  background-color: #e4e1da;
-  color: #0a0a0a;
+  background-color: #cccdd2;
+  color: #393534;
   font-family: var(--font-sans);
   -webkit-font-smoothing: antialiased;
 }
 
 body {
-  background-color: #e4e1da;
-  color: #0a0a0a;
+  background-color: #cccdd2;
+  color: #393534;
 }
 
 /* Safety-pin custom cursor while navigating the site (text fields keep their caret) */
 :root {
-  --pin-cursor: url("data:image/svg+xml,%3Csvg%20xmlns='http://www.w3.org/2000/svg'%20width='44'%20height='20'%20viewBox='-6%20-6%20112%2052'%20fill='none'%20stroke='%231f74c8'%20stroke-width='5'%20stroke-linecap='round'%3E%3Cpath%20d='M12%2026%20C4%2022%204%2012%2014%2010%20L82%204'/%3E%3Cpath%20d='M12%2026%20C22%2030%2030%2024%2030%2016%20L30%2010'/%3E%3Cpath%20d='M14%2010%20L86%2030%20C94%2033%2096%2022%2088%2020'/%3E%3Ccircle%20cx='12'%20cy='26'%20r='5'%20fill='%231f74c8'%20stroke='none'/%3E%3C/svg%3E") 7 12;
+  --pin-cursor: url("data:image/svg+xml,%3Csvg%20xmlns='http://www.w3.org/2000/svg'%20width='44'%20height='20'%20viewBox='-6%20-6%20112%2052'%20fill='none'%20stroke='%231f74bd'%20stroke-width='5'%20stroke-linecap='round'%3E%3Cpath%20d='M12%2026%20C4%2022%204%2012%2014%2010%20L82%204'/%3E%3Cpath%20d='M12%2026%20C22%2030%2030%2024%2030%2016%20L30%2010'/%3E%3Cpath%20d='M14%2010%20L86%2030%20C94%2033%2096%2022%2088%2020'/%3E%3Ccircle%20cx='12'%20cy='26'%20r='5'%20fill='%231f74bd'%20stroke='none'/%3E%3C/svg%3E") 7 12;
 }
 body { cursor: var(--pin-cursor), auto; }
 a, button, [role="button"], summary, select { cursor: var(--pin-cursor), pointer; }
 
 ::selection {
-  background: #1f74c8;
+  background: #1f74bd;
   color: #ffffff;
 }
 
@@ -74,13 +81,13 @@ a, button, [role="button"], summary, select { cursor: var(--pin-cursor), pointer
   line-height: 0.85;
 }
 
-/* ---------- Buttons — rectangular DIY-poster style ---------- */
+/* ---------- Buttons â€” rectangular DIY-poster style ---------- */
 .btn-ink {
   display: inline-flex;
   align-items: center;
   justify-content: center;
   gap: 0.5rem;
-  background: #0a0a0a;
+  background: #393534;
   color: #ffffff;
   font-family: var(--font-condensed);
   font-weight: 400;
@@ -90,14 +97,14 @@ a, button, [role="button"], summary, select { cursor: var(--pin-cursor), pointer
   padding: 0.8rem 2rem;
   transition: all 0.15s ease;
 }
-.btn-ink:hover { background: #1f74c8; }
+.btn-ink:hover { background: #1f74bd; }
 
 .btn-brand {
   display: inline-flex;
   align-items: center;
   justify-content: center;
   gap: 0.5rem;
-  background: #1f74c8;
+  background: #1f74bd;
   color: #ffffff;
   font-family: var(--font-condensed);
   font-weight: 400;
@@ -107,7 +114,7 @@ a, button, [role="button"], summary, select { cursor: var(--pin-cursor), pointer
   padding: 0.8rem 2rem;
   transition: all 0.15s ease;
 }
-.btn-brand:hover { background: #0a0a0a; }
+.btn-brand:hover { background: #393534; }
 
 .btn-outline {
   display: inline-flex;
@@ -115,8 +122,8 @@ a, button, [role="button"], summary, select { cursor: var(--pin-cursor), pointer
   justify-content: center;
   gap: 0.5rem;
   background: transparent;
-  color: #0a0a0a;
-  border: 2px solid #0a0a0a;
+  color: #393534;
+  border: 2px solid #393534;
   font-family: var(--font-condensed);
   font-weight: 400;
   text-transform: uppercase;
@@ -125,14 +132,14 @@ a, button, [role="button"], summary, select { cursor: var(--pin-cursor), pointer
   padding: 0.75rem 2rem;
   transition: all 0.15s ease;
 }
-.btn-outline:hover { background: #0a0a0a; color: #ffffff; }
+.btn-outline:hover { background: #393534; color: #ffffff; }
 
 /* ---------- Collage / punk-zine helpers ---------- */
 /* Blue torn painted-tape banner behind section titles */
 .tape-band {
   position: relative;
   display: inline-block;
-  background: #1f74c8;
+  background: #1f74bd;
   color: #ffffff;
   padding: 0.35em 1.1em 0.3em;
   transform: rotate(-1.5deg);
@@ -140,20 +147,23 @@ a, button, [role="button"], summary, select { cursor: var(--pin-cursor), pointer
 }
 
 /* Watercolor wash section backgrounds */
+/* Washes built from the reference palette: --dark-blue #1F74BD,
+   --blue-color #4366A8, --green-color #95AE9B. */
 .bg-wash-blue {
   background:
-    radial-gradient(120% 90% at 10% 10%, rgba(31,116,200,0.28), transparent 60%),
-    radial-gradient(120% 90% at 90% 80%, rgba(18,74,130,0.30), transparent 55%),
-    linear-gradient(120deg, #cfe0ff, #a9c2f5 55%, #7fa0e6);
+    radial-gradient(120% 90% at 10% 10%, rgba(31,116,189,0.28), transparent 60%),
+    radial-gradient(120% 90% at 90% 80%, rgba(67,102,168,0.32), transparent 55%),
+    linear-gradient(120deg, #d3dcf0, #a9bae0 55%, #7f95c9);
 }
 .bg-wash-green {
   background:
-    radial-gradient(120% 90% at 15% 20%, rgba(31,116,200,0.30), transparent 55%),
-    radial-gradient(120% 90% at 85% 75%, rgba(60,150,90,0.35), transparent 55%),
-    linear-gradient(120deg, #bfe6cf, #7fc6b0 50%, #4aa3c0);
+    radial-gradient(120% 90% at 15% 20%, rgba(31,116,189,0.30), transparent 55%),
+    radial-gradient(120% 90% at 85% 75%, rgba(149,174,155,0.55), transparent 55%),
+    linear-gradient(120deg, #c4d6c8, #95ae9b 50%, #6f9bb0);
 }
+/* Their --Grey-color #CCCDD2 is the neutral every light section sits on. */
 .bg-silver {
-  background: linear-gradient(160deg, #e9e7e2, #d6d3cc 60%, #c9c6bf);
+  background: linear-gradient(160deg, #e2e3e7, #cccdd2 60%, #bfc0c6);
 }
 
 /* Subtle print grain overlay (apply to a positioned parent) */
@@ -172,7 +182,7 @@ a, button, [role="button"], summary, select { cursor: var(--pin-cursor), pointer
   filter: url(#logo-grunge);
 }
 
-/* Heavy gritty film-grain layer — apply to an overlay div for a rough, non-smooth surface */
+/* Heavy gritty film-grain layer â€” apply to an overlay div for a rough, non-smooth surface */
 .grain-heavy {
   background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='200' height='200'%3E%3Cfilter id='hn'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.68' numOctaves='3' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23hn)'/%3E%3C/svg%3E");
   background-size: 200px 200px;
@@ -218,11 +228,80 @@ a, button, [role="button"], summary, select { cursor: var(--pin-cursor), pointer
   }
 }
 
+/* ---------- Mobile parity with the reference site ----------
+   Their phone layout is a vw-based system on a 375px reference width. The
+   values below are their own, converted 1:1 (13.333vw = 50px at 375px).
+
+   Note the breakpoint differs deliberately: theirs switches below 1024px, so
+   tablets get the phone design. We keep our own 640px boundary, matching the
+   rest of this file and the sm: utilities in the components. Only the phone
+   layout is being brought to parity.
+
+     section title   13.3333vw / letter-spacing 0.44vw / line-height 1
+     title padding   31.7333vw top, 17.0667vw bottom
+     primary CTA     69.3333vw x 18.6667vw, 5.3333vw text
+     wide CTA        77.6vw x 18.6667vw
+     item title      4.67vw / letter-spacing 0.4053vw / margin 6.64vw 0
+
+   These rules sit outside Tailwind's layers, so they intentionally win over
+   the utility classes (text-6xl, py-14, …) still present for desktop. */
+@media (max-width: 639px) {
+  .section-title {
+    font-size: 13.3333vw;
+    letter-spacing: 0.44vw;
+    line-height: 1;
+    text-align: center;
+    text-transform: uppercase;
+    padding: 31.7333vw 0 17.0667vw;
+    margin: 0;
+  }
+
+  /* A title sitting inside a tape band carries its own padding, so it only
+     takes the type metrics — the band supplies the surrounding space. */
+  .tape-band .section-title {
+    padding: 0;
+  }
+  .section-title-band {
+    margin: 31.7333vw 0 17.0667vw;
+  }
+
+  .btn-cta,
+  .btn-cta-wide {
+    height: 18.6667vw;
+    font-size: 5.3333vw;
+    letter-spacing: 0.4267vw;
+    padding: 0;
+    line-height: 1;
+    border-radius: 0;
+    /* An explicit width cancels the stretch a flex column would otherwise
+       apply, so centre it the way their own rules do. */
+    margin-left: auto;
+    margin-right: auto;
+  }
+  .btn-cta { width: 69.3333vw; }
+  .btn-cta-wide { width: 77.6vw; }
+
+  .item-title {
+    font-size: 4.67vw;
+    letter-spacing: 0.4053vw;
+    line-height: 1;
+    margin: 6.64vw 0;
+    min-height: 0;
+  }
+
+  /* Their sections run edge to edge on a phone; the desktop gutters would
+     otherwise pinch the one-up carousel. */
+  .section-mobile-flush {
+    padding-left: 0;
+    padding-right: 0;
+  }
+}
+
 /* Custom light scrollbar for main page */
 ::-webkit-scrollbar { width: 10px; height: 10px; }
-::-webkit-scrollbar-track { background: #f4f2ec; }
-::-webkit-scrollbar-thumb { background: #d8d5cc; border-radius: 4px; }
-::-webkit-scrollbar-thumb:hover { background: #1f74c8; }
+::-webkit-scrollbar-track { background: #f1f0ec; }
+::-webkit-scrollbar-thumb { background: #cccdd2; border-radius: 4px; }
+::-webkit-scrollbar-thumb:hover { background: #1f74bd; }
 
 /* Marquee strip (announcement bar) */
 @keyframes marquee {
