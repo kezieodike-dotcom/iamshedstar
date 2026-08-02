@@ -134,18 +134,6 @@ a, button, [role="button"], summary, select { cursor: var(--pin-cursor), pointer
 }
 .btn-outline:hover { background: #393534; color: #ffffff; }
 
-/* ---------- Collage / punk-zine helpers ---------- */
-/* Blue torn painted-tape banner behind section titles */
-.tape-band {
-  position: relative;
-  display: inline-block;
-  background: #1f74bd;
-  color: #ffffff;
-  padding: 0.35em 1.1em 0.3em;
-  transform: rotate(-1.5deg);
-  clip-path: polygon(1% 8%, 12% 2%, 30% 6%, 52% 0%, 74% 5%, 92% 1%, 100% 10%, 99% 88%, 88% 96%, 66% 90%, 44% 98%, 22% 92%, 6% 97%, 0% 86%);
-}
-
 /* Watercolor wash section backgrounds */
 /* Washes built from the reference palette: --dark-blue #1F74BD,
    --blue-color #4366A8, --green-color #95AE9B. */
@@ -182,20 +170,7 @@ a, button, [role="button"], summary, select { cursor: var(--pin-cursor), pointer
   filter: url(#logo-grunge);
 }
 
-/* Heavy gritty film-grain layer â€” apply to an overlay div for a rough, non-smooth surface */
-.grain-heavy {
-  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='200' height='200'%3E%3Cfilter id='hn'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.68' numOctaves='3' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23hn)'/%3E%3C/svg%3E");
-  background-size: 200px 200px;
-}
-
-/* Grainy high-contrast B&W treatment for hero-style photos.
-   High contrast clips the photo's light backdrop to pure white so that,
-   combined with mix-blend-multiply, it drops out into the hero background. */
-.photo-grunge {
-  filter: grayscale(1) contrast(1.35) brightness(1.03);
-}
-
-/* ---------- Horizontal carousel row (Teddy Swims signature) ---------- */
+/* ---------- Horizontal carousel row (reference signature) ---------- */
 .carousel-row {
   display: flex;
   gap: 1.25rem;
@@ -256,9 +231,9 @@ a, button, [role="button"], summary, select { cursor: var(--pin-cursor), pointer
     margin: 0;
   }
 
-  /* A title sitting inside a tape band carries its own padding, so it only
-     takes the type metrics — the band supplies the surrounding space. */
-  .tape-band .section-title {
+  /* A banded title (still used on the inner pages) supplies its own surrounding
+     space, so the heading inside it takes only the type metrics. */
+  .section-title-band .section-title {
     padding: 0;
   }
   .section-title-band {

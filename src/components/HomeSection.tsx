@@ -7,7 +7,6 @@ import React, { useState, useEffect } from 'react';
 import { Play, ChevronLeft, ChevronRight, Calendar, MapPin, Mail } from 'lucide-react';
 import { Song, Tour, Product, EBook, Video } from '../types';
 import AdSpace from './AdSpace';
-import { TapeTitle, SafetyPin, TornPanel } from './Decor';
 
 interface HomeSectionProps {
   setActiveTab: (tab: string) => void;
@@ -31,6 +30,19 @@ export default function HomeSection({
   isPlaying,
 }: HomeSectionProps) {
   const HERO_IMG = 'https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcTyIgciF_PbBsep1W9zdeAwB24xXXR6n9dgD91vLqD4pxZoVoLkjisQWIua&s=10';
+
+  /**
+   * Full-screen hero video, the way the reference does it — a separate,
+   * smaller-cropped file for phones and a wide one for desktop.
+   *
+   * Both are empty by design: dropping a placeholder clip onto a live artist
+   * site would be worse than shipping nothing. Paste your own MP4 URLs here and
+   * the video hero takes over automatically; until then the portrait below
+   * renders exactly as before. HERO_IMG stays the poster either way, so the
+   * hero still looks right while the video buffers or if it fails to load.
+   */
+  const HERO_VIDEO_MOBILE = '';
+  const HERO_VIDEO_DESKTOP = '';
   const [email, setEmail] = useState('');
   const [subStatus, setSubStatus] = useState<'idle' | 'loading' | 'success' | 'error'>('idle');
   const [ebooks, setEbooks] = useState<EBook[]>([]);
@@ -71,6 +83,20 @@ export default function HomeSection({
     loadFeeds();
   }, []);
 
+  // A full-screen autoplaying video is exactly what "reduce motion" is meant to
+  // suppress, so fall back to the still portrait when that is set.
+  const [reduceMotion, setReduceMotion] = useState(false);
+  useEffect(() => {
+    const mq = window.matchMedia('(prefers-reduced-motion: reduce)');
+    const sync = () => setReduceMotion(mq.matches);
+    sync();
+    mq.addEventListener('change', sync);
+    return () => mq.removeEventListener('change', sync);
+  }, []);
+
+  const heroVideo = HERO_VIDEO_MOBILE || HERO_VIDEO_DESKTOP;
+  const showHeroVideo = Boolean(heroVideo) && !reduceMotion;
+
   const latestSingle = songs.find((s) => s.id === 'song-1') || songs[0];
   const featuredProducts = products.filter((p) => p.isFeatured).slice(0, 6);
   const featuredEbooks = (ebooks.filter((b) => b.isFeatured).length > 0
@@ -104,58 +130,53 @@ export default function HomeSection({
   return (
     <div className="w-full text-ink overflow-hidden">
 
-      {/* HERO â€” grainy portrait on the cool light blue-gray backdrop from the reference */}
-      <section className="relative grain min-h-[100svh] flex items-end overflow-hidden bg-[#cccdd2]">
-        {/* Portrait: full-bleed on phones (Teddy Swims fills the screen edge-to-edge),
-            letterboxed from md up so the whole figure shows. Multiply drops its light
-            backdrop into the hero bg. */}
-        <img
-          src={HERO_IMG}
-          alt="Shedstar"
-          className="absolute inset-0 w-full h-full object-cover object-top md:object-contain md:object-center photo-grunge mix-blend-multiply"
-        />
-        {/* cool-blue light-leak â€” soft wash + organic turbulence streaks, concentrated on the left */}
-        <div
-          className="absolute inset-0 pointer-events-none mix-blend-screen"
-          style={{
-            background:
-              'linear-gradient(100deg, rgba(31,116,189,0.60) 0%, rgba(120,152,205,0.22) 24%, transparent 48%)',
-          }}
-        />
-        <div
-          className="absolute inset-0 pointer-events-none mix-blend-screen"
-          style={{
-            backgroundImage:
-              "url(\"data:image/svg+xml,%3Csvg%20xmlns='http://www.w3.org/2000/svg'%20width='300'%20height='700'%20preserveAspectRatio='none'%3E%3Cfilter%20id='lk'%3E%3CfeTurbulence%20type='fractalNoise'%20baseFrequency='0.011%200.005'%20numOctaves='2'%20seed='8'%20stitchTiles='stitch'%20result='n'/%3E%3CfeColorMatrix%20in='n'%20type='matrix'%20values='0%200%200%200%200.16%200%200%200%200%200.50%200%200%200%200%200.84%200%200%200%202.4%20-0.85'/%3E%3C/filter%3E%3Crect%20width='100%25'%20height='100%25'%20filter='url(%23lk)'/%3E%3C/svg%3E\")",
-            backgroundSize: 'cover',
-            WebkitMaskImage: 'linear-gradient(100deg, #000 0%, rgba(0,0,0,0.6) 34%, transparent 66%)',
-            maskImage: 'linear-gradient(100deg, #000 0%, rgba(0,0,0,0.6) 34%, transparent 66%)',
-          }}
-        />
-        {/* subtle cool tint + light scrim behind the dark headline for legibility */}
-        <div className="absolute inset-0 bg-brand/10 mix-blend-overlay" />
-        <div className="absolute inset-0 bg-gradient-to-tr from-white/60 via-white/10 to-transparent" />
-        {/* bottom-up light scrim keeps the dark headline legible over the full-bleed photo on phones */}
-        <div className="absolute inset-x-0 bottom-0 h-1/2 bg-gradient-to-t from-white/70 via-white/25 to-transparent md:hidden" />
-        {/* heavy film grain â€” dark speckle (multiply) + light speckle (screen) so the surface is rough, not smooth */}
-        <div className="absolute inset-0 pointer-events-none opacity-[0.55] mix-blend-multiply grain-heavy" />
-        <div className="absolute inset-0 pointer-events-none opacity-[0.20] mix-blend-screen grain-heavy" />
+      {/* HERO â€” full-bleed video the way the reference does it, falling back to
+          the portrait when no video is configured or motion is reduced. */}
+      <section className="relative min-h-[100svh] flex items-end overflow-hidden bg-ink">
+        {showHeroVideo ? (
+          <video
+            className="absolute inset-0 w-full h-full object-cover"
+            poster={HERO_IMG}
+            autoPlay
+            muted
+            loop
+            playsInline
+            preload="metadata"
+            aria-label="Shedstar"
+          >
+            {/* Phones pick the mobile crop; anything wider falls through to the
+                desktop file. Ordering matters â€” the first match wins. */}
+            {HERO_VIDEO_MOBILE && (
+              <source src={HERO_VIDEO_MOBILE} media="(max-width: 639px)" type="video/mp4" />
+            )}
+            <source src={HERO_VIDEO_DESKTOP || HERO_VIDEO_MOBILE} type="video/mp4" />
+          </video>
+        ) : (
+          <img
+            src={HERO_IMG}
+            alt="Shedstar"
+            className="absolute inset-0 w-full h-full object-cover object-top md:object-center"
+          />
+        )}
+        {/* Single dark scrim, bottom-weighted, so the white headline and button
+            stay legible over moving footage. The reference does the same. */}
+        <div className="absolute inset-0 bg-gradient-to-t from-black/70 via-black/25 to-black/10" />
         <div className="relative z-10 w-full px-6 sm:px-10 lg:px-16 pb-16 md:pb-24">
-          <h1 className="font-heavy leading-[0.9] tracking-tight text-ink text-6xl sm:text-7xl md:text-8xl mb-6 max-w-[18rem] sm:max-w-md">
+          <h1 className="font-heavy leading-[0.9] tracking-tight text-white text-6xl sm:text-7xl md:text-8xl mb-6 max-w-[18rem] sm:max-w-md">
             Shedding<br />Light
           </h1>
-          <button onClick={playLatest} className="btn-ink btn-cta text-sm tracking-[0.15em]">
+          <button onClick={playLatest} className="btn-brand btn-cta text-sm tracking-[0.15em]">
             Listen Now
           </button>
         </div>
       </section>
 
-      {/* MUSIC â€” blue torn-paper panel on a grungy backdrop (Teddy Swims reference) */}
+      {/* MUSIC â€” flat colour section with a plain centred title */}
       {songs.length > 0 && (
-        <section className="relative bg-silver grain px-4 sm:px-6 md:px-8 py-14 md:py-24 border-t-4 border-ink overflow-hidden">
+        <section className="relative bg-brand px-4 sm:px-6 md:px-8 py-14 md:py-24 overflow-hidden">
           <div className="max-w-6xl mx-auto">
-            <TornPanel className="px-4 sm:px-10 py-12 md:py-16">
-              <h2 className="poster-title section-title text-white text-center text-6xl sm:text-7xl md:text-8xl mb-10 md:mb-12 drop-shadow-[0_3px_0_rgba(0,0,0,0.22)]">
+            <div className="px-4 sm:px-10 py-12 md:py-16">
+              <h2 className="poster-title section-title text-white text-center text-6xl sm:text-7xl md:text-8xl mb-10 md:mb-12">
                 Music
               </h2>
               <div className="relative">
@@ -183,7 +204,7 @@ export default function HomeSection({
               <div className="flex justify-center mt-10 md:mt-12">
                 <button onClick={() => setActiveTab('music')} className="btn-ink btn-cta-wide text-base">See All Music</button>
               </div>
-            </TornPanel>
+            </div>
           </div>
         </section>
       )}
@@ -191,7 +212,7 @@ export default function HomeSection({
       {/* One of the self-loaded feeds failed â€” hold the space the Videos / Read
           blocks would occupy so the gap reads as an error, not as missing content. */}
       {feedError && (
-        <section className="relative bg-cream grain border-t-4 border-ink px-4 md:px-8 py-12 text-center">
+        <section className="relative bg-cream border-t-2 border-ink px-4 md:px-8 py-12 text-center">
           <p className="font-mono text-[11px] uppercase tracking-wider text-muted">
             âš  {feedError} couldn't be loaded right now.
           </p>
@@ -201,12 +222,11 @@ export default function HomeSection({
 
       {/* VIDEOS */}
       {videos.length > 0 && (
-        <section className="relative bg-ink grain px-4 md:px-8 py-14 md:py-20">
-          <SafetyPin className="absolute top-8 left-10 -rotate-12 opacity-90 hidden sm:block" size={64} />
+        <section className="relative bg-ink px-4 md:px-8 py-14 md:py-20">
           <div className="max-w-7xl mx-auto relative">
-            <div className="flex justify-center mb-8">
-              <TapeTitle>Videos</TapeTitle>
-            </div>
+            <h2 className="poster-title section-title text-white text-center text-5xl sm:text-7xl md:text-8xl mb-8">
+              Videos
+            </h2>
             {/* Featured video */}
             <button onClick={() => setActiveTab('videos')} className="group block w-full mb-6">
               <div className="relative aspect-video overflow-hidden border-4 border-white">
@@ -244,10 +264,9 @@ export default function HomeSection({
 
       {/* MERCH â€” teal watercolor wash, floating product shots, BUY NOW!! (Teddy Swims reference) */}
       {featuredProducts.length > 0 && (
-        <section className="relative bg-wash-green grain px-4 sm:px-6 md:px-8 py-14 md:py-24 overflow-hidden">
-          <SafetyPin className="absolute top-8 left-6 sm:left-10 -rotate-[18deg] hidden sm:block" size={68} />
+        <section className="relative bg-wash-green px-4 sm:px-6 md:px-8 py-14 md:py-24 overflow-hidden">
           <div className="max-w-6xl mx-auto relative">
-            <h2 className="poster-title section-title text-white text-center text-6xl sm:text-7xl md:text-8xl mb-10 md:mb-12 drop-shadow-[0_3px_0_rgba(0,0,0,0.22)]">
+            <h2 className="poster-title section-title text-white text-center text-6xl sm:text-7xl md:text-8xl mb-10 md:mb-12">
               Merch
             </h2>
             <div className="relative">
@@ -258,7 +277,7 @@ export default function HomeSection({
                       <div className="relative aspect-square">
                         <img src={p.images[0]} alt={p.title} className="w-full h-full object-contain drop-shadow-lg group-hover:scale-[1.04] transition-transform duration-500" />
                       </div>
-                      <h3 className="mt-3 poster-title item-title text-white text-lg sm:text-xl leading-tight tracking-tight line-clamp-3 min-h-[3.5rem] drop-shadow-[0_1px_0_rgba(0,0,0,0.25)]">{p.title}</h3>
+                      <h3 className="mt-3 poster-title item-title text-white text-lg sm:text-xl leading-tight tracking-tight line-clamp-3 min-h-[3.5rem]">{p.title}</h3>
                     </button>
                     <button onClick={() => setActiveTab('merchandise')} className="btn-ink btn-cta w-full mt-3 text-base">Buy Now!!</button>
                   </div>
@@ -272,10 +291,10 @@ export default function HomeSection({
 
       {/* E-BOOKS */}
       {featuredEbooks.length > 0 && (
-        <section className="relative bg-silver grain px-4 md:px-8 py-14 md:py-20">
+        <section className="relative bg-silver px-4 md:px-8 py-14 md:py-20">
           <div className="max-w-7xl mx-auto relative">
             <div className="flex items-end justify-between mb-8">
-              <TapeTitle>Read</TapeTitle>
+              <h2 className="poster-title section-title text-ink text-5xl sm:text-7xl md:text-8xl">Read</h2>
               <CarouselNav targetId="row-ebooks" />
             </div>
             <div id="row-ebooks" className="carousel-row no-scrollbar -mx-1 px-1">
@@ -297,12 +316,11 @@ export default function HomeSection({
 
       {/* TOUR */}
       {upcomingTours.length > 0 && (
-        <section className="relative bg-wash-blue grain px-4 md:px-8 py-14 md:py-20">
-          <SafetyPin className="absolute top-10 left-16 rotate-[20deg] hidden sm:block" size={60} />
+        <section className="relative bg-wash-blue px-4 md:px-8 py-14 md:py-20">
           <div className="max-w-5xl mx-auto relative">
-            <div className="flex justify-center mb-10">
-              <TapeTitle>Tour</TapeTitle>
-            </div>
+            <h2 className="poster-title section-title text-ink text-center text-5xl sm:text-7xl md:text-8xl mb-10">
+              Tour
+            </h2>
             <div className="flex flex-col bg-paper border-2 border-ink">
               {upcomingTours.map((t) => (
                 <div key={t.id} className="flex flex-col sm:flex-row sm:items-center gap-2 sm:gap-6 px-5 py-4 border-b-2 border-ink last:border-b-0">
@@ -346,8 +364,7 @@ export default function HomeSection({
       </section>
 
       {/* NEWSLETTER */}
-      <section className="relative bg-brand grain text-white px-4 md:px-8 py-16 md:py-24">
-        <SafetyPin className="absolute top-8 right-14 rotate-[30deg] hidden sm:block" size={64} />
+      <section className="relative bg-brand text-white px-4 md:px-8 py-16 md:py-24">
         <div className="max-w-3xl mx-auto text-center flex flex-col items-center gap-5 relative">
           <Mail className="w-10 h-10" />
           <h2 className="poster-title text-white text-5xl sm:text-7xl">Join The Star Club</h2>
