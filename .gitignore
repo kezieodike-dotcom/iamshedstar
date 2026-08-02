@@ -7,3 +7,8 @@ coverage/
 *.log
 .env*
 !.env.example
+
+# The live JSON database is runtime state, not source. It is rewritten on many
+# requests (ad impressions, page-view stats), so tracking it turns every page
+# load into a diff. data/db.seed.json is the tracked starting point instead.
+data/db.json

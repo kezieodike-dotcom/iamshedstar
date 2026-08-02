@@ -559,8 +559,8 @@
       "cpc": 0.45,
       "cpm": 6.5,
       "clicks": 124,
-      "impressions": 8736,
-      "revenue": 112.584,
+      "impressions": 8742,
+      "revenue": 112.623,
       "isActive": true
     },
     {
@@ -572,8 +572,8 @@
       "cpc": 0.3,
       "cpm": 4.2,
       "clicks": 82,
-      "impressions": 4518,
-      "revenue": 43.5756,
+      "impressions": 4520,
+      "revenue": 43.584,
       "isActive": true
     },
     {
@@ -585,8 +585,8 @@
       "cpc": 0.6,
       "cpm": 8,
       "clicks": 215,
-      "impressions": 12624,
-      "revenue": 229.992,
+      "impressions": 12626,
+      "revenue": 230.008,
       "isActive": true
     }
   ],
@@ -648,8 +648,8 @@
     "musicPlays": 47290000,
     "merchandiseSales": 148,
     "ebookSales": 122,
-    "adRevenue": 386.51,
-    "revenue": 8439.6,
+    "adRevenue": 386.59,
+    "revenue": 8439.68,
     "bookingRequests": 2,
     "activeSubscribers": 4,
     "salesByProduct": [

@@ -1,4 +1,4 @@
-/**
+﻿/**
  * @license
  * SPDX-License-Identifier: Apache-2.0
  */
@@ -25,7 +25,7 @@ const stripeConfigured = STRIPE_SECRET_KEY.startsWith('sk_') && !STRIPE_SECRET_K
 const stripe = stripeConfigured ? new Stripe(STRIPE_SECRET_KEY) : null;
 
 if (!stripeConfigured) {
-  console.warn('[stripe] STRIPE_SECRET_KEY not set — checkout endpoints will return a "not configured" error until you add real test keys to .env');
+  console.warn('[stripe] STRIPE_SECRET_KEY not set â€” checkout endpoints will return a "not configured" error until you add real test keys to .env');
 }
 
 // Stripe webhook needs the raw request body to verify the signature, so it is
@@ -41,7 +41,7 @@ app.post('/api/stripe/webhook', express.raw({ type: 'application/json' }), (req,
       const signature = req.headers['stripe-signature'] as string;
       event = stripe.webhooks.constructEvent(req.body, signature, STRIPE_WEBHOOK_SECRET);
     } else {
-      // No signing secret configured (e.g. local dev) — parse without verifying.
+      // No signing secret configured (e.g. local dev) â€” parse without verifying.
       event = JSON.parse(req.body.toString('utf-8')) as Stripe.Event;
     }
   } catch (err: any) {
@@ -75,14 +75,19 @@ const DATA_DIR = process.env.DATA_DIR
   : DEFAULT_DATA_DIR;
 const DB_FILE = path.join(DATA_DIR, 'db.json');
 
+// The tracked starting point, shipped with the code. Resolved against the repo
+// rather than DATA_DIR: the data directory may be an empty mounted volume or a
+// /tmp path, while the seed always travels with the source.
+const SEED_FILE = path.join(process.cwd(), 'data', 'db.seed.json');
+
 // /tmp and serverless instances are wiped between cold starts, so writes there
 // are not durable even though they succeed. Tracked so /api/health can say so
 // instead of reporting a healthy-looking "disk".
 const DATA_DIR_IS_EPHEMERAL =
   Boolean(process.env.VERCEL) || DATA_DIR === '/tmp' || DATA_DIR.startsWith('/tmp/');
 
-// Builds a complete database from the shipped defaults. Pure — touches no
-// filesystem — so it doubles as the in-memory fallback when disk is unusable.
+// Builds a complete database from the shipped defaults. Pure â€” touches no
+// filesystem â€” so it doubles as the in-memory fallback when disk is unusable.
 function buildDefaultDb() {
   const initialSongs: Song[] = [
     {
@@ -410,7 +415,7 @@ function buildDefaultDb() {
       id: 'blog-2',
       title: 'Behind the Cover Art: Crafting the Starborn Visual Identity',
       summary: 'Explore the high-fashion photography and custom typography that created the luxury aesthetic of Shedstars latest album.',
-      content: 'Visual storytelling is as critical as the sonic frequency for Shedstar. For his latest chart-topping studio album "Starborn", the artist partnered with prominent Parisian photographer Hélène Dubois and digital artist Kaelen Vance to craft a dark, velvet-toned visual identity.\n\n"We wanted to play with high-contrast chiaroscuro shadows, deep royal purples, and real gold foil coatings," Hélène explains. "Every image captures the transition from darkness into stardust, representing Shedstars musical philosophy of shedding light through sound."\n\nThe physical gatefold vinyl edition incorporates these luxury prints inside a 16-page velvet book, creating a tactile collector item for vinyl aficionados.',
+      content: 'Visual storytelling is as critical as the sonic frequency for Shedstar. For his latest chart-topping studio album "Starborn", the artist partnered with prominent Parisian photographer HÃ©lÃ¨ne Dubois and digital artist Kaelen Vance to craft a dark, velvet-toned visual identity.\n\n"We wanted to play with high-contrast chiaroscuro shadows, deep royal purples, and real gold foil coatings," HÃ©lÃ¨ne explains. "Every image captures the transition from darkness into stardust, representing Shedstars musical philosophy of shedding light through sound."\n\nThe physical gatefold vinyl edition incorporates these luxury prints inside a 16-page velvet book, creating a tactile collector item for vinyl aficionados.',
       date: 'June 01, 2026',
       category: 'Creative Design',
       coverUrl: 'https://images.unsplash.com/photo-1614613535308-eb5fbd3d2c17?q=80&w=800&auto=format&fit=crop',
@@ -671,10 +676,31 @@ function buildDefaultDb() {
   };
 }
 
+/**
+ * The content a fresh install starts from: the committed seed when it is
+ * readable, otherwise the built-in defaults above. Used for creating db.json,
+ * for repairing a corrupt one, and for the in-memory fallback â€” so all three
+ * paths agree on what "starting content" means.
+ *
+ * The seed may legitimately be absent: on a serverless host only traced files
+ * are deployed, and a JSON file read at runtime is not traced. Falling back is
+ * expected there, not an error.
+ */
+function buildInitialDb() {
+  try {
+    if (fs.existsSync(SEED_FILE)) {
+      return JSON.parse(fs.readFileSync(SEED_FILE, 'utf-8'));
+    }
+  } catch (error) {
+    console.error(`[db] ${SEED_FILE} is unreadable, using built-in defaults:`, error);
+  }
+  return buildDefaultDb();
+}
+
 /* ---------- Database access with an in-memory fallback ----------
    Production containers often have a read-only or ephemeral filesystem. If
    db.json can't be created, read, or parsed, every /api route used to throw a
-   500 — and because each front-end section is gated on its data being present,
+   500 â€” and because each front-end section is gated on its data being present,
    the site rendered with whole sections silently missing rather than an error.
    Falling back to the shipped defaults keeps the API serving real content;
    writes are then process-local and lost on restart, which is logged loudly. */
@@ -685,11 +711,11 @@ function useMemoryDb(reason: unknown) {
   if (!usingMemoryDb) {
     usingMemoryDb = true;
     console.error(
-      `[db] ${DB_FILE} is unusable — serving the built-in defaults from memory. ` +
+      `[db] ${DB_FILE} is unusable â€” serving the built-in defaults from memory. ` +
       `Admin changes will NOT persist across restarts. Cause:`, reason
     );
   }
-  if (!memoryDb) memoryDb = buildDefaultDb();
+  if (!memoryDb) memoryDb = buildInitialDb();
   return memoryDb;
 }
 
@@ -700,7 +726,7 @@ function initializeDatabase() {
       fs.mkdirSync(DATA_DIR, { recursive: true });
     }
     if (!fs.existsSync(DB_FILE)) {
-      fs.writeFileSync(DB_FILE, JSON.stringify(buildDefaultDb(), null, 2), 'utf-8');
+      fs.writeFileSync(DB_FILE, JSON.stringify(buildInitialDb(), null, 2), 'utf-8');
     }
   } catch (error) {
     useMemoryDb(error);
@@ -875,7 +901,7 @@ function getDb() {
     }
 
     if (mutated) {
-      // A failed migration write is not fatal — the migrated shape is already
+      // A failed migration write is not fatal â€” the migrated shape is already
       // in `db`, so keep serving this request and retry on the next read.
       try {
         fs.writeFileSync(DB_FILE, JSON.stringify(db, null, 2), 'utf-8');
@@ -886,10 +912,10 @@ function getDb() {
 
     return db;
   } catch (error) {
-    // Missing, unreadable, or corrupt db.json — restore the defaults on disk,
+    // Missing, unreadable, or corrupt db.json â€” restore the defaults on disk,
     // and if disk itself is the problem, serve them from memory instead.
-    console.error(`[db] could not read ${DB_FILE} — restoring defaults:`, error);
-    const fresh = buildDefaultDb();
+    console.error(`[db] could not read ${DB_FILE} â€” restoring defaults:`, error);
+    const fresh = buildInitialDb();
     try {
       if (!fs.existsSync(DATA_DIR)) {
         fs.mkdirSync(DATA_DIR, { recursive: true });
@@ -911,7 +937,7 @@ function saveDb(data: any) {
   try {
     fs.writeFileSync(DB_FILE, JSON.stringify(data, null, 2), 'utf-8');
   } catch (error) {
-    // Disk went away mid-flight — keep the write in memory so the change is at
+    // Disk went away mid-flight â€” keep the write in memory so the change is at
     // least visible for the life of this process.
     memoryDb = data;
     useMemoryDb(error);
@@ -923,7 +949,7 @@ initializeDatabase();
 // --- API ROUTES ---
 
 // 0. Health check. Doubles as the host's readiness probe and as a one-request
-// answer to "is the API even deployed, and is its data persistent?" — the exact
+// answer to "is the API even deployed, and is its data persistent?" â€” the exact
 // question that a statically-hosted build (no backend at all) fails to answer.
 app.get('/api/health', (req, res) => {
   const storage = usingMemoryDb ? 'memory' : DATA_DIR_IS_EPHEMERAL ? 'ephemeral' : 'disk';
@@ -1469,7 +1495,7 @@ app.post('/api/checkout/create-session', async (req, res) => {
 });
 
 // Fulfill a paid order exactly once: update stock, sales stats, ebook counts.
-// Idempotent — safe to call from both the webhook and the success page.
+// Idempotent â€” safe to call from both the webhook and the success page.
 function fulfillOrder(sessionId?: string, orderId?: string, email?: string): Order | null {
   const db = getDb();
   const order: Order | undefined = (db.orders || []).find(
@@ -1553,7 +1579,7 @@ app.get('/api/checkout/verify', async (req, res) => {
       success: true,
       order,
       downloadLinks,
-      message: `Payment received — thank you! Your order total was ${order.currency.toUpperCase()} ${order.amountTotal.toFixed(2)}.`
+      message: `Payment received â€” thank you! Your order total was ${order.currency.toUpperCase()} ${order.amountTotal.toFixed(2)}.`
     });
   } catch (err: any) {
     console.error('[stripe] verify error:', err.message);
