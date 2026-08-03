@@ -7,7 +7,7 @@ import React, { useState, useEffect } from 'react';
 import { Play, ChevronLeft, ChevronRight, Calendar, MapPin } from 'lucide-react';
 import { Song, Tour, Product, EBook, Video } from '../types';
 import AdSpace from './AdSpace';
-import { TornPanel } from './Decor';
+import { TornPanel, SafetyPin } from './Decor';
 
 interface HomeSectionProps {
   setActiveTab: (tab: string) => void;
@@ -242,22 +242,24 @@ export default function HomeSection({
         </section>
       )}
 
-      {/* VIDEOS */}
+      {/* VIDEOS â€” painted wash backdrop, titles set over the thumbnails */}
       {videos.length > 0 && (
-        <section className="relative bg-ink px-4 md:px-8 py-14 md:py-20">
+        <section className="relative bg-wash-blue grain px-4 md:px-8 py-14 md:py-20 overflow-hidden">
           <div className="max-w-7xl mx-auto relative">
-            <h2 className="poster-title section-title text-white text-center text-5xl sm:text-7xl md:text-8xl mb-8">
+            <h2 className="poster-title section-title text-white text-center text-5xl sm:text-7xl md:text-8xl mb-8 drop-shadow-[0_2px_0_rgba(0,0,0,0.2)]">
               Videos
             </h2>
-            {/* Featured video */}
+            {/* Featured video â€” play glyph centred, title over the lower edge */}
             <button onClick={() => setActiveTab('videos')} className="group block w-full mb-6">
-              <div className="relative aspect-video overflow-hidden border-4 border-white">
+              <div className="relative aspect-video overflow-hidden">
                 <img src={videos[0].coverUrl} alt={videos[0].title} className="w-full h-full object-cover group-hover:scale-[1.02] transition-transform duration-500" />
-                <span className="absolute inset-0 flex items-center justify-center bg-black/30 group-hover:bg-black/20 transition-colors">
-                  <span className="w-16 h-16 rounded-full bg-white/90 text-ink flex items-center justify-center">
-                    <Play className="w-7 h-7 fill-current ml-1" />
-                  </span>
+                <span className="absolute inset-0 flex items-center justify-center bg-black/20 group-hover:bg-black/10 transition-colors">
+                  <Play className="w-14 h-14 text-white fill-current drop-shadow-[0_2px_4px_rgba(0,0,0,0.5)]" />
                 </span>
+                <span className="absolute inset-x-0 bottom-0 h-1/2 bg-gradient-to-t from-black/70 to-transparent" />
+                <h3 className="absolute left-3 right-3 bottom-3 text-left font-display font-black uppercase text-sm sm:text-base tracking-wide text-white leading-tight line-clamp-2">
+                  {videos[0].title}
+                </h3>
               </div>
             </button>
             {videos.length > 1 && (
@@ -265,12 +267,14 @@ export default function HomeSection({
                 <div id="row-videos" className="carousel-row carousel-1up no-scrollbar -mx-1 px-1">
                   {videos.slice(1).map((v) => (
                     <button key={v.id} onClick={() => setActiveTab('videos')} className="group w-72 sm:w-80 text-left">
-                      <div className="relative aspect-video overflow-hidden border-2 border-white/60">
+                      <div className="relative aspect-video overflow-hidden">
                         <img src={v.coverUrl} alt={v.title} className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500" />
-                        <span className="absolute bottom-2 right-2 bg-black/70 text-white text-[10px] font-mono px-1.5 py-0.5">{v.duration}</span>
+                        <span className="absolute inset-0 flex items-center justify-center bg-black/20 group-hover:bg-black/10 transition-colors">
+                          <Play className="w-10 h-10 text-white fill-current drop-shadow-[0_2px_4px_rgba(0,0,0,0.5)]" />
+                        </span>
+                        <span className="absolute inset-x-0 bottom-0 h-1/2 bg-gradient-to-t from-black/70 to-transparent" />
+                        <h3 className="absolute left-2.5 right-2.5 bottom-2.5 font-display font-black uppercase text-xs tracking-wide text-white leading-tight line-clamp-2">{v.title}</h3>
                       </div>
-                      <h3 className="mt-2 font-display font-bold uppercase text-sm tracking-wide text-white line-clamp-1">{v.title}</h3>
-                      <p className="text-xs text-white/60">{v.views}</p>
                     </button>
                   ))}
                 </div>
@@ -286,7 +290,8 @@ export default function HomeSection({
 
       {/* MERCH â€” teal watercolor wash, floating product shots, BUY NOW!! (Teddy Swims reference) */}
       {featuredProducts.length > 0 && (
-        <section className="relative bg-wash-green px-4 sm:px-6 md:px-8 py-14 md:py-24 overflow-hidden">
+        <section className="relative bg-wash-green grain px-4 sm:px-6 md:px-8 py-14 md:py-24 overflow-hidden">
+          <SafetyPin className="absolute top-6 left-8 sm:left-16 -rotate-[18deg]" size={92} />
           <div className="max-w-6xl mx-auto relative">
             <h2 className="poster-title section-title text-white text-center text-6xl sm:text-7xl md:text-8xl mb-10 md:mb-12">
               Merch
@@ -306,6 +311,9 @@ export default function HomeSection({
                 ))}
               </div>
               <SideNav targetId="row-merch" />
+            </div>
+            <div className="flex justify-center mt-10 md:mt-12">
+              <button onClick={() => setActiveTab('merchandise')} className="btn-brand btn-cta-wide text-base">Shop All Merch</button>
             </div>
           </div>
         </section>
@@ -336,33 +344,48 @@ export default function HomeSection({
         </section>
       )}
 
-      {/* TOUR */}
+      {/* TOUR â€” torn blue panel, white rows, white/green ticket buttons, and a
+          sage-green CTA overlapping the foot of the panel, as in the video */}
       {upcomingTours.length > 0 && (
-        <section className="relative bg-wash-blue px-4 md:px-8 py-14 md:py-20">
+        <section className="relative bg-silver grain px-4 md:px-8 py-14 md:py-20 overflow-hidden">
           <div className="max-w-5xl mx-auto relative">
-            <h2 className="poster-title section-title text-ink text-center text-5xl sm:text-7xl md:text-8xl mb-10">
-              Tour
-            </h2>
-            <div className="flex flex-col bg-paper border-2 border-ink">
-              {upcomingTours.map((t) => (
-                <div key={t.id} className="flex flex-col sm:flex-row sm:items-center gap-2 sm:gap-6 px-5 py-4 border-b-2 border-ink last:border-b-0">
-                  <div className="sm:w-36 font-display font-bold text-sm text-ink flex items-center gap-2">
-                    <Calendar className="w-4 h-4 text-brand" /> {formatDate(t.date)}
+            <TornPanel className="px-5 sm:px-10 py-12 md:py-16">
+              <h2 className="poster-title section-title text-white text-center text-5xl sm:text-7xl md:text-8xl mb-10">
+                Tour
+              </h2>
+              <div className="flex flex-col">
+                {upcomingTours.map((t) => (
+                  <div key={t.id} className="flex items-center gap-4 py-4 border-b border-white/40 last:border-b-0">
+                    <div className="flex-1 font-display font-black uppercase text-white leading-snug tracking-wide">
+                      <div className="text-xs sm:text-sm flex items-center gap-1.5">
+                        <Calendar className="w-3.5 h-3.5" /> {formatDate(t.date)}
+                      </div>
+                      <div className="text-xs sm:text-sm flex items-center gap-1.5">
+                        <MapPin className="w-3.5 h-3.5" /> {t.venue}
+                      </div>
+                      <div className="text-xs sm:text-sm">{t.city}, {t.country}</div>
+                    </div>
+                    {t.isSoldOut ? (
+                      <span className="shrink-0 bg-white/50 text-ink font-display font-black uppercase text-[10px] sm:text-xs tracking-wider px-4 py-2.5 cursor-default">
+                        Sold Out
+                      </span>
+                    ) : (
+                      <a
+                        href={t.ticketLink || '#'}
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        className="shrink-0 bg-white text-accent hover:bg-accent hover:text-white font-display font-black uppercase text-[10px] sm:text-xs tracking-wider px-5 py-2.5 transition-colors"
+                      >
+                        Tickets
+                      </a>
+                    )}
                   </div>
-                  <div className="flex-1">
-                    <h3 className="font-display font-black uppercase text-lg tracking-tight leading-tight">{t.city}, {t.country}</h3>
-                    <p className="text-sm text-muted flex items-center gap-1"><MapPin className="w-3.5 h-3.5" /> {t.venue}</p>
-                  </div>
-                  {t.isSoldOut ? (
-                    <span className="self-start sm:self-auto btn-outline text-xs opacity-50 cursor-default">Sold Out</span>
-                  ) : (
-                    <a href={t.ticketLink || '#'} target="_blank" rel="noopener noreferrer" className="self-start sm:self-auto btn-ink text-sm">Tickets</a>
-                  )}
-                </div>
-              ))}
-            </div>
-            <div className="flex justify-center mt-8">
-              <button onClick={() => setActiveTab('tour')} className="btn-ink btn-cta-wide text-sm">All Tour Dates</button>
+                ))}
+              </div>
+            </TornPanel>
+            {/* Sits over the torn lower edge, the way the design does */}
+            <div className="flex justify-center -mt-7 relative z-10">
+              <button onClick={() => setActiveTab('tour')} className="btn-accent btn-cta-wide text-base">Show All Dates</button>
             </div>
           </div>
         </section>

@@ -77,11 +77,27 @@ export function TornPanel({
 }
 
 /**
- * Formerly a decorative safety-pin graphic scattered around the collage.
- * The reference has no such ornament, so this renders nothing. Kept as a
- * no-op rather than deleted so the ~12 call sites across the site stay valid
- * and the accent can be restored in one place if it is ever wanted back.
+ * Decorative safety pin, an accent scattered around the collage. Restored —
+ * the walkthrough video shows one between the Videos and Merch sections, so
+ * removing it was wrong.
  */
-export function SafetyPin(_props: { className?: string; size?: number }) {
-  return null;
+export function SafetyPin({ className = '', size = 44 }: { className?: string; size?: number }) {
+  return (
+    <svg
+      viewBox="0 0 100 40"
+      width={size}
+      height={size * 0.4}
+      className={className}
+      fill="none"
+      stroke="#1f74bd"
+      strokeWidth={3}
+      strokeLinecap="round"
+      aria-hidden="true"
+    >
+      <path d="M12 26 C4 22 4 12 14 10 L82 4" />
+      <path d="M12 26 C22 30 30 24 30 16 L30 10" />
+      <path d="M14 10 L86 30 C94 33 96 22 88 20" />
+      <circle cx="12" cy="26" r="4" fill="#1f74bd" stroke="none" />
+    </svg>
+  );
 }

@@ -116,6 +116,25 @@ a, button, [role="button"], summary, select { cursor: var(--pin-cursor), pointer
 }
 .btn-brand:hover { background: #393534; }
 
+/* Sage-green CTA — the reference's --green-color, used for "Show All Dates"
+   and the newsletter bar in the mobile menu. */
+.btn-accent {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.5rem;
+  background: #95ae9b;
+  color: #ffffff;
+  font-family: var(--font-condensed);
+  font-weight: 400;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  border-radius: 2px;
+  padding: 0.8rem 2rem;
+  transition: all 0.15s ease;
+}
+.btn-accent:hover { background: #393534; }
+
 .btn-outline {
   display: inline-flex;
   align-items: center;
