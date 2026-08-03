@@ -27,26 +27,47 @@ import type { IncomingMessage, ServerResponse } from 'http';
 
 type ExpressLike = (req: IncomingMessage, res: ServerResponse) => void;
 
-let cached: ExpressLike | null = null;
+interface ServerModule {
+  default: ExpressLike;
+  ensureLoaded: () => Promise<void>;
+  flushPendingWrite: () => Promise<void>;
+}
+
+let cached: ServerModule | null = null;
 
 export default async function handler(req: IncomingMessage, res: ServerResponse) {
   try {
     if (!cached) {
-      const mod = await import('../server.js');
-      cached = (mod.default ?? mod) as unknown as ExpressLike;
+      cached = (await import('../server.js')) as unknown as ServerModule;
     }
-    return cached(req, res);
+
+    // Pull the durable copy of the database in before Express sees the request.
+    // Only does work on a cold start, and only when a blob store is connected.
+    await cached.ensureLoaded();
+
+    // Wait for the response to finish, then wait for any write it triggered.
+    // Without this the function can be frozen the instant the response is sent,
+    // killing an in-flight save — which is exactly how a booking gets lost.
+    await new Promise<void>((resolve) => {
+      res.on('finish', resolve);
+      res.on('close', resolve);
+      cached!.default(req, res);
+    });
+
+    await cached.flushPendingWrite();
   } catch (error: any) {
     // Full stack to the platform log; only a short message to the caller, so a
     // failure is still diagnosable from a request without publishing internals.
     console.error('[api] failed to load the Express app:', error);
-    res.statusCode = 500;
-    res.setHeader('content-type', 'application/json');
-    res.end(
-      JSON.stringify({
-        error: 'API failed to start',
-        message: String(error?.message ?? error)
-      })
-    );
+    if (!res.headersSent) {
+      res.statusCode = 500;
+      res.setHeader('content-type', 'application/json');
+      res.end(
+        JSON.stringify({
+          error: 'API failed to start',
+          message: String(error?.message ?? error)
+        })
+      );
+    }
   }
 }

@@ -124,7 +124,10 @@ export default function HomeSection({
     <div className="w-full text-ink overflow-hidden">
 
       {/* HERO â€” grainy portrait on the cool light blue-gray backdrop from the reference */}
-      <section className="relative grain min-h-[100svh] flex items-end overflow-hidden bg-[#cccdd2]">
+      {/* Backdrop uses bg-silver, the same fill the header bar takes when
+          scrolled, so the strip behind the wordmark and the hero read as one
+          surface. Darker than the flat #cccdd2 it replaced. */}
+      <section className="relative grain min-h-[100svh] flex items-end overflow-hidden bg-silver">
         {/* Portrait: offset by just the navbar's height on phones (12px padding +
             30px wordmark + 12px = ~54px, so 3.5rem), which is the least that keeps
             the subject's head clear of the wordmark — at inset-0 with object-top it

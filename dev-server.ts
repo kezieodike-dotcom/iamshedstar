@@ -21,4 +21,4 @@ const vite = await createViteServer({
 });
 
 app.use(vite.middlewares);
-listen();
+await listen();

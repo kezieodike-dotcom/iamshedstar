@@ -45,15 +45,40 @@ exports the app and skips `app.listen()` when `VERCEL` is set; the catch-all
 filename means requests arrive with their original path, so no rewrites are
 needed.
 
-**Caveat you need to know about:** Vercel's filesystem is read-only apart from
-`/tmp`, which is per-instance and wiped on cold starts. `DATA_DIR` defaults to
-`/tmp/shedstar-data` there, so the site always *displays* correctly, but
-anything visitors submit — booking inquiries, contact messages, newsletter
-signups, orders — is **not durably saved**, and admin edits revert. Confirm
-with `/api/health`: it reports `"storage": "ephemeral"`.
+#### Making data survive — connect a Blob store
 
-For a deployment where that data survives, use the Render blueprint below,
-or move the JSON store to a real database.
+Vercel's filesystem is read-only apart from `/tmp`, which is wiped on every
+cold start. Without durable storage the site displays fine but **loses every
+booking inquiry, contact message, newsletter signup and order**, and admin
+edits revert.
+
+Fix it once, in the dashboard — no code or env editing:
+
+1. Vercel project → **Storage** → **Create Database** → **Blob**.
+2. Connect it to this project. Vercel injects `BLOB_READ_WRITE_TOKEN`
+   automatically.
+3. Redeploy.
+
+The server picks the token up on its own: the database is read from the blob
+once per cold start and written back after any change. `getDb()`/`saveDb()`
+stay synchronous, so no route handler changed — the async work lives in
+`ensureLoaded()` and `flushPendingWrite()`, which `api/[...path].ts` awaits
+either side of each request. That flush matters: without it the function can
+freeze the moment a response is sent, killing an in-flight save.
+
+Note this is last-write-wins across concurrent instances. Fine for a site of
+this shape; wrong for anything with contended writes.
+
+Check it worked:
+
+| `/api/health` says | Meaning |
+| --- | --- |
+| `"storage": "blob"` | Connected and durable. This is what you want. |
+| `"storage": "blob-unreachable"` | Token present but the store can't be read or written — content still serves from defaults, but **nothing is saved**. |
+| `"storage": "ephemeral"` | No store connected; running on `/tmp`. Nothing is saved. |
+
+The Render blueprint below is the alternative if you would rather have a plain
+mounted disk.
 
 ### Render (persistent)
 
@@ -85,11 +110,13 @@ curl https://<your-host>/api/health
 { "ok": true, "storage": "disk", "persistent": true }
 ```
 
-| `storage`   | Meaning                                                        |
-| ----------- | -------------------------------------------------------------- |
-| `disk`      | A real volume. Submissions are saved. This is what you want.     |
-| `ephemeral` | Writable but wiped on restart (Vercel `/tmp`). Nothing is saved. |
-| `memory`    | Data dir unwritable; serving built-in defaults. Nothing is saved.|
+| `storage`          | Meaning                                                        |
+| ------------------ | -------------------------------------------------------------- |
+| `blob`             | Vercel Blob store connected. Submissions are saved.              |
+| `disk`             | A real mounted volume. Submissions are saved.                    |
+| `blob-unreachable` | Token set but the store errors. **Nothing is saved.**            |
+| `ephemeral`        | Writable but wiped on restart (Vercel `/tmp`). Nothing is saved. |
+| `memory`           | Data dir unwritable; serving built-in defaults. Nothing is saved.|
 
 A **404** from this endpoint means no backend is deployed at all — the symptom
 that makes every data-driven section vanish from the page.

@@ -715,6 +715,93 @@ function buildInitialDb() {
 let memoryDb: any = null;
 let usingMemoryDb = false;
 
+/* ---------- Durable storage on serverless (Vercel Blob) ----------
+   A serverless function has no disk that survives a cold start, so /tmp loses
+   every booking, contact message, subscriber and order. When a Blob store is
+   connected, Vercel injects BLOB_READ_WRITE_TOKEN and this takes over: the
+   database is read once per cold start into memory, and written back after any
+   change.
+
+   Deliberately keeps getDb()/saveDb() synchronous. They are called from ~50
+   route handlers, so making them async would mean rewriting all of them; the
+   async work is confined to ensureLoaded() and flushPendingWrite(), which the
+   serverless entry point awaits either side of the request.
+
+   Caveat worth knowing: this is last-write-wins across concurrent instances.
+   Fine for a site of this shape, wrong for anything with contended writes. */
+const BLOB_TOKEN = process.env.BLOB_READ_WRITE_TOKEN || '';
+const BLOB_ENABLED = Boolean(BLOB_TOKEN);
+const BLOB_KEY = 'shedstar/db.json';
+
+let blobLoaded = false;
+let blobLoadPromise: Promise<void> | null = null;
+let pendingWrite: Promise<void> | null = null;
+// Set when a blob read or write fails. Storage is then configured but not
+// actually durable, and /api/health has to say so rather than claim otherwise.
+let blobFailed = false;
+
+async function readBlob(): Promise<any | null> {
+  const { list } = await import('@vercel/blob');
+  const { blobs } = await list({ prefix: BLOB_KEY, limit: 1, token: BLOB_TOKEN });
+  const hit = blobs.find((b) => b.pathname === BLOB_KEY);
+  if (!hit) return null;
+  // Blob URLs sit behind a CDN; the timestamp busts it so a read never returns
+  // a stale copy of the database.
+  const res = await fetch(`${hit.url}?v=${new Date(hit.uploadedAt).getTime()}`, { cache: 'no-store' });
+  if (!res.ok) throw new Error(`blob fetch failed: HTTP ${res.status}`);
+  return await res.json();
+}
+
+async function writeBlob(data: any): Promise<void> {
+  const { put } = await import('@vercel/blob');
+  await put(BLOB_KEY, JSON.stringify(data, null, 2), {
+    access: 'public',
+    contentType: 'application/json',
+    token: BLOB_TOKEN,
+    addRandomSuffix: false,
+    allowOverwrite: true,
+    cacheControlMaxAge: 0
+  });
+}
+
+/**
+ * Load the database from blob storage once per cold start. Awaited by the
+ * serverless entry point before the request reaches Express, so every
+ * subsequent getDb() is a synchronous read of what was stored.
+ */
+export async function ensureLoaded(): Promise<void> {
+  if (!BLOB_ENABLED || blobLoaded) return;
+  if (!blobLoadPromise) {
+    blobLoadPromise = (async () => {
+      try {
+        const remote = await readBlob();
+        if (remote) {
+          memoryDb = remote;
+        } else {
+          // First run against an empty store: seed it so the next cold start
+          // has something to read.
+          memoryDb = buildInitialDb();
+          await writeBlob(memoryDb);
+          console.log('[db] seeded blob storage with the initial database');
+        }
+      } catch (error) {
+        blobFailed = true;
+        console.error('[db] blob load failed — serving defaults, writes are NOT durable:', error);
+        memoryDb = buildInitialDb();
+      }
+      // Route reads and writes through memory; the blob is the durable copy.
+      usingMemoryDb = true;
+      blobLoaded = true;
+    })();
+  }
+  return blobLoadPromise;
+}
+
+/** Awaited after the response is sent so the function is not frozen mid-write. */
+export function flushPendingWrite(): Promise<void> {
+  return pendingWrite ?? Promise.resolve();
+}
+
 function useMemoryDb(reason: unknown) {
   if (!usingMemoryDb) {
     usingMemoryDb = true;
@@ -944,6 +1031,22 @@ function getDb() {
 
 // Save database helper
 function saveDb(data: any) {
+  // Checked before the memory branch: blob mode sets usingMemoryDb, and falling
+  // into that branch would drop the write instead of persisting it.
+  if (BLOB_ENABLED) {
+    memoryDb = data;
+    // Not awaited — saveDb is synchronous by contract. The entry point awaits
+    // flushPendingWrite() after the response, so the write completes before the
+    // function is frozen.
+    pendingWrite = writeBlob(data)
+      .then(() => { blobFailed = false; })
+      .catch((error) => {
+        blobFailed = true;
+        console.error('[db] blob write failed — this change will be lost:', error);
+      });
+    return;
+  }
+
   if (usingMemoryDb) {
     memoryDb = data;
     return;
@@ -966,14 +1069,20 @@ initializeDatabase();
 // answer to "is the API even deployed, and is its data persistent?" â€” the exact
 // question that a statically-hosted build (no backend at all) fails to answer.
 app.get('/api/health', (req, res) => {
-  const storage = usingMemoryDb ? 'memory' : DATA_DIR_IS_EPHEMERAL ? 'ephemeral' : 'disk';
+  const storage = BLOB_ENABLED
+    ? (blobFailed ? 'blob-unreachable' : 'blob')
+    : usingMemoryDb
+      ? 'memory'
+      : DATA_DIR_IS_EPHEMERAL
+        ? 'ephemeral'
+        : 'disk';
   res.json({
     ok: true,
     storage,
-    dataDir: DATA_DIR,
-    // Only a real mounted volume is durable. 'memory' and 'ephemeral' both mean
+    dataDir: BLOB_ENABLED ? BLOB_KEY : DATA_DIR,
+    // 'blob' and 'disk' survive a restart. 'memory' and 'ephemeral' do not —
     // bookings, contacts, subscribers and orders are lost when the host recycles.
-    persistent: storage === 'disk'
+    persistent: storage === 'blob' || storage === 'disk'
   });
 });
 
@@ -1882,7 +1991,11 @@ export function serveClientBuild() {
   });
 }
 
-export function listen() {
+export async function listen() {
+  // A standalone process must load the durable copy too. Without this, a blob
+  // token set outside serverless would leave saveDb writing to the blob while
+  // getDb still read from disk — two stores disagreeing.
+  await ensureLoaded();
   app.listen(PORT, '0.0.0.0', () => {
     console.log(`Server running on http://localhost:${PORT}`);
   });
@@ -1893,7 +2006,10 @@ export function listen() {
 // and run the HTTP layer themselves; dev-server.ts handles local development.
 if (!process.env.VERCEL && process.env.NODE_ENV === 'production') {
   serveClientBuild();
-  listen();
+  listen().catch((error) => {
+    console.error('[server] failed to start:', error);
+    process.exit(1);
+  });
 }
 
 // Vercel's Node runtime calls the default export as its request handler; an
