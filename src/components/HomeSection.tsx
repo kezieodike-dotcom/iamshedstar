@@ -32,17 +32,14 @@ export default function HomeSection({
   const HERO_IMG = 'https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcTyIgciF_PbBsep1W9zdeAwB24xXXR6n9dgD91vLqD4pxZoVoLkjisQWIua&s=10';
 
   /**
-   * Full-screen hero video, the way the reference does it — a separate,
-   * smaller-cropped file for phones and a wide one for desktop.
-   *
-   * Both are empty by design: dropping a placeholder clip onto a live artist
-   * site would be worse than shipping nothing. Paste your own MP4 URLs here and
-   * the video hero takes over automatically; until then the portrait below
-   * renders exactly as before. HERO_IMG stays the poster either way, so the
-   * hero still looks right while the video buffers or if it fails to load.
+   * Hero video URLs, set in the admin dashboard under Settings. Empty until an
+   * admin fills them in, in which case the hero keeps its still portrait — so
+   * the site never shows a broken or placeholder clip. HERO_IMG stays the
+   * poster either way, so the hero looks right while the video buffers or if
+   * the file fails to load.
    */
-  const HERO_VIDEO_MOBILE = '';
-  const HERO_VIDEO_DESKTOP = '';
+  const [heroVideoMobile, setHeroVideoMobile] = useState('');
+  const [heroVideoDesktop, setHeroVideoDesktop] = useState('');
   const [email, setEmail] = useState('');
   const [subStatus, setSubStatus] = useState<'idle' | 'loading' | 'success' | 'error'>('idle');
   const [ebooks, setEbooks] = useState<EBook[]>([]);
@@ -94,8 +91,20 @@ export default function HomeSection({
     return () => mq.removeEventListener('change', sync);
   }, []);
 
-  const heroVideo = HERO_VIDEO_MOBILE || HERO_VIDEO_DESKTOP;
-  const showHeroVideo = Boolean(heroVideo) && !reduceMotion;
+  // A missing or failing settings call is not worth surfacing: the hero simply
+  // stays on the portrait, which is a perfectly good hero.
+  useEffect(() => {
+    fetch('/api/site-settings')
+      .then((r) => (r.ok ? r.json() : null))
+      .then((s) => {
+        if (!s) return;
+        setHeroVideoMobile(s.heroVideoMobileUrl || '');
+        setHeroVideoDesktop(s.heroVideoDesktopUrl || '');
+      })
+      .catch(() => {});
+  }, []);
+
+  const heroVideo = reduceMotion ? '' : heroVideoMobile || heroVideoDesktop;
 
   const latestSingle = songs.find((s) => s.id === 'song-1') || songs[0];
   const featuredProducts = products.filter((p) => p.isFeatured).slice(0, 6);
@@ -130,12 +139,16 @@ export default function HomeSection({
   return (
     <div className="w-full text-ink overflow-hidden">
 
-      {/* HERO â€” full-bleed video the way the reference does it, falling back to
-          the portrait when no video is configured or motion is reduced. */}
-      <section className="relative min-h-[100svh] flex items-end overflow-hidden bg-ink">
-        {showHeroVideo ? (
+      {/* HERO â€” grainy portrait on the cool light blue-gray backdrop from the reference */}
+      <section className="relative grain min-h-[100svh] flex items-end overflow-hidden bg-[#cccdd2]">
+        {/* Portrait: full-bleed on phones (the reference fills the screen edge-to-edge),
+            letterboxed from md up so the whole figure shows. Multiply drops its light
+            backdrop into the hero bg. A hero video set in the admin dashboard takes
+            the same slot and the same treatment, so the look is identical either way. */}
+        {heroVideo ? (
           <video
-            className="absolute inset-0 w-full h-full object-cover"
+            key={heroVideo}
+            className="absolute inset-0 w-full h-full object-cover object-top md:object-contain md:object-center photo-grunge mix-blend-multiply"
             poster={HERO_IMG}
             autoPlay
             muted
@@ -144,28 +157,51 @@ export default function HomeSection({
             preload="metadata"
             aria-label="Shedstar"
           >
-            {/* Phones pick the mobile crop; anything wider falls through to the
+            {/* Phones take the mobile crop; anything wider falls through to the
                 desktop file. Ordering matters â€” the first match wins. */}
-            {HERO_VIDEO_MOBILE && (
-              <source src={HERO_VIDEO_MOBILE} media="(max-width: 639px)" type="video/mp4" />
+            {heroVideoMobile && (
+              <source src={heroVideoMobile} media="(max-width: 639px)" type="video/mp4" />
             )}
-            <source src={HERO_VIDEO_DESKTOP || HERO_VIDEO_MOBILE} type="video/mp4" />
+            <source src={heroVideoDesktop || heroVideoMobile} type="video/mp4" />
           </video>
         ) : (
           <img
             src={HERO_IMG}
             alt="Shedstar"
-            className="absolute inset-0 w-full h-full object-cover object-top md:object-center"
+            className="absolute inset-0 w-full h-full object-cover object-top md:object-contain md:object-center photo-grunge mix-blend-multiply"
           />
         )}
-        {/* Single dark scrim, bottom-weighted, so the white headline and button
-            stay legible over moving footage. The reference does the same. */}
-        <div className="absolute inset-0 bg-gradient-to-t from-black/70 via-black/25 to-black/10" />
+        {/* cool-blue light-leak â€” soft wash + organic turbulence streaks, concentrated on the left */}
+        <div
+          className="absolute inset-0 pointer-events-none mix-blend-screen"
+          style={{
+            background:
+              'linear-gradient(100deg, rgba(31,116,189,0.60) 0%, rgba(120,152,205,0.22) 24%, transparent 48%)',
+          }}
+        />
+        <div
+          className="absolute inset-0 pointer-events-none mix-blend-screen"
+          style={{
+            backgroundImage:
+              "url(\"data:image/svg+xml,%3Csvg%20xmlns='http://www.w3.org/2000/svg'%20width='300'%20height='700'%20preserveAspectRatio='none'%3E%3Cfilter%20id='lk'%3E%3CfeTurbulence%20type='fractalNoise'%20baseFrequency='0.011%200.005'%20numOctaves='2'%20seed='8'%20stitchTiles='stitch'%20result='n'/%3E%3CfeColorMatrix%20in='n'%20type='matrix'%20values='0%200%200%200%200.16%200%200%200%200%200.50%200%200%200%200%200.84%200%200%200%202.4%20-0.85'/%3E%3C/filter%3E%3Crect%20width='100%25'%20height='100%25'%20filter='url(%23lk)'/%3E%3C/svg%3E\")",
+            backgroundSize: 'cover',
+            WebkitMaskImage: 'linear-gradient(100deg, #000 0%, rgba(0,0,0,0.6) 34%, transparent 66%)',
+            maskImage: 'linear-gradient(100deg, #000 0%, rgba(0,0,0,0.6) 34%, transparent 66%)',
+          }}
+        />
+        {/* subtle cool tint + light scrim behind the dark headline for legibility */}
+        <div className="absolute inset-0 bg-brand/10 mix-blend-overlay" />
+        <div className="absolute inset-0 bg-gradient-to-tr from-white/60 via-white/10 to-transparent" />
+        {/* bottom-up light scrim keeps the dark headline legible over the full-bleed photo on phones */}
+        <div className="absolute inset-x-0 bottom-0 h-1/2 bg-gradient-to-t from-white/70 via-white/25 to-transparent md:hidden" />
+        {/* heavy film grain â€” dark speckle (multiply) + light speckle (screen) so the surface is rough, not smooth */}
+        <div className="absolute inset-0 pointer-events-none opacity-[0.55] mix-blend-multiply grain-heavy" />
+        <div className="absolute inset-0 pointer-events-none opacity-[0.20] mix-blend-screen grain-heavy" />
         <div className="relative z-10 w-full px-6 sm:px-10 lg:px-16 pb-16 md:pb-24">
-          <h1 className="font-heavy leading-[0.9] tracking-tight text-white text-6xl sm:text-7xl md:text-8xl mb-6 max-w-[18rem] sm:max-w-md">
+          <h1 className="font-heavy leading-[0.9] tracking-tight text-ink text-6xl sm:text-7xl md:text-8xl mb-6 max-w-[18rem] sm:max-w-md">
             Shedding<br />Light
           </h1>
-          <button onClick={playLatest} className="btn-brand btn-cta text-sm tracking-[0.15em]">
+          <button onClick={playLatest} className="btn-ink btn-cta text-sm tracking-[0.15em]">
             Listen Now
           </button>
         </div>

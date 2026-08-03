@@ -1,4 +1,4 @@
-/**
+﻿/**
  * @license
  * SPDX-License-Identifier: Apache-2.0
  */
@@ -6,9 +6,9 @@
 import React, { useState, useEffect } from 'react';
 import {
   ShieldCheck, Eye, Music, ShoppingBag, DollarSign, Briefcase, Mail, Send,
-  Trash2, Plus, Edit2, Check, X, Calendar, AlertCircle, RefreshCw, BarChart2, ShieldAlert, CheckCircle, BookOpen, Sparkles, Handshake
+  Trash2, Plus, Edit2, Check, X, Calendar, AlertCircle, RefreshCw, BarChart2, ShieldAlert, CheckCircle, BookOpen, Sparkles, Handshake, Settings
 } from 'lucide-react';
-import { Song, Video, Product, Tour, Booking, ContactMessage, Subscriber, DashboardStats, EBook, AdUnit, AdConfig, Partnership } from '../types';
+import { Song, Video, Product, Tour, Booking, ContactMessage, Subscriber, DashboardStats, EBook, AdUnit, AdConfig, Partnership, SiteSettings } from '../types';
 
 interface AdminSectionProps {
   isAdmin: boolean;
@@ -42,7 +42,7 @@ export default function AdminSection({
   const [loginError, setLoginError] = useState('');
 
   // Active rail sub-tab
-  const [activeSubTab, setActiveSubTab] = useState<'analytics' | 'songs' | 'products' | 'tours' | 'bookings' | 'messages' | 'newsletter' | 'ebooks' | 'ads' | 'partners'>('analytics');
+  const [activeSubTab, setActiveSubTab] = useState<'analytics' | 'songs' | 'products' | 'tours' | 'bookings' | 'messages' | 'newsletter' | 'ebooks' | 'ads' | 'partners' | 'settings'>('analytics');
 
   // Form editing states
   const [editingSong, setEditingSong] = useState<Partial<Song> | null>(null);
@@ -54,22 +54,27 @@ export default function AdminSection({
   const [adminAds, setAdminAds] = useState<AdUnit[]>([]);
   const [adminAdConfig, setAdminAdConfig] = useState<AdConfig | null>(null);
   const [adminPartnerships, setAdminPartnerships] = useState<Partnership[]>([]);
+  const [siteSettings, setSiteSettings] = useState<SiteSettings>({ heroVideoMobileUrl: '', heroVideoDesktopUrl: '' });
+  const [settingsStatus, setSettingsStatus] = useState<'idle' | 'saving' | 'saved' | 'error'>('idle');
+  const [settingsError, setSettingsError] = useState('');
   const [editingEBook, setEditingEBook] = useState<Partial<EBook> | null>(null);
   const [editingAd, setEditingAd] = useState<Partial<AdUnit> | null>(null);
 
   // Load Admin Data on Subtab Change or Mount
   const fetchAdminEBooksAndAds = async () => {
     try {
-      const [booksRes, adsRes, configRes, partnersRes] = await Promise.all([
+      const [booksRes, adsRes, configRes, partnersRes, settingsRes] = await Promise.all([
         fetch('/api/ebooks'),
         fetch('/api/ads'),
         fetch('/api/ads/config'),
-        fetch('/api/partnerships')
+        fetch('/api/partnerships'),
+        fetch('/api/site-settings')
       ]);
       if (booksRes.ok) setAdminEBooks(await booksRes.json());
       if (adsRes.ok) setAdminAds(await adsRes.json());
       if (configRes.ok) setAdminAdConfig(await configRes.json());
       if (partnersRes.ok) setAdminPartnerships(await partnersRes.json());
+      if (settingsRes.ok) setSiteSettings(await settingsRes.json());
     } catch (e) {
       console.error('Failed to load admin digital products and campaigns:', e);
     }
@@ -152,6 +157,32 @@ export default function AdminSection({
     if (res.ok) {
       fetchAdminEBooksAndAds();
       onRefreshData();
+    }
+  };
+
+  // Hero video / site settings save handler. The server validates the URLs and
+  // returns 400 with a message, so surface that rather than a generic failure.
+  const handleSaveSiteSettings = async (e: React.FormEvent) => {
+    e.preventDefault();
+    setSettingsStatus('saving');
+    setSettingsError('');
+    try {
+      const response = await fetch('/api/site-settings', {
+        method: 'PUT',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(siteSettings)
+      });
+      const data = await response.json().catch(() => null);
+      if (!response.ok) {
+        setSettingsError(data?.error || `Save failed (${response.status})`);
+        setSettingsStatus('error');
+        return;
+      }
+      if (data) setSiteSettings(data);
+      setSettingsStatus('saved');
+    } catch {
+      setSettingsError('Could not reach the server.');
+      setSettingsStatus('error');
     }
   };
 
@@ -333,7 +364,7 @@ export default function AdminSection({
                 required
                 value={passcode}
                 onChange={(e) => setPasscode(e.target.value)}
-                placeholder="••••••••••••"
+                placeholder="â€¢â€¢â€¢â€¢â€¢â€¢â€¢â€¢â€¢â€¢â€¢â€¢"
                 className="px-4 py-3 bg-white border border-line hover:border-brand/40 focus:border-brand rounded-lg text-sm text-ink placeholder-muted outline-none transition-colors tracking-widest text-center"
               />
             </div>
@@ -493,6 +524,15 @@ export default function AdminSection({
                 {adminPartnerships.filter(p => p.status === 'pending').length}
               </span>
             )}
+          </button>
+
+          <button
+            onClick={() => setActiveSubTab('settings')}
+            className={`w-full py-2.5 px-4 text-left font-display text-sm rounded-lg transition-all flex items-center gap-2 ${
+              activeSubTab === 'settings' ? 'bg-brand-soft text-brand border-l-2 border-brand font-bold' : 'text-muted hover:bg-cream-dark hover:text-ink'
+            }`}
+          >
+            <Settings className="w-4.5 h-4.5" /> Site Settings
           </button>
 
         </div>
@@ -706,7 +746,7 @@ export default function AdminSection({
                         <img src={song.coverUrl} alt={song.title} className="w-10 h-10 object-cover rounded-lg" />
                         <div>
                           <h4 className="font-semibold text-ink">{song.title}</h4>
-                          <p className="text-muted text-[10px]">{song.album} • {song.category.toUpperCase()}</p>
+                          <p className="text-muted text-[10px]">{song.album} â€¢ {song.category.toUpperCase()}</p>
                         </div>
                       </div>
                       <div className="flex items-center gap-2">
@@ -818,7 +858,7 @@ export default function AdminSection({
                         <img src={prod.images[0]} alt={prod.title} className="w-10 h-10 object-cover rounded-lg" />
                         <div>
                           <h4 className="font-semibold text-ink">{prod.title}</h4>
-                          <p className="text-brand text-[10px]">${prod.price.toFixed(2)} USD • Stock: {prod.stock}</p>
+                          <p className="text-brand text-[10px]">${prod.price.toFixed(2)} USD â€¢ Stock: {prod.stock}</p>
                         </div>
                       </div>
                       <div className="flex items-center gap-2">
@@ -958,7 +998,7 @@ export default function AdminSection({
                       <div className="flex flex-wrap items-center justify-between gap-2 pb-2 border-b border-line">
                         <div>
                           <h4 className="text-sm font-display font-bold text-ink uppercase">{book.eventName}</h4>
-                          <p className="text-muted text-[10px]">{book.company} • Contact: {book.name}</p>
+                          <p className="text-muted text-[10px]">{book.company} â€¢ Contact: {book.name}</p>
                         </div>
                         <span className={`px-2.5 py-0.5 rounded-full text-[9px] uppercase font-mono font-bold ${
                           book.status === 'accepted' ? 'bg-green-100 text-green-700' : book.status === 'rejected' ? 'bg-red-100 text-red-700' : 'bg-amber-100 text-amber-700'
@@ -1127,7 +1167,7 @@ export default function AdminSection({
                   <div className="bg-cream border border-line rounded-xl p-4 max-h-[350px] overflow-y-auto flex flex-col gap-2">
                     {subscribers.map((sub) => (
                       <div key={sub.id} className="p-2 border-b border-line last:border-b-0 text-[11px] font-mono text-ink truncate">
-                        • {sub.email}
+                        â€¢ {sub.email}
                       </div>
                     ))}
                   </div>
@@ -1323,6 +1363,104 @@ export default function AdminSection({
                     )}
                   </tbody>
                 </table>
+              </div>
+            </div>
+          )}
+
+          {/* SITE SETTINGS */}
+          {activeSubTab === 'settings' && (
+            <div className="flex flex-col gap-8">
+              <h2 className="text-xl font-display font-black uppercase tracking-wide text-ink border-b border-line pb-2">Site Settings</h2>
+
+              <div className="p-5 bg-cream border border-line rounded-xl">
+                <h3 className="text-sm font-mono text-brand uppercase tracking-wider mb-1.5 flex items-center gap-1.5">
+                  <Sparkles className="w-4.5 h-4.5 text-brand" /> Home Page Hero Video
+                </h3>
+                <p className="text-[11px] text-muted leading-relaxed mb-4 max-w-2xl">
+                  Direct links to <strong>.mp4</strong> files. Leave both empty and the hero keeps its
+                  still portrait. The phone file is used below 640px wide; the desktop file everywhere
+                  else. Set only one and it is used for every screen. The portrait stays as the poster
+                  frame, so the hero still looks right while the video loads. YouTube and Vimeo page
+                  links will not work here &mdash; the file itself must be linked.
+                </p>
+
+                <form onSubmit={handleSaveSiteSettings} className="space-y-4">
+                  <div>
+                    <label htmlFor="hero-video-mobile" className="text-[10px] font-mono text-muted uppercase tracking-widest">
+                      Phone video URL
+                    </label>
+                    <input
+                      id="hero-video-mobile"
+                      type="url"
+                      value={siteSettings.heroVideoMobileUrl}
+                      onChange={(e) => { setSiteSettings({ ...siteSettings, heroVideoMobileUrl: e.target.value }); setSettingsStatus('idle'); }}
+                      placeholder="https://example.com/hero-mobile.mp4"
+                      className="w-full mt-1 px-4 py-2.5 bg-white border border-line rounded-lg text-sm text-ink outline-none focus:border-brand"
+                    />
+                  </div>
+
+                  <div>
+                    <label htmlFor="hero-video-desktop" className="text-[10px] font-mono text-muted uppercase tracking-widest">
+                      Desktop video URL
+                    </label>
+                    <input
+                      id="hero-video-desktop"
+                      type="url"
+                      value={siteSettings.heroVideoDesktopUrl}
+                      onChange={(e) => { setSiteSettings({ ...siteSettings, heroVideoDesktopUrl: e.target.value }); setSettingsStatus('idle'); }}
+                      placeholder="https://example.com/hero-desktop.mp4"
+                      className="w-full mt-1 px-4 py-2.5 bg-white border border-line rounded-lg text-sm text-ink outline-none focus:border-brand"
+                    />
+                  </div>
+
+                  <div className="flex items-center gap-3 pt-1">
+                    <button
+                      type="submit"
+                      disabled={settingsStatus === 'saving'}
+                      className="btn-brand text-xs disabled:opacity-60"
+                    >
+                      {settingsStatus === 'saving' ? 'Saving…' : 'Save Settings'}
+                    </button>
+                    {(siteSettings.heroVideoMobileUrl || siteSettings.heroVideoDesktopUrl) && (
+                      <button
+                        type="button"
+                        onClick={() => { setSiteSettings({ heroVideoMobileUrl: '', heroVideoDesktopUrl: '' }); setSettingsStatus('idle'); }}
+                        className="btn-outline text-xs"
+                      >
+                        Clear
+                      </button>
+                    )}
+                    {settingsStatus === 'saved' && (
+                      <span className="text-xs font-mono text-brand flex items-center gap-1">
+                        <CheckCircle className="w-4 h-4" /> Saved
+                      </span>
+                    )}
+                    {settingsStatus === 'error' && (
+                      <span className="text-xs font-mono text-red-600 flex items-center gap-1">
+                        <AlertCircle className="w-4 h-4" /> {settingsError}
+                      </span>
+                    )}
+                  </div>
+                </form>
+
+                {(siteSettings.heroVideoMobileUrl || siteSettings.heroVideoDesktopUrl) && (
+                  <div className="mt-5 pt-4 border-t border-line">
+                    <p className="text-[10px] font-mono text-muted uppercase tracking-widest mb-2">Preview</p>
+                    <video
+                      key={siteSettings.heroVideoDesktopUrl || siteSettings.heroVideoMobileUrl}
+                      src={siteSettings.heroVideoDesktopUrl || siteSettings.heroVideoMobileUrl}
+                      className="w-full max-w-md rounded-lg border border-line bg-ink"
+                      controls
+                      muted
+                      playsInline
+                      preload="metadata"
+                    />
+                    <p className="text-[10px] text-muted mt-2">
+                      If this preview stays blank, the link is not a directly playable video file and the
+                      hero will fall back to the portrait.
+                    </p>
+                  </div>
+                )}
               </div>
             </div>
           )}
@@ -1587,7 +1725,7 @@ export default function AdminSection({
                       <div className="flex flex-wrap items-center justify-between gap-2 pb-2 border-b border-line">
                         <div>
                           <h4 className="text-sm font-display font-bold text-ink uppercase">{partner.companyName}</h4>
-                          <p className="text-muted text-[10px]">{partner.industry || 'Industry N/A'} • Contact: {partner.contactPerson}</p>
+                          <p className="text-muted text-[10px]">{partner.industry || 'Industry N/A'} â€¢ Contact: {partner.contactPerson}</p>
                         </div>
                         <span className={`px-2.5 py-0.5 rounded-full text-[9px] uppercase font-mono font-bold ${
                           partner.status === 'accepted' ? 'bg-green-100 text-green-700' : partner.status === 'rejected' ? 'bg-red-100 text-red-700' : 'bg-amber-100 text-amber-700'

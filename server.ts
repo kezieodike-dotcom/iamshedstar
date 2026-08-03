@@ -8,7 +8,7 @@ import express from 'express';
 import path from 'path';
 import fs from 'fs';
 import Stripe from 'stripe';
-import { Song, Video, Product, Tour, GalleryItem, BlogPost, Booking, ContactMessage, Subscriber, DashboardStats, EBook, AdUnit, AdConfig, Partnership, Order, OrderItem } from './src/types';
+import { Song, Video, Product, Tour, GalleryItem, BlogPost, Booking, ContactMessage, Subscriber, DashboardStats, EBook, AdUnit, AdConfig, Partnership, Order, OrderItem, SiteSettings } from './src/types';
 
 const app = express();
 const PORT = Number(process.env.PORT) || 3000;
@@ -624,6 +624,13 @@ function buildDefaultDb() {
     customAdRotationEnabled: true
   };
 
+  // Empty by default: with no video set the home page keeps its still portrait
+  // hero, so a fresh install never shows a broken or placeholder clip.
+  const initialSiteSettings: SiteSettings = {
+    heroVideoMobileUrl: '',
+    heroVideoDesktopUrl: ''
+  };
+
   const initialPartnerships: Partnership[] = [
     {
       id: 'partner-1',
@@ -670,6 +677,7 @@ function buildDefaultDb() {
     ebooks: initialEBooks,
     ads: initialAds,
     adConfig: initialAdConfig,
+    siteSettings: initialSiteSettings,
     partnerships: initialPartnerships,
     orders: [],
     stats: initialStats
@@ -845,6 +853,12 @@ function getDb() {
         adSenseSlotId: '9876543210',
         customAdRotationEnabled: true
       };
+      mutated = true;
+    }
+
+    // Databases created before hero video support have no siteSettings.
+    if (!db.siteSettings) {
+      db.siteSettings = { heroVideoMobileUrl: '', heroVideoDesktopUrl: '' };
       mutated = true;
     }
 
@@ -1644,6 +1658,42 @@ app.delete('/api/ebooks/:id', (req, res) => {
 app.get('/api/ads', (req, res) => {
   const db = getDb();
   res.json(db.ads || []);
+});
+
+// Site-wide settings (hero video URLs). Read publicly by the home page,
+// written from the admin dashboard — same shape as the ad config below.
+app.get('/api/site-settings', (req, res) => {
+  const db = getDb();
+  res.json(db.siteSettings || { heroVideoMobileUrl: '', heroVideoDesktopUrl: '' });
+});
+
+app.put('/api/site-settings', (req, res) => {
+  const db = getDb();
+  const { heroVideoMobileUrl, heroVideoDesktopUrl } = req.body || {};
+
+  // Only accept http(s) URLs or an empty string. An empty value is meaningful:
+  // it clears the video and returns the hero to its still portrait.
+  const clean = (value: unknown): string | null => {
+    if (typeof value !== 'string') return null;
+    const trimmed = value.trim();
+    if (trimmed === '') return '';
+    return /^https?:\/\/\S+$/i.test(trimmed) ? trimmed : null;
+  };
+
+  const next = { ...(db.siteSettings || {}) };
+
+  for (const [key, value] of Object.entries({ heroVideoMobileUrl, heroVideoDesktopUrl })) {
+    if (value === undefined) continue;
+    const cleaned = clean(value);
+    if (cleaned === null) {
+      return res.status(400).json({ error: `${key} must be an http(s) URL or empty` });
+    }
+    next[key] = cleaned;
+  }
+
+  db.siteSettings = next;
+  saveDb(db);
+  res.json(db.siteSettings);
 });
 
 app.get('/api/ads/config', (req, res) => {

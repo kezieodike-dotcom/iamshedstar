@@ -178,6 +178,16 @@ export interface AdConfig {
   customAdRotationEnabled: boolean;
 }
 
+/**
+ * Editable site-wide settings. The hero video URLs are optional: when both are
+ * empty the home page keeps its still portrait hero, so the site never shows a
+ * broken or placeholder clip.
+ */
+export interface SiteSettings {
+  heroVideoMobileUrl: string;
+  heroVideoDesktopUrl: string;
+}
+
 export interface Partnership {
   id: string;
   companyName: string;

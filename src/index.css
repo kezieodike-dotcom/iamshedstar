@@ -170,6 +170,19 @@ a, button, [role="button"], summary, select { cursor: var(--pin-cursor), pointer
   filter: url(#logo-grunge);
 }
 
+/* Heavy gritty film-grain layer — apply to an overlay div for a rough, non-smooth surface */
+.grain-heavy {
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='200' height='200'%3E%3Cfilter id='hn'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.68' numOctaves='3' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23hn)'/%3E%3C/svg%3E");
+  background-size: 200px 200px;
+}
+
+/* Grainy high-contrast B&W treatment for hero media.
+   High contrast clips the light backdrop to pure white so that, combined with
+   mix-blend-multiply, it drops out into the hero background. */
+.photo-grunge {
+  filter: grayscale(1) contrast(1.35) brightness(1.03);
+}
+
 /* ---------- Horizontal carousel row (reference signature) ---------- */
 .carousel-row {
   display: flex;
