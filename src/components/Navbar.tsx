@@ -97,13 +97,14 @@ export default function Navbar({
       }`}>
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-3 md:py-4 flex items-start justify-between gap-4">
 
-          {/* Wordmark, top-left in brand blue and upright, as in the design.
-              Also the only route back to the home page now that Home is not a
-              menu entry. */}
+          {/* Wordmark, top-left in brand blue and deliberately inverted. Also the
+              only route back to the home page now that Home is not a menu entry,
+              so the accessible name is spelled out on the button — the rotation
+              is purely visual and must not change how it is announced. */}
           <button onClick={() => go('home')} className="select-none group leading-none" aria-label="Shedstar — home">
             {/* One word, so no max-width: the reference stacks two words, and a
                 cap here only makes "Shedstar" overflow its own box. */}
-            <span className="grunge-text font-heavy uppercase leading-none tracking-tight text-brand text-3xl sm:text-4xl md:text-6xl inline-block transition-colors group-hover:text-ink">
+            <span className="grunge-text font-heavy uppercase leading-none tracking-tight text-brand text-3xl sm:text-4xl md:text-6xl inline-block rotate-180 transition-colors group-hover:text-ink">
               Shedstar
             </span>
           </button>
