@@ -101,7 +101,9 @@ export default function Navbar({
               Also the only route back to the home page now that Home is not a
               menu entry. */}
           <button onClick={() => go('home')} className="select-none group leading-none" aria-label="Shedstar — home">
-            <span className="grunge-text font-heavy uppercase leading-[0.85] tracking-tight text-brand text-4xl md:text-6xl inline-block max-w-[6ch] transition-colors group-hover:text-ink">
+            {/* One word, so no max-width: the reference stacks two words, and a
+                cap here only makes "Shedstar" overflow its own box. */}
+            <span className="grunge-text font-heavy uppercase leading-none tracking-tight text-brand text-3xl sm:text-4xl md:text-6xl inline-block transition-colors group-hover:text-ink">
               Shedstar
             </span>
           </button>
