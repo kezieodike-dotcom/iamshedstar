@@ -129,9 +129,15 @@ export default function HomeSection({
             30px wordmark + 12px = ~54px, so 3.5rem), which is the least that keeps
             the subject's head clear of the wordmark — at inset-0 with object-top it
             sat directly behind it. Full-bleed from md up, where the navbar no longer
-            overlaps. Multiply drops the photo's light backdrop into the hero bg. A
-            hero video set in the admin dashboard takes the same slot and the same
-            treatment, so the look is identical either way.
+            overlaps. A hero video set in the admin dashboard takes the same slot and
+            the same treatment, so the look is identical either way.
+
+            mix-blend-multiply is md-and-up only. It drops the photo's light areas
+            out to the section colour, which is the intended look for the letterboxed
+            desktop crop — but on a phone the foot of the crop is the subject's white
+            t-shirt, so multiply turned exactly the area behind the headline into flat
+            #cccdd2. That flat patch is what read as a separate background. Phones now
+            keep the photo opaque so the type genuinely sits on the picture.
 
             No height class on the phone layout, on purpose: top + bottom define
             the box there. Adding h-auto made the img take its intrinsic scaled
@@ -146,7 +152,7 @@ export default function HomeSection({
         {heroVideo ? (
           <video
             key={heroVideo}
-            className="absolute inset-x-0 bottom-0 top-14 sm:top-16 object-cover object-top md:inset-x-auto md:left-1/2 md:-translate-x-1/2 md:top-0 md:h-full md:w-auto md:max-w-none md:object-contain photo-grunge mix-blend-multiply"
+            className="absolute inset-x-0 bottom-0 top-14 sm:top-16 object-cover object-top md:inset-x-auto md:left-1/2 md:-translate-x-1/2 md:top-0 md:h-full md:w-auto md:max-w-none md:object-contain photo-grunge md:mix-blend-multiply"
             poster={HERO_IMG}
             autoPlay
             muted
@@ -166,7 +172,7 @@ export default function HomeSection({
           <img
             src={HERO_IMG}
             alt="Shedstar"
-            className="absolute inset-x-0 bottom-0 top-14 sm:top-16 object-cover object-top md:inset-x-auto md:left-1/2 md:-translate-x-1/2 md:top-0 md:h-full md:w-auto md:max-w-none md:object-contain photo-grunge mix-blend-multiply"
+            className="absolute inset-x-0 bottom-0 top-14 sm:top-16 object-cover object-top md:inset-x-auto md:left-1/2 md:-translate-x-1/2 md:top-0 md:h-full md:w-auto md:max-w-none md:object-contain photo-grunge md:mix-blend-multiply"
           />
         )}
         {/* cool-blue light-leak â€” soft wash + organic turbulence streaks, concentrated on the left */}
@@ -196,7 +202,7 @@ export default function HomeSection({
         {/* Bottom scrim is dark, not light: the headline and CTA are brand blue
             now, so they need to sit on something darker to read — which is also
             how the reference's hero foot looks. */}
-        <div className="absolute inset-x-0 bottom-0 h-1/2 bg-gradient-to-t from-black/45 via-black/15 to-transparent" />
+        <div className="absolute inset-x-0 bottom-0 h-1/2 bg-gradient-to-t from-black/30 via-black/5 to-transparent" />
         {/* heavy film grain â€” dark speckle (multiply) + light speckle (screen) so the surface is rough, not smooth */}
         <div className="absolute inset-0 pointer-events-none opacity-[0.55] mix-blend-multiply grain-heavy" />
         <div className="absolute inset-0 pointer-events-none opacity-[0.20] mix-blend-screen grain-heavy" />
