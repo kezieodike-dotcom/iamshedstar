@@ -176,18 +176,25 @@ export default function HomeSection({
             maskImage: 'linear-gradient(100deg, #000 0%, rgba(0,0,0,0.6) 34%, transparent 66%)',
           }}
         />
-        {/* subtle cool tint + light scrim behind the dark headline for legibility */}
+        {/* subtle cool tint */}
         <div className="absolute inset-0 bg-brand/10 mix-blend-overlay" />
-        <div className="absolute inset-0 bg-gradient-to-tr from-white/60 via-white/10 to-transparent" />
-        {/* bottom-up light scrim keeps the dark headline legible over the full-bleed photo on phones */}
-        <div className="absolute inset-x-0 bottom-0 h-1/2 bg-gradient-to-t from-white/70 via-white/25 to-transparent md:hidden" />
+        {/* Light leak anchored at the TOP. It used to be gradient-to-tr, which
+            starts at the bottom-left — that put 60% white directly under the
+            headline, which is why the foot of the hero washed out to white. */}
+        <div className="absolute inset-0 bg-gradient-to-b from-white/45 via-transparent to-transparent" />
+        {/* Bottom scrim is dark, not light: the headline and CTA are brand blue
+            now, so they need to sit on something darker to read — which is also
+            how the reference's hero foot looks. */}
+        <div className="absolute inset-x-0 bottom-0 h-1/2 bg-gradient-to-t from-black/45 via-black/15 to-transparent" />
         {/* heavy film grain â€” dark speckle (multiply) + light speckle (screen) so the surface is rough, not smooth */}
         <div className="absolute inset-0 pointer-events-none opacity-[0.55] mix-blend-multiply grain-heavy" />
         <div className="absolute inset-0 pointer-events-none opacity-[0.20] mix-blend-screen grain-heavy" />
         {/* Headline and CTA are centred over the foot of the portrait, both in
             brand blue, as in the reference's mobile hero. */}
         <div className="relative z-10 w-full px-6 sm:px-10 lg:px-16 pb-6 sm:pb-10 md:pb-20 flex flex-col items-center text-center">
-          <h1 className="font-heavy leading-[0.95] tracking-tight text-brand text-3xl sm:text-4xl md:text-6xl mb-3 sm:mb-4 max-w-[14rem] sm:max-w-lg drop-shadow-[0_1px_0_rgba(255,255,255,0.35)]">
+          {/* Dark drop shadow, matching the dark scrim below it — the previous
+              white one only made sense against the old white wash. */}
+          <h1 className="font-heavy leading-[0.95] tracking-tight text-brand text-3xl sm:text-4xl md:text-6xl mb-3 sm:mb-4 max-w-[14rem] sm:max-w-lg drop-shadow-[0_2px_3px_rgba(0,0,0,0.45)]">
             Shedding Light
           </h1>
           <button onClick={playLatest} className="btn-brand btn-cta-hero text-xs tracking-[0.15em]">
