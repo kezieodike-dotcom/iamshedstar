@@ -32,7 +32,6 @@ export default function Footer({
     { id: 'partners', label: 'Partners & Advertise' },
     { id: 'booking', label: 'Booking' },
     { id: 'contact', label: 'Contact' },
-    { id: 'fanclub', label: 'Fan Club' },
   ];
 
   const socials = [

@@ -4,9 +4,10 @@
  */
 
 import React, { useState, useEffect } from 'react';
-import { Play, ChevronLeft, ChevronRight, Calendar, MapPin, Mail } from 'lucide-react';
+import { Play, ChevronLeft, ChevronRight, Calendar, MapPin } from 'lucide-react';
 import { Song, Tour, Product, EBook, Video } from '../types';
 import AdSpace from './AdSpace';
+import { TornPanel } from './Decor';
 
 interface HomeSectionProps {
   setActiveTab: (tab: string) => void;
@@ -40,8 +41,6 @@ export default function HomeSection({
    */
   const [heroVideoMobile, setHeroVideoMobile] = useState('');
   const [heroVideoDesktop, setHeroVideoDesktop] = useState('');
-  const [email, setEmail] = useState('');
-  const [subStatus, setSubStatus] = useState<'idle' | 'loading' | 'success' | 'error'>('idle');
   const [ebooks, setEbooks] = useState<EBook[]>([]);
   const [videos, setVideos] = useState<Video[]>([]);
   // These two feeds are loaded here rather than by App, so their failures have
@@ -114,21 +113,6 @@ export default function HomeSection({
   ).slice(0, 4);
   const upcomingTours = tours.slice(0, 6);
 
-  const handleSubscribe = async (e: React.FormEvent) => {
-    e.preventDefault();
-    if (!email) return;
-    setSubStatus('loading');
-    try {
-      const res = await fetch('/api/subscribers', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ email }),
-      });
-      if (res.ok) { setSubStatus('success'); setEmail(''); }
-      else setSubStatus('error');
-    } catch { setSubStatus('error'); }
-  };
-
   const playLatest = () => {
     if (latestSingle) { onSelectSong(latestSingle); onPlayPause(true); }
   };
@@ -197,21 +181,23 @@ export default function HomeSection({
         {/* heavy film grain â€” dark speckle (multiply) + light speckle (screen) so the surface is rough, not smooth */}
         <div className="absolute inset-0 pointer-events-none opacity-[0.55] mix-blend-multiply grain-heavy" />
         <div className="absolute inset-0 pointer-events-none opacity-[0.20] mix-blend-screen grain-heavy" />
-        <div className="relative z-10 w-full px-6 sm:px-10 lg:px-16 pb-16 md:pb-24">
-          <h1 className="font-heavy leading-[0.9] tracking-tight text-ink text-6xl sm:text-7xl md:text-8xl mb-6 max-w-[18rem] sm:max-w-md">
-            Shedding<br />Light
+        {/* Headline and CTA are centred over the foot of the portrait, both in
+            brand blue, as in the reference's mobile hero. */}
+        <div className="relative z-10 w-full px-6 sm:px-10 lg:px-16 pb-12 md:pb-24 flex flex-col items-center text-center">
+          <h1 className="font-heavy leading-[0.95] tracking-tight text-brand text-5xl sm:text-6xl md:text-7xl mb-5 max-w-[16rem] sm:max-w-lg drop-shadow-[0_1px_0_rgba(255,255,255,0.35)]">
+            Shedding Light
           </h1>
-          <button onClick={playLatest} className="btn-ink btn-cta text-sm tracking-[0.15em]">
+          <button onClick={playLatest} className="btn-brand btn-cta text-sm tracking-[0.15em]">
             Listen Now
           </button>
         </div>
       </section>
 
-      {/* MUSIC â€” flat colour section with a plain centred title */}
+      {/* MUSIC â€” torn blue paper panel on a painted backdrop, per the design */}
       {songs.length > 0 && (
-        <section className="relative bg-brand px-4 sm:px-6 md:px-8 py-14 md:py-24 overflow-hidden">
+        <section className="relative bg-silver grain px-4 sm:px-6 md:px-8 py-14 md:py-24 overflow-hidden">
           <div className="max-w-6xl mx-auto">
-            <div className="px-4 sm:px-10 py-12 md:py-16">
+            <TornPanel className="px-4 sm:px-10 py-12 md:py-16">
               <h2 className="poster-title section-title text-white text-center text-6xl sm:text-7xl md:text-8xl mb-10 md:mb-12">
                 Music
               </h2>
@@ -240,7 +226,7 @@ export default function HomeSection({
               <div className="flex justify-center mt-10 md:mt-12">
                 <button onClick={() => setActiveTab('music')} className="btn-ink btn-cta-wide text-base">See All Music</button>
               </div>
-            </div>
+            </TornPanel>
           </div>
         </section>
       )}
@@ -396,31 +382,6 @@ export default function HomeSection({
               <button onClick={() => setActiveTab('partners')} className="btn-brand text-xs">View Packages</button>
             </div>
           </div>
-        </div>
-      </section>
-
-      {/* NEWSLETTER */}
-      <section className="relative bg-brand text-white px-4 md:px-8 py-16 md:py-24">
-        <div className="max-w-3xl mx-auto text-center flex flex-col items-center gap-5 relative">
-          <Mail className="w-10 h-10" />
-          <h2 className="poster-title text-white text-5xl sm:text-7xl">Join The Star Club</h2>
-          <p className="text-white/85 max-w-xl">Get presale ticket access, exclusive merch drops, and news straight from Shedstar.</p>
-          <form onSubmit={handleSubscribe} className="w-full max-w-md flex flex-col sm:flex-row gap-2 mt-2">
-            <input
-              type="email"
-              value={email}
-              onChange={(e) => { setEmail(e.target.value); setSubStatus('idle'); }}
-              placeholder="Enter your email"
-              required
-              disabled={subStatus === 'loading'}
-              className="flex-1 px-5 py-3.5 bg-white text-ink placeholder-muted outline-none border-2 border-ink"
-            />
-            <button type="submit" disabled={subStatus === 'loading'} className="btn-ink text-base">
-              {subStatus === 'loading' ? 'Joining...' : 'Sign Up'}
-            </button>
-          </form>
-          {subStatus === 'success' && <p className="text-sm font-mono">âœ“ Welcome to the Star Club! Check your inbox.</p>}
-          {subStatus === 'error' && <p className="text-sm font-mono">Something went wrong â€” try another email.</p>}
         </div>
       </section>
 
