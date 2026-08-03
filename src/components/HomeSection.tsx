@@ -133,14 +133,20 @@ export default function HomeSection({
             hero video set in the admin dashboard takes the same slot and the same
             treatment, so the look is identical either way.
 
-            No height class here on purpose. top + bottom define the box; adding
-            h-auto made the img take its intrinsic scaled height instead, so it
-            stopped short of the foot of the hero and left the section background
-            showing behind the headline. */}
+            No height class on the phone layout, on purpose: top + bottom define
+            the box there. Adding h-auto made the img take its intrinsic scaled
+            height instead, so it stopped short of the foot of the hero and left
+            the section background showing behind the headline.
+
+            From md the element is centred outright — left-1/2 with a half-width
+            translate, full height and auto width — rather than stretching edge to
+            edge and relying on object-position to place the picture inside it.
+            The element then matches the photo's own 399x501 proportions, so what
+            is centred is the picture itself. */}
         {heroVideo ? (
           <video
             key={heroVideo}
-            className="absolute inset-x-0 bottom-0 top-14 sm:top-16 md:top-0 object-cover object-top md:object-contain md:object-center photo-grunge mix-blend-multiply"
+            className="absolute inset-x-0 bottom-0 top-14 sm:top-16 object-cover object-top md:inset-x-auto md:left-1/2 md:-translate-x-1/2 md:top-0 md:h-full md:w-auto md:max-w-none md:object-contain photo-grunge mix-blend-multiply"
             poster={HERO_IMG}
             autoPlay
             muted
@@ -160,7 +166,7 @@ export default function HomeSection({
           <img
             src={HERO_IMG}
             alt="Shedstar"
-            className="absolute inset-x-0 bottom-0 top-14 sm:top-16 md:top-0 object-cover object-top md:object-contain md:object-center photo-grunge mix-blend-multiply"
+            className="absolute inset-x-0 bottom-0 top-14 sm:top-16 object-cover object-top md:inset-x-auto md:left-1/2 md:-translate-x-1/2 md:top-0 md:h-full md:w-auto md:max-w-none md:object-contain photo-grunge mix-blend-multiply"
           />
         )}
         {/* cool-blue light-leak â€” soft wash + organic turbulence streaks, concentrated on the left */}
