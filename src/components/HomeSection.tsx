@@ -186,11 +186,11 @@ export default function HomeSection({
         <div className="absolute inset-0 pointer-events-none opacity-[0.20] mix-blend-screen grain-heavy" />
         {/* Headline and CTA are centred over the foot of the portrait, both in
             brand blue, as in the reference's mobile hero. */}
-        <div className="relative z-10 w-full px-6 sm:px-10 lg:px-16 pb-12 md:pb-24 flex flex-col items-center text-center">
-          <h1 className="font-heavy leading-[0.95] tracking-tight text-brand text-5xl sm:text-6xl md:text-7xl mb-5 max-w-[16rem] sm:max-w-lg drop-shadow-[0_1px_0_rgba(255,255,255,0.35)]">
+        <div className="relative z-10 w-full px-6 sm:px-10 lg:px-16 pb-6 sm:pb-10 md:pb-20 flex flex-col items-center text-center">
+          <h1 className="font-heavy leading-[0.95] tracking-tight text-brand text-3xl sm:text-4xl md:text-6xl mb-3 sm:mb-4 max-w-[14rem] sm:max-w-lg drop-shadow-[0_1px_0_rgba(255,255,255,0.35)]">
             Shedding Light
           </h1>
-          <button onClick={playLatest} className="btn-brand btn-cta text-sm tracking-[0.15em]">
+          <button onClick={playLatest} className="btn-brand btn-cta-hero text-xs tracking-[0.15em]">
             Listen Now
           </button>
         </div>

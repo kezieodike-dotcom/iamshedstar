@@ -288,6 +288,20 @@ a, button, [role="button"], summary, select { cursor: var(--pin-cursor), pointer
   .btn-cta { width: 69.3333vw; }
   .btn-cta-wide { width: 77.6vw; }
 
+  /* Smaller hero CTA. The section buttons are deliberately chunky at 18.6667vw;
+     the hero's sits under the headline and reads better scaled back. */
+  .btn-cta-hero {
+    width: 52vw;
+    height: 13.3333vw;
+    font-size: 4.2667vw;
+    letter-spacing: 0.34vw;
+    padding: 0;
+    line-height: 1;
+    border-radius: 0;
+    margin-left: auto;
+    margin-right: auto;
+  }
+
   .item-title {
     font-size: 4.67vw;
     letter-spacing: 0.4053vw;
