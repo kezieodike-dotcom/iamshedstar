@@ -125,16 +125,17 @@ export default function HomeSection({
 
       {/* HERO â€” grainy portrait on the cool light blue-gray backdrop from the reference */}
       <section className="relative grain min-h-[100svh] flex items-end overflow-hidden bg-[#cccdd2]">
-        {/* Portrait: starts below the fixed navbar on phones so the subject's head
-            clears the wordmark — with object-top at inset-0 the head sat directly
-            behind it. Full-bleed from md up, where the navbar no longer overlaps.
-            Multiply drops the photo's light backdrop into the hero bg. A hero video
-            set in the admin dashboard takes the same slot and the same treatment,
-            so the look is identical either way. */}
+        {/* Portrait: offset by just the navbar's height on phones (12px padding +
+            30px wordmark + 12px = ~54px, so 3.5rem), which is the least that keeps
+            the subject's head clear of the wordmark — at inset-0 with object-top it
+            sat directly behind it. Full-bleed from md up, where the navbar no longer
+            overlaps. Multiply drops the photo's light backdrop into the hero bg. A
+            hero video set in the admin dashboard takes the same slot and the same
+            treatment, so the look is identical either way. */}
         {heroVideo ? (
           <video
             key={heroVideo}
-            className="absolute inset-x-0 bottom-0 top-24 sm:top-28 md:top-0 h-auto md:h-full object-cover object-top md:object-contain md:object-center photo-grunge mix-blend-multiply"
+            className="absolute inset-x-0 bottom-0 top-14 sm:top-16 md:top-0 h-auto md:h-full object-cover object-top md:object-contain md:object-center photo-grunge mix-blend-multiply"
             poster={HERO_IMG}
             autoPlay
             muted
@@ -154,7 +155,7 @@ export default function HomeSection({
           <img
             src={HERO_IMG}
             alt="Shedstar"
-            className="absolute inset-x-0 bottom-0 top-24 sm:top-28 md:top-0 h-auto md:h-full object-cover object-top md:object-contain md:object-center photo-grunge mix-blend-multiply"
+            className="absolute inset-x-0 bottom-0 top-14 sm:top-16 md:top-0 h-auto md:h-full object-cover object-top md:object-contain md:object-center photo-grunge mix-blend-multiply"
           />
         )}
         {/* cool-blue light-leak â€” soft wash + organic turbulence streaks, concentrated on the left */}
