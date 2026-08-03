@@ -23,6 +23,11 @@
   --color-ink: #393534;
   --color-paper: #ffffff;
   --color-grey: #cccdd2;
+  /* One flat tone shared by the hero backdrop and the header bar. Flat on
+     purpose: bg-silver is a gradient, so the strip behind the wordmark landed
+     on a lighter stop than the rest of the hero and showed a seam. Single
+     token so both surfaces can never drift apart. */
+  --color-hero: #bfc0c6;
   --color-cream: #f1f0ec;
   --color-cream-dark: #e3e2de;
   --color-line: #cccdd2;

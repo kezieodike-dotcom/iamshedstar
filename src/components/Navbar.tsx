@@ -93,7 +93,7 @@ export default function Navbar({
       </svg>
 
       <header className={`fixed top-0 left-0 right-0 z-40 transition-colors duration-300 ${
-        scrolled ? 'bg-silver/95 backdrop-blur-sm' : 'bg-transparent'
+        scrolled ? 'bg-hero/95 backdrop-blur-sm' : 'bg-transparent'
       }`}>
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-3 md:py-4 flex items-start justify-between gap-4">
 
