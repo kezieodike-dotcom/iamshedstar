@@ -1,4 +1,4 @@
-﻿/**
+/**
  * @license
  * SPDX-License-Identifier: Apache-2.0
  */
@@ -322,7 +322,7 @@ function buildDefaultDb() {
       date: '2026-07-15',
       time: '20:00',
       ticketLink: 'https://ticketmaster.com',
-      isSoldOut: true,
+      isSoldOut: false,
       latitude: 51.503,
       longitude: 0.003
     },
@@ -334,7 +334,7 @@ function buildDefaultDb() {
       date: '2026-07-20',
       time: '20:00',
       ticketLink: 'https://ticketmaster.com',
-      isSoldOut: true,
+      isSoldOut: false,
       latitude: 48.839,
       longitude: 2.379
     },
@@ -370,7 +370,7 @@ function buildDefaultDb() {
       date: '2026-09-02',
       time: '18:30',
       ticketLink: 'https://ticketmaster.com',
-      isSoldOut: true,
+      isSoldOut: false,
       latitude: 35.549,
       longitude: 139.756
     },
