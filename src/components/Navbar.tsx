@@ -156,11 +156,12 @@ export default function Navbar({
         </div>
       </header>
 
-      {/* Full-screen menu — solid blue wash over the page, big left-aligned
-          links, a grid of socials and a green newsletter bar pinned to the
-          bottom, following the design. */}
+      {/* Full-screen menu — a translucent blue wash rather than a solid fill, so
+          the hero behind still reads through it as it does in the design. Big
+          left-aligned links, a grid of socials, and a green newsletter bar
+          pinned to the bottom. */}
       {isOpen && (
-        <div className="fixed inset-0 z-50 bg-brand/95 backdrop-blur-sm flex flex-col animate-fadeIn">
+        <div className="fixed inset-0 z-50 bg-brand/75 backdrop-blur-[2px] flex flex-col animate-fadeIn">
           <div className="w-full px-6 sm:px-8 pt-5 flex items-center justify-end">
             <button onClick={() => setIsOpen(false)} className="p-1.5 text-white hover:text-ink transition-colors" aria-label="Close menu">
               <X className="w-8 h-8" strokeWidth={1.5} />
