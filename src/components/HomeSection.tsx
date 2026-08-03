@@ -131,11 +131,16 @@ export default function HomeSection({
             sat directly behind it. Full-bleed from md up, where the navbar no longer
             overlaps. Multiply drops the photo's light backdrop into the hero bg. A
             hero video set in the admin dashboard takes the same slot and the same
-            treatment, so the look is identical either way. */}
+            treatment, so the look is identical either way.
+
+            No height class here on purpose. top + bottom define the box; adding
+            h-auto made the img take its intrinsic scaled height instead, so it
+            stopped short of the foot of the hero and left the section background
+            showing behind the headline. */}
         {heroVideo ? (
           <video
             key={heroVideo}
-            className="absolute inset-x-0 bottom-0 top-14 sm:top-16 md:top-0 h-auto md:h-full object-cover object-top md:object-contain md:object-center photo-grunge mix-blend-multiply"
+            className="absolute inset-x-0 bottom-0 top-14 sm:top-16 md:top-0 object-cover object-top md:object-contain md:object-center photo-grunge mix-blend-multiply"
             poster={HERO_IMG}
             autoPlay
             muted
@@ -155,7 +160,7 @@ export default function HomeSection({
           <img
             src={HERO_IMG}
             alt="Shedstar"
-            className="absolute inset-x-0 bottom-0 top-14 sm:top-16 md:top-0 h-auto md:h-full object-cover object-top md:object-contain md:object-center photo-grunge mix-blend-multiply"
+            className="absolute inset-x-0 bottom-0 top-14 sm:top-16 md:top-0 object-cover object-top md:object-contain md:object-center photo-grunge mix-blend-multiply"
           />
         )}
         {/* cool-blue light-leak â€” soft wash + organic turbulence streaks, concentrated on the left */}
