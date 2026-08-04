@@ -307,8 +307,6 @@ export default function App() {
         setActiveTab={handleNavigate}
         cartCount={cart.reduce((sum, item) => sum + item.quantity, 0)}
         onOpenCart={() => setIsCartOpen(true)}
-        isAdmin={isAdmin}
-        onLogoutAdmin={handleLogOutAdmin}
       />
 
       {/* Main Content Area Routing pane. The home hero sits full-bleed under the
@@ -463,6 +461,8 @@ export default function App() {
         setActiveTab={handleNavigate}
         onOpenPrivacy={() => setPolicyType('privacy')}
         onOpenTerms={() => setPolicyType('terms')}
+        isAdmin={isAdmin}
+        onLogoutAdmin={handleLogOutAdmin}
       />
 
       {/* Post-payment result overlay (Stripe redirect return) */}

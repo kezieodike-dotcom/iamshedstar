@@ -4,15 +4,15 @@
  */
 
 import React, { useState, useEffect } from 'react';
-import { X, ShoppingBag, ShieldCheck, Instagram, Youtube, Music2, Music } from 'lucide-react';
+import { X, ShoppingBag, Instagram, Youtube, Music2, Music } from 'lucide-react';
 
+// No admin props here any more — the admin entry point and sign-out both live
+// in the footer now, so the menu stays purely fan-facing.
 interface NavbarProps {
   activeTab: string;
   setActiveTab: (tab: string) => void;
   cartCount: number;
   onOpenCart: () => void;
-  isAdmin: boolean;
-  onLogoutAdmin: () => void;
 }
 
 export default function Navbar({
@@ -20,8 +20,6 @@ export default function Navbar({
   setActiveTab,
   cartCount,
   onOpenCart,
-  isAdmin,
-  onLogoutAdmin,
 }: NavbarProps) {
   const [isOpen, setIsOpen] = useState(false);
   const [scrolled, setScrolled] = useState(false);
@@ -219,22 +217,6 @@ export default function Navbar({
               ))}
             </div>
 
-            <div className="mt-10 flex flex-wrap items-center gap-x-5 gap-y-3">
-              {isAdmin ? (
-                <>
-                  <button onClick={() => go('admin')} className="inline-flex items-center gap-1.5 font-display font-bold text-xs uppercase tracking-widest text-white hover:text-ink">
-                    <ShieldCheck className="w-4 h-4" /> Admin
-                  </button>
-                  <button onClick={() => { onLogoutAdmin(); setIsOpen(false); }} className="font-display font-bold text-xs uppercase tracking-widest text-white/70 hover:text-white">
-                    Log Out
-                  </button>
-                </>
-              ) : (
-                <button onClick={() => go('admin')} className="inline-flex items-center gap-1.5 font-display font-bold text-xs uppercase tracking-widest text-white/70 hover:text-white">
-                  <ShieldCheck className="w-4 h-4" /> Admin
-                </button>
-              )}
-            </div>
           </div>
 
           {/* Sage-green newsletter bar across the foot of the menu. The colour is
