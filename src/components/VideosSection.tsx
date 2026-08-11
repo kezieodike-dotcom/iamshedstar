@@ -3,8 +3,8 @@
  * SPDX-License-Identifier: Apache-2.0
  */
 
-import React, { useState } from 'react';
-import { Play, Film, Calendar, Eye, Clock, X } from 'lucide-react';
+import React, { useEffect, useState } from 'react';
+import { Play, Calendar, Eye, Clock, ExternalLink } from 'lucide-react';
 import { Video } from '../types';
 import { TapeTitle, SafetyPin } from './Decor';
 
@@ -15,6 +15,12 @@ interface VideosSectionProps {
 export default function VideosSection({ videos }: VideosSectionProps) {
   const [activeCategory, setActiveCategory] = useState<'all' | 'music-video' | 'live' | 'behind-the-scenes' | 'studio' | 'interview'>('all');
   const [selectedVideo, setSelectedVideo] = useState<Video | null>(videos[0] || null);
+
+  useEffect(() => {
+    if (!selectedVideo && videos.length > 0) {
+      setSelectedVideo(videos[0]);
+    }
+  }, [selectedVideo, videos]);
 
   const filteredVideos = activeCategory === 'all' 
     ? videos 
@@ -39,20 +45,32 @@ export default function VideosSection({ videos }: VideosSectionProps) {
         <div className="mt-3"><TapeTitle>Video Gallery</TapeTitle></div>
       </div>
 
-      {/* Hero Video Player (The primary focus) */}
+      {/* Hero video poster. YouTube embeds can show Error 153 inside local/webview
+          browsers, so this keeps the section clean and opens the video directly. */}
       {selectedVideo && (
         <div className="mb-16 bg-paper border-4 border-ink rounded-none overflow-hidden">
-          <div className="relative aspect-video w-full bg-ink">
-            {/* Embedded YouTube Iframe - uses standard embed with referrerPolicy */}
-            <iframe
-              title={selectedVideo.title}
-              src={`https://www.youtube.com/embed/${selectedVideo.youtubeId}?autoplay=1`}
-              referrerPolicy="no-referrer"
-              allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
-              allowFullScreen
-              className="absolute inset-0 w-full h-full border-0"
-            ></iframe>
-          </div>
+          <a
+            href={`https://youtu.be/${selectedVideo.youtubeId}`}
+            target="_blank"
+            rel="noopener noreferrer"
+            className="group relative block aspect-video w-full bg-ink overflow-hidden"
+            aria-label={`Watch ${selectedVideo.title} on YouTube`}
+          >
+            <img
+              src={selectedVideo.coverUrl}
+              alt={selectedVideo.title}
+              className="absolute inset-0 w-full h-full object-cover opacity-90 group-hover:scale-[1.02] transition-transform duration-500"
+            />
+            <span className="absolute inset-0 bg-ink/30 group-hover:bg-ink/20 transition-colors" />
+            <span className="absolute inset-0 flex items-center justify-center">
+              <span className="w-20 h-20 bg-brand text-white border-4 border-ink flex items-center justify-center shadow-[8px_8px_0_rgba(57,53,52,0.45)] group-hover:bg-ink transition-colors">
+                <Play className="w-9 h-9 fill-current ml-1" />
+              </span>
+            </span>
+            <span className="absolute left-4 bottom-4 bg-ink text-white font-display font-black uppercase text-xs tracking-wide px-4 py-2">
+              Watch on YouTube
+            </span>
+          </a>
           <div className="p-6 md:p-8">
             <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
               <div>
@@ -66,12 +84,15 @@ export default function VideosSection({ videos }: VideosSectionProps) {
                   <span className="flex items-center gap-1"><Calendar className="w-4 h-4 text-brand" /> {selectedVideo.releaseDate}</span>
                 </div>
               </div>
-              <button
-                onClick={() => setSelectedVideo(null)}
-                className="btn-outline text-xs"
+              <a
+                href={`https://youtu.be/${selectedVideo.youtubeId}`}
+                target="_blank"
+                rel="noopener noreferrer"
+                className="btn-ink text-xs"
               >
-                Close Video Player
-              </button>
+                <ExternalLink className="w-4 h-4" />
+                Watch on YouTube
+              </a>
             </div>
           </div>
         </div>

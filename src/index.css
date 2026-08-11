@@ -56,13 +56,6 @@ body {
   color: #393534;
 }
 
-/* Safety-pin custom cursor while navigating the site (text fields keep their caret) */
-:root {
-  --pin-cursor: url("data:image/svg+xml,%3Csvg%20xmlns='http://www.w3.org/2000/svg'%20width='44'%20height='20'%20viewBox='-6%20-6%20112%2052'%20fill='none'%20stroke='%231f74bd'%20stroke-width='5'%20stroke-linecap='round'%3E%3Cpath%20d='M12%2026%20C4%2022%204%2012%2014%2010%20L82%204'/%3E%3Cpath%20d='M12%2026%20C22%2030%2030%2024%2030%2016%20L30%2010'/%3E%3Cpath%20d='M14%2010%20L86%2030%20C94%2033%2096%2022%2088%2020'/%3E%3Ccircle%20cx='12'%20cy='26'%20r='5'%20fill='%231f74bd'%20stroke='none'/%3E%3C/svg%3E") 7 12;
-}
-body { cursor: var(--pin-cursor), auto; }
-a, button, [role="button"], summary, select { cursor: var(--pin-cursor), pointer; }
-
 ::selection {
   background: #1f74bd;
   color: #ffffff;
@@ -163,19 +156,22 @@ a, button, [role="button"], summary, select { cursor: var(--pin-cursor), pointer
    --blue-color #4366A8, --green-color #95AE9B. */
 .bg-wash-blue {
   background:
-    radial-gradient(120% 90% at 10% 10%, rgba(31,116,189,0.28), transparent 60%),
-    radial-gradient(120% 90% at 90% 80%, rgba(67,102,168,0.32), transparent 55%),
-    linear-gradient(120deg, #d3dcf0, #a9bae0 55%, #7f95c9);
+    linear-gradient(90deg, rgba(32,31,30,0.78) 0 5%, transparent 5% 95%, rgba(241,240,236,0.85) 95%),
+    radial-gradient(75% 70% at 14% 8%, rgba(31,116,189,0.62), transparent 58%),
+    radial-gradient(85% 80% at 88% 72%, rgba(67,102,168,0.48), transparent 55%),
+    linear-gradient(118deg, #273c52 0%, #5c84b9 34%, #d5d3cc 70%, #f1f0ec 100%);
 }
 .bg-wash-green {
   background:
-    radial-gradient(120% 90% at 15% 20%, rgba(31,116,189,0.30), transparent 55%),
-    radial-gradient(120% 90% at 85% 75%, rgba(149,174,155,0.55), transparent 55%),
-    linear-gradient(120deg, #c4d6c8, #95ae9b 50%, #6f9bb0);
+    radial-gradient(70% 60% at 14% 20%, rgba(31,116,189,0.46), transparent 58%),
+    radial-gradient(80% 80% at 84% 28%, rgba(149,174,155,0.78), transparent 60%),
+    linear-gradient(112deg, #73a0aa 0%, #95ae9b 45%, #cad0c6 100%);
 }
 /* Their --Grey-color #CCCDD2 is the neutral every light section sits on. */
 .bg-silver {
-  background: linear-gradient(160deg, #e2e3e7, #cccdd2 60%, #bfc0c6);
+  background:
+    radial-gradient(100% 55% at 48% 0%, rgba(255,255,255,0.62), transparent 68%),
+    linear-gradient(160deg, #e2e3e7, #cccdd2 60%, #bfc0c6);
 }
 
 /* Subtle print grain overlay (apply to a positioned parent) */
@@ -204,7 +200,7 @@ a, button, [role="button"], summary, select { cursor: var(--pin-cursor), pointer
    High contrast clips the light backdrop to pure white so that, combined with
    mix-blend-multiply, it drops out into the hero background. */
 .photo-grunge {
-  filter: grayscale(1) contrast(1.35) brightness(1.03);
+  filter: grayscale(1) contrast(1.48) brightness(1.04);
 }
 
 /* ---------- Horizontal carousel row (reference signature) ---------- */

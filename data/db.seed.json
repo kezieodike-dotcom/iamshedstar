@@ -91,40 +91,40 @@
   "videos": [
     {
       "id": "video-1",
-      "title": "Shedding Light (Official Music Video)",
+      "title": "Shedstar (Official Music Video)",
       "category": "music-video",
-      "youtubeId": "dQmw4bUuaYo",
-      "coverUrl": "https://images.unsplash.com/photo-1516450360452-9312f5e86fc7?q=80&w=800&auto=format&fit=crop",
-      "views": "4.8M views",
+      "youtubeId": "X2xT5ImoCGs",
+      "coverUrl": "https://i.ytimg.com/vi/X2xT5ImoCGs/hqdefault.jpg",
+      "views": "Watch on YouTube",
       "duration": "3:50",
-      "releaseDate": "May 15, 2026"
+      "releaseDate": "Official Shedstar Video"
     },
     {
       "id": "video-2",
-      "title": "Live at O2 Arena London (Highlights)",
+      "title": "Shedstar (YouTube Video)",
       "category": "live",
-      "youtubeId": "EngW7tLk6R8",
-      "coverUrl": "https://images.unsplash.com/photo-1506157786151-b8491531f063?q=80&w=800&auto=format&fit=crop",
+      "youtubeId": "X2xT5ImoCGs",
+      "coverUrl": "https://i.ytimg.com/vi/X2xT5ImoCGs/hqdefault.jpg",
       "views": "1.2M views",
       "duration": "12:45",
       "releaseDate": "June 20, 2026"
     },
     {
       "id": "video-3",
-      "title": "Gold Dust (Backstage & Studio Sessions)",
+      "title": "Shedstar (Official Visual)",
       "category": "studio",
-      "youtubeId": "9bZkp7q19f0",
-      "coverUrl": "https://images.unsplash.com/photo-1598488035139-bdbb2231ce04?q=80&w=800&auto=format&fit=crop",
+      "youtubeId": "X2xT5ImoCGs",
+      "coverUrl": "https://i.ytimg.com/vi/X2xT5ImoCGs/hqdefault.jpg",
       "views": "650K views",
       "duration": "5:20",
       "releaseDate": "June 5, 2026"
     },
     {
       "id": "video-4",
-      "title": "Shedstar: Global Beats, Deep Roots (Full Interview)",
+      "title": "Shedstar (Featured Video)",
       "category": "interview",
-      "youtubeId": "kJQP7kiw5Fk",
-      "coverUrl": "https://images.unsplash.com/photo-1511671782779-c97d3d27a1d4?q=80&w=800&auto=format&fit=crop",
+      "youtubeId": "X2xT5ImoCGs",
+      "coverUrl": "https://i.ytimg.com/vi/X2xT5ImoCGs/hqdefault.jpg",
       "views": "320K views",
       "duration": "24:15",
       "releaseDate": "April 28, 2026"

@@ -93,7 +93,7 @@ export default function Navbar({
       <header className={`fixed top-0 left-0 right-0 z-40 transition-colors duration-300 ${
         scrolled ? 'bg-hero/95 backdrop-blur-sm' : 'bg-transparent'
       }`}>
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-3 md:py-4 flex items-start justify-between gap-4">
+        <div className="w-full px-5 sm:px-7 lg:px-9 py-5 md:py-7 flex items-start justify-between gap-4">
 
           {/* Wordmark, top-left in brand blue and deliberately inverted. Also the
               only route back to the home page now that Home is not a menu entry,
@@ -102,20 +102,20 @@ export default function Navbar({
           <button onClick={() => go('home')} className="select-none group leading-none" aria-label="Shedstar — home">
             {/* One word, so no max-width: the reference stacks two words, and a
                 cap here only makes "Shedstar" overflow its own box. */}
-            <span className="grunge-text font-heavy uppercase leading-none tracking-tight text-brand text-3xl sm:text-4xl md:text-6xl inline-block rotate-180 transition-colors group-hover:text-ink">
+            <span className="grunge-text font-heavy uppercase leading-none tracking-[-0.05em] text-ink text-4xl sm:text-5xl md:text-[4rem] lg:text-[4.45rem] inline-block rotate-180 transition-colors group-hover:text-brand">
               Shedstar
             </span>
           </button>
 
           {/* Right: blue nav links + socials */}
-          <div className="flex flex-col items-end gap-2">
+          <div className="flex flex-col items-end gap-2 pt-1 md:pt-1.5">
             <div className="flex items-center gap-3 sm:gap-5">
-              <nav className="hidden md:flex items-center gap-5">
+              <nav className="hidden md:flex items-center gap-6 lg:gap-7">
                 {primary.map((item) => (
                   <button
                     key={item.id}
                     onClick={() => go(item.id)}
-                    className={`font-heavy uppercase text-xl lg:text-2xl tracking-wide transition-colors ${
+                    className={`font-heavy uppercase text-2xl lg:text-[1.62rem] leading-none tracking-[-0.04em] transition-colors ${
                       activeTab === item.id ? 'text-ink' : 'text-brand hover:text-ink'
                     }`}
                   >
@@ -144,10 +144,10 @@ export default function Navbar({
             </div>
 
             {/* Social row */}
-            <div className="hidden sm:flex items-center gap-3">
+            <div className="hidden sm:flex items-center gap-3 pr-1">
               {socials.map((s) => (
                 <a key={s.label} href={s.href} target="_blank" rel="noopener noreferrer" title={s.label} className="text-brand hover:text-ink transition-colors">
-                  <s.icon className="w-4 h-4" />
+                  <s.icon className="w-4 h-4" strokeWidth={2.5} />
                 </a>
               ))}
             </div>
@@ -183,25 +183,22 @@ export default function Navbar({
               ))}
             </nav>
 
-            {/* Everything else, kept reachable at a smaller weight — the design
-                shows only the four above, but the rest of the site would be
-                unreachable from the menu otherwise. */}
-            <div className="mt-9 flex flex-wrap gap-x-6 gap-y-3">
+            <nav className="mt-9 grid grid-cols-2 gap-x-6 gap-y-4 max-w-md">
               {secondary.map((item) => (
                 <button
                   key={item.id}
                   onClick={() => go(item.id)}
-                  className={`font-display font-bold uppercase text-xs tracking-widest transition-colors ${
-                    activeTab === item.id ? 'text-ink' : 'text-white/80 hover:text-white'
+                  className={`text-left font-display font-black uppercase text-sm sm:text-base tracking-[0.16em] transition-colors ${
+                    activeTab === item.id ? 'text-ink' : 'text-white/85 hover:text-white'
                   }`}
                 >
                   {item.label}
                 </button>
               ))}
-            </div>
+            </nav>
 
             {/* Socials, four to a row */}
-            <div className="mt-10 grid grid-cols-4 gap-x-6 gap-y-6 max-w-xs">
+            <div className="mt-12 grid grid-cols-4 gap-x-6 gap-y-6 max-w-xs">
               {socials.map((s) => (
                 <a
                   key={s.label}

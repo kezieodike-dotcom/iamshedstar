@@ -4,7 +4,7 @@
  */
 
 import React from 'react';
-import { Youtube, Instagram, Music, Music2, ArrowUp, ShieldCheck } from 'lucide-react';
+import { Youtube, Instagram, Music, Music2, ArrowUp } from 'lucide-react';
 
 interface FooterProps {
   setActiveTab: (tab: string) => void;
@@ -36,6 +36,7 @@ export default function Footer({
     { id: 'partners', label: 'Partners & Advertise' },
     { id: 'booking', label: 'Booking' },
     { id: 'contact', label: 'Contact' },
+    { id: 'admin', label: isAdmin ? 'Admin Dashboard' : 'Admin' },
   ];
 
   const socials = [
@@ -75,6 +76,14 @@ export default function Footer({
                 {l.label}
               </button>
             ))}
+            {isAdmin && (
+              <button
+                onClick={onLogoutAdmin}
+                className="text-left font-display font-bold text-sm uppercase tracking-wide text-ink hover:text-brand transition-colors"
+              >
+                Log Out
+              </button>
+            )}
           </nav>
           <div className="flex flex-col items-start md:items-end gap-5">
             <div className="flex items-center gap-4">
@@ -83,28 +92,6 @@ export default function Footer({
                   <s.icon className="w-5 h-5" />
                 </a>
               ))}
-            </div>
-
-            {/* Admin entry point. Lives here rather than in the menu so the
-                public nav stays fan-facing; when signed in it also carries the
-                way out, which otherwise had nowhere to go once the menu link
-                was removed. */}
-            <div className="flex items-center gap-3">
-              <button
-                onClick={() => setActiveTab('admin')}
-                className="btn-outline text-xs px-4 py-2"
-              >
-                <ShieldCheck className="w-4 h-4" />
-                {isAdmin ? 'Admin Dashboard' : 'Admin'}
-              </button>
-              {isAdmin && (
-                <button
-                  onClick={onLogoutAdmin}
-                  className="font-display font-bold text-[11px] uppercase tracking-widest text-muted hover:text-brand transition-colors"
-                >
-                  Log Out
-                </button>
-              )}
             </div>
           </div>
         </div>

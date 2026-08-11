@@ -4,9 +4,8 @@
  */
 
 import React, { useState, useEffect } from 'react';
-import { Play, ChevronLeft, ChevronRight, Calendar, MapPin } from 'lucide-react';
-import { Song, Tour, Product, EBook, Video } from '../types';
-import AdSpace from './AdSpace';
+import { Play, ChevronLeft, ChevronRight, Calendar, MapPin, Megaphone, ArrowRight } from 'lucide-react';
+import { Song, Tour, Product, Video } from '../types';
 import { TornPanel, SafetyPin } from './Decor';
 
 interface HomeSectionProps {
@@ -41,7 +40,6 @@ export default function HomeSection({
    */
   const [heroVideoMobile, setHeroVideoMobile] = useState('');
   const [heroVideoDesktop, setHeroVideoDesktop] = useState('');
-  const [ebooks, setEbooks] = useState<EBook[]>([]);
   const [videos, setVideos] = useState<Video[]>([]);
   // These two feeds are loaded here rather than by App, so their failures have
   // to be reported here too â€” otherwise the Videos and Read blocks just vanish.
@@ -50,7 +48,6 @@ export default function HomeSection({
   const loadFeeds = async () => {
     const feeds: { label: string; url: string; apply: (data: any) => void }[] = [
       { label: 'Videos', url: '/api/videos', apply: setVideos },
-      { label: 'Read', url: '/api/ebooks', apply: setEbooks },
     ];
 
     const failed: string[] = [];
@@ -107,10 +104,6 @@ export default function HomeSection({
 
   const latestSingle = songs.find((s) => s.id === 'song-1') || songs[0];
   const featuredProducts = products.filter((p) => p.isFeatured).slice(0, 6);
-  const featuredEbooks = (ebooks.filter((b) => b.isFeatured).length > 0
-    ? ebooks.filter((b) => b.isFeatured)
-    : ebooks
-  ).slice(0, 4);
   const upcomingTours = tours.slice(0, 6);
 
   const playLatest = () => {
@@ -126,7 +119,7 @@ export default function HomeSection({
       {/* HERO â€” grainy portrait on the cool light blue-gray backdrop from the reference */}
       {/* One flat tone, shared with the header bar via --color-hero, so the strip
           behind the wordmark and the rest of the hero are the same colour. */}
-      <section className="relative grain min-h-[100svh] flex items-end overflow-hidden bg-hero">
+      <section className="relative grain min-h-[100dvh] flex items-end overflow-hidden bg-hero">
         {/* Portrait: offset by just the navbar's height on phones (12px padding +
             30px wordmark + 12px = ~54px, so 3.5rem), which is the least that keeps
             the subject's head clear of the wordmark — at inset-0 with object-top it
@@ -154,7 +147,7 @@ export default function HomeSection({
         {heroVideo ? (
           <video
             key={heroVideo}
-            className="absolute inset-x-0 bottom-0 top-14 sm:top-16 object-cover object-top md:inset-x-auto md:left-1/2 md:-translate-x-1/2 md:top-0 md:h-full md:w-auto md:max-w-none md:object-contain photo-grunge md:mix-blend-multiply"
+            className="absolute inset-0 h-full w-full object-cover object-[58%_30%] scale-[1.08] md:scale-[1.12] photo-grunge mix-blend-multiply"
             poster={HERO_IMG}
             autoPlay
             muted
@@ -174,7 +167,7 @@ export default function HomeSection({
           <img
             src={HERO_IMG}
             alt="Shedstar"
-            className="absolute inset-x-0 bottom-0 top-14 sm:top-16 object-cover object-top md:inset-x-auto md:left-1/2 md:-translate-x-1/2 md:top-0 md:h-full md:w-auto md:max-w-none md:object-contain photo-grunge md:mix-blend-multiply"
+            className="absolute inset-0 h-full w-full object-cover object-[58%_30%] scale-[1.08] md:scale-[1.12] photo-grunge mix-blend-multiply"
           />
         )}
         {/* cool-blue light-leak â€” soft wash + organic turbulence streaks, concentrated on the left */}
@@ -182,7 +175,7 @@ export default function HomeSection({
           className="absolute inset-0 pointer-events-none mix-blend-screen"
           style={{
             background:
-              'linear-gradient(100deg, rgba(31,116,189,0.60) 0%, rgba(120,152,205,0.22) 24%, transparent 48%)',
+              'linear-gradient(100deg, rgba(31,116,189,0.62) 0%, rgba(120,152,205,0.24) 24%, transparent 50%)',
           }}
         />
         <div
@@ -197,34 +190,35 @@ export default function HomeSection({
         />
         {/* subtle cool tint */}
         <div className="absolute inset-0 bg-brand/10 mix-blend-overlay" />
+        <div className="absolute inset-y-0 left-0 w-[38vw] pointer-events-none mix-blend-screen opacity-70 bg-[linear-gradient(90deg,rgba(31,116,189,0.46),rgba(67,102,168,0.18)_48%,transparent)]" />
         {/* Light leak anchored at the TOP. It used to be gradient-to-tr, which
             starts at the bottom-left — that put 60% white directly under the
             headline, which is why the foot of the hero washed out to white. */}
-        <div className="absolute inset-0 bg-gradient-to-b from-white/45 via-transparent to-transparent" />
+        <div className="absolute inset-0 bg-gradient-to-b from-white/30 via-transparent to-transparent" />
         {/* Bottom scrim is dark, not light: the headline and CTA are brand blue
             now, so they need to sit on something darker to read — which is also
             how the reference's hero foot looks. */}
-        <div className="absolute inset-x-0 bottom-0 h-1/2 bg-gradient-to-t from-black/30 via-black/5 to-transparent" />
+        <div className="absolute inset-x-0 bottom-0 h-[42%] bg-gradient-to-t from-black/24 via-black/8 to-transparent" />
         {/* heavy film grain â€” dark speckle (multiply) + light speckle (screen) so the surface is rough, not smooth */}
         <div className="absolute inset-0 pointer-events-none opacity-[0.55] mix-blend-multiply grain-heavy" />
         <div className="absolute inset-0 pointer-events-none opacity-[0.20] mix-blend-screen grain-heavy" />
         {/* Headline and CTA are centred over the foot of the portrait, both in
             brand blue, as in the reference's mobile hero. */}
-        <div className="relative z-10 w-full px-6 sm:px-10 lg:px-16 pb-6 sm:pb-10 md:pb-20 flex flex-col items-center text-center">
+        <div className="relative z-10 w-full px-8 sm:px-12 lg:px-[5.6rem] pb-[31vh] sm:pb-[33vh] md:pb-[33vh] flex flex-col items-start text-left">
           {/* Dark drop shadow, matching the dark scrim below it — the previous
               white one only made sense against the old white wash. */}
-          <h1 className="font-heavy leading-[0.95] tracking-tight text-brand text-3xl sm:text-4xl md:text-6xl mb-3 sm:mb-4 max-w-[14rem] sm:max-w-lg drop-shadow-[0_2px_3px_rgba(0,0,0,0.45)]">
-            Shedding Light
+          <h1 className="font-heavy uppercase leading-[0.82] tracking-[-0.03em] text-ink text-[2.15rem] sm:text-4xl md:text-[2.6rem] lg:text-[2.7rem] mb-2 sm:mb-2 max-w-[18rem] sm:max-w-[20rem] drop-shadow-[0_1px_0_rgba(255,255,255,0.25)]">
+            {latestSingle?.title || 'Shedding Light'}
           </h1>
-          <button onClick={playLatest} className="btn-brand btn-cta-hero text-xs tracking-[0.15em]">
+          <button onClick={playLatest} className="btn-ink btn-cta-hero min-w-[14.5rem] h-[2.45rem] px-8 py-0 text-[0.95rem] tracking-[0.02em]">
             Listen Now
           </button>
         </div>
       </section>
 
       {/* MUSIC â€” torn blue paper panel on a painted backdrop, per the design */}
-      {songs.length > 0 && (
-        <section className="relative bg-silver grain px-4 sm:px-6 md:px-8 py-14 md:py-24 overflow-hidden">
+{songs.length > 0 && (
+        <section className="relative bg-silver grain px-4 sm:px-6 md:px-8 pt-24 pb-14 md:pt-28 md:pb-24 overflow-hidden">
           <div className="max-w-6xl mx-auto">
             <TornPanel className="px-4 sm:px-10 py-12 md:py-16">
               <h2 className="poster-title section-title text-white text-center text-6xl sm:text-7xl md:text-8xl mb-10 md:mb-12">
@@ -348,40 +342,91 @@ export default function HomeSection({
         </section>
       )}
 
-      {/* E-BOOKS */}
-      {featuredEbooks.length > 0 && (
-        <section className="relative bg-silver px-4 md:px-8 py-14 md:py-20">
-          <div className="max-w-7xl mx-auto relative">
-            <div className="flex items-end justify-between mb-8">
-              <h2 className="poster-title section-title text-ink text-5xl sm:text-7xl md:text-8xl">Read</h2>
-              <CarouselNav targetId="row-ebooks" />
+      <section className="relative bg-ink grain px-4 sm:px-6 md:px-8 py-12 md:py-16 overflow-hidden">
+        <div className="absolute inset-x-0 top-0 h-3 bg-accent" aria-hidden="true" />
+        <div className="max-w-5xl mx-auto">
+          <div className="grid grid-cols-1 md:grid-cols-[1.15fr_0.85fr] gap-8 md:gap-12 items-center">
+            <div className="text-white">
+              <div className="inline-flex items-center gap-2 bg-brand px-3 py-2 font-heavy uppercase text-xs tracking-wide">
+                <Megaphone className="w-4 h-4" />
+                Advertise
+              </div>
+              <h2 className="poster-title text-white text-5xl sm:text-6xl md:text-7xl leading-none mt-5">
+                Put Your Brand In The Spotlight
+              </h2>
+              <p className="text-white/75 text-sm sm:text-base leading-relaxed mt-4 max-w-xl">
+                Sponsor Shedstar music drops, tour moments, newsletter placements, and homepage features built for fans already watching, listening, and shopping.
+              </p>
             </div>
-            <div id="row-ebooks" className="carousel-row no-scrollbar -mx-1 px-1">
-              {featuredEbooks.map((b) => (
-                <div key={b.id} className="w-48 sm:w-56 text-left">
-                  <button onClick={() => setActiveTab('ebooks')} className="group block w-full">
-                    <div className="relative aspect-[3/4] overflow-hidden bg-cream-dark border-2 border-ink">
-                      <img src={b.coverUrl} alt={b.title} className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500" />
-                    </div>
-                    <h3 className="mt-2 font-display font-bold uppercase text-sm tracking-wide text-ink line-clamp-2">{b.title}</h3>
-                  </button>
-                  <button onClick={() => setActiveTab('ebooks')} className="btn-ink text-xs w-full mt-1">Buy Â· ${b.price.toFixed(2)}</button>
+
+            <div className="bg-paper text-ink border-2 border-white p-5 sm:p-6 shadow-[8px_8px_0_rgba(31,116,189,0.75)]">
+              <p className="font-mono text-[10px] uppercase tracking-[0.25em] text-brand">Mobile Fan Reach</p>
+              <div className="grid grid-cols-2 gap-3 mt-5">
+                <div className="border-2 border-ink p-3">
+                  <p className="poster-title text-3xl text-ink">01</p>
+                  <p className="font-display font-black uppercase text-xs tracking-wide mt-1">Banner Ads</p>
                 </div>
-              ))}
+                <div className="border-2 border-ink p-3">
+                  <p className="poster-title text-3xl text-ink">02</p>
+                  <p className="font-display font-black uppercase text-xs tracking-wide mt-1">Tour Sponsors</p>
+                </div>
+                <div className="border-2 border-ink p-3">
+                  <p className="poster-title text-3xl text-ink">03</p>
+                  <p className="font-display font-black uppercase text-xs tracking-wide mt-1">Newsletter</p>
+                </div>
+                <div className="border-2 border-ink p-3">
+                  <p className="poster-title text-3xl text-ink">04</p>
+                  <p className="font-display font-black uppercase text-xs tracking-wide mt-1">Brand Drops</p>
+                </div>
+              </div>
+              <button
+                onClick={() => setActiveTab('partners')}
+                className="btn-brand w-full mt-5 text-sm"
+              >
+                View Advertising Packages
+                <ArrowRight className="w-4 h-4" />
+              </button>
             </div>
           </div>
-        </section>
-      )}
-
+        </div>
+      </section>
       {/* TOUR â€” torn blue panel, white rows, white/green ticket buttons, and a
           sage-green CTA overlapping the foot of the panel, as in the video */}
       {upcomingTours.length > 0 && (
         <section className="relative bg-silver grain px-4 md:px-8 py-14 md:py-20 overflow-hidden">
           <div className="max-w-5xl mx-auto relative">
+            <svg
+              viewBox="0 0 120 310"
+              aria-hidden="true"
+              className="hidden md:block absolute -right-24 top-12 z-20 h-[360px] w-auto pointer-events-none overflow-visible"
+            >
+              <path
+                d="M55 8c22 0 36 17 34 40-1 11-5 21-12 28 11 14 17 34 16 60l-2 54 20 85c3 12-5 23-17 23H77l-18-76-18 76H24c-12 0-20-11-17-23l20-85-2-54c-1-26 5-46 16-60-7-7-11-17-12-28C27 25 33 8 55 8Z"
+                fill="#2f2b2a"
+                stroke="#f1f0ec"
+                strokeWidth="10"
+                strokeLinejoin="round"
+              />
+              <path
+                d="M28 110c-16 21-21 45-16 72M91 111c14 19 19 43 16 70M43 76c9 8 27 9 37 0"
+                fill="none"
+                stroke="#f1f0ec"
+                strokeWidth="6"
+                strokeLinecap="round"
+              />
+            </svg>
             <TornPanel className="px-5 sm:px-10 py-12 md:py-16">
               <h2 className="poster-title section-title text-white text-center text-5xl sm:text-7xl md:text-8xl mb-10">
                 Tour
               </h2>
+              <div className="text-center mb-8">
+                <button onClick={() => setActiveTab('fanclub')} className="btn-accent text-base">
+                  Get Artist Presale Code
+                </button>
+                <p className="mt-4 text-white/85 font-display font-black uppercase text-sm sm:text-base tracking-wide max-w-2xl mx-auto leading-snug">
+                  Shedstar tour presale begins Wednesday at 10 AM local time. General on sale begins Friday at 10 AM local time.
+                </p>
+              </div>
               <div className="flex flex-col">
                 {upcomingTours.map((t) => (
                   <div key={t.id} className="flex items-center gap-4 py-4 border-b border-white/40 last:border-b-0">
@@ -416,24 +461,34 @@ export default function HomeSection({
             <div className="flex justify-center -mt-7 relative z-10">
               <button onClick={() => setActiveTab('tour')} className="btn-accent btn-cta-wide text-base">Show All Dates</button>
             </div>
+            <div className="mt-12 bg-paper border-2 border-ink p-6 md:p-8 max-w-3xl mx-auto">
+              <h3 className="poster-title text-ink text-3xl sm:text-4xl">VIP Experience</h3>
+              <p className="mt-2 font-display font-black uppercase text-brand text-sm tracking-wide">
+                Shedstar 2026 VIP Tour Package Includes:
+              </p>
+              <ul className="mt-5 grid gap-3 text-sm text-muted leading-relaxed">
+                <li>One premium reserved or general admission ticket where applicable</li>
+                <li>Early entry into the venue in GA markets</li>
+                <li>Specially designed Shedstar tour shirt</li>
+                <li>Limited edition tour laminate and lanyard</li>
+                <li>Exclusive merch item available only to VIP guests</li>
+              </ul>
+            </div>
           </div>
         </section>
       )}
-
-      {/* SPONSORS */}
-      <section className="bg-paper px-4 md:px-8 py-12">
-        <div className="max-w-7xl mx-auto">
-          <p className="text-center font-mono text-[11px] uppercase tracking-[0.3em] text-muted mb-6">In partnership with our sponsors</p>
-          <AdSpace placement="banner" className="mb-6" />
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-            <AdSpace placement="inline" />
-            <AdSpace placement="sidebar" />
-            <div className="flex flex-col justify-center items-center text-center bg-cream border-2 border-ink p-6 gap-3">
-              <h4 className="poster-title text-ink text-2xl">Advertise With Shedstar</h4>
-              <p className="text-sm text-muted">Reach millions of global fans.</p>
-              <button onClick={() => setActiveTab('partners')} className="btn-brand text-xs">View Packages</button>
-            </div>
+      <section className="relative bg-accent grain px-4 sm:px-6 md:px-8 py-12 md:py-16 overflow-hidden">
+        <div className="max-w-5xl mx-auto flex flex-col md:flex-row md:items-center justify-between gap-6 text-white">
+          <div>
+            <p className="font-mono text-[10px] uppercase tracking-[0.28em] text-white/75">Fan Club</p>
+            <h2 className="poster-title text-5xl sm:text-6xl md:text-7xl leading-none mt-2">Join The Newsletter</h2>
           </div>
+          <button
+            onClick={() => setActiveTab('fanclub')}
+            className="btn-ink w-full md:w-auto text-base"
+          >
+            Sign Up Now
+          </button>
         </div>
       </section>
 
@@ -464,23 +519,5 @@ function SideNav({ targetId }: { targetId: string }) {
         <ChevronRight className="w-9 h-9" strokeWidth={1.5} />
       </button>
     </>
-  );
-}
-
-/* Left/right arrows that scroll a carousel row by id */
-function CarouselNav({ targetId }: { targetId: string }) {
-  const scroll = (dir: number) => {
-    const el = document.getElementById(targetId);
-    if (el) el.scrollBy({ left: dir * Math.min(el.clientWidth * 0.8, 600), behavior: 'smooth' });
-  };
-  return (
-    <div className="hidden sm:flex items-center gap-2">
-      <button onClick={() => scroll(-1)} className="w-9 h-9 border-2 border-ink text-ink hover:bg-ink hover:text-white flex items-center justify-center transition-colors" aria-label="Scroll left">
-        <ChevronLeft className="w-5 h-5" />
-      </button>
-      <button onClick={() => scroll(1)} className="w-9 h-9 border-2 border-ink text-ink hover:bg-ink hover:text-white flex items-center justify-center transition-colors" aria-label="Scroll right">
-        <ChevronRight className="w-5 h-5" />
-      </button>
-    </div>
   );
 }
