@@ -1,0 +1,16 @@
+{
+  "name": "Shedstar Official Website",
+  "short_name": "Shedstar",
+  "description": "The official home of Shedstar: music, videos, tour dates, merch, e-books, booking, and fan updates.",
+  "icons": [
+    {
+      "src": "/favicon.svg",
+      "sizes": "any",
+      "type": "image/svg+xml",
+      "purpose": "any"
+    }
+  ],
+  "theme_color": "#1f74bd",
+  "background_color": "#cccdd2",
+  "display": "standalone"
+}

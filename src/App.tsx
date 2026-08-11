@@ -31,7 +31,18 @@ import {
 } from './types';
 
 export default function App() {
-  const [activeTab, setActiveTab] = useState<string>('home');
+  const pageTabs = [
+    'home', 'about', 'music', 'videos', 'tour', 'merchandise', 'ebooks',
+    'gallery', 'news', 'partners', 'booking', 'contact', 'fanclub', 'admin',
+  ];
+
+  const getInitialTab = () => {
+    const params = new URLSearchParams(window.location.search);
+    const tab = params.get('tab') || window.location.hash.replace('#', '');
+    return pageTabs.includes(tab) ? tab : 'home';
+  };
+
+  const [activeTab, setActiveTab] = useState<string>(getInitialTab);
 
   // Server Loaded Data
   const [songs, setSongs] = useState<Song[]>([]);
@@ -295,8 +306,16 @@ export default function App() {
 
   const handleNavigate = (tab: string) => {
     setActiveTab(tab);
+    const nextUrl = tab === 'home' ? window.location.pathname : `${window.location.pathname}?tab=${tab}`;
+    window.history.pushState({}, '', nextUrl);
     window.scrollTo({ top: 0, behavior: 'smooth' });
   };
+
+  useEffect(() => {
+    const onPopState = () => setActiveTab(getInitialTab());
+    window.addEventListener('popstate', onPopState);
+    return () => window.removeEventListener('popstate', onPopState);
+  }, []);
 
   return (
     <div className="min-h-screen bg-silver text-ink flex flex-col justify-between">
