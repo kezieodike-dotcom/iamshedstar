@@ -12,84 +12,84 @@ const pages = [
     slug: '',
     title: 'SHEDSTAR - Official Website',
     description: 'Music, videos, tour dates, merch, e-books, booking, and fan updates from Shedstar.',
-    image: '/meta/shedstar-main-hero-v3.jpg',
+    image: '/meta/shedstar-home-hero-meta-v4.jpg',
     alt: 'Shedstar official homepage hero screenshot.',
   },
   {
     slug: 'about',
     title: 'About Shedstar',
     description: 'Read the story, style, and creative world behind Shedstar.',
-    image: '/meta/shedstar-about-hero.jpg',
+    image: '/meta/shedstar-about-hero-meta-v2.jpg',
     alt: 'Shedstar about page hero screenshot.',
   },
   {
     slug: 'music',
     title: 'Shedstar Music',
     description: 'Stream featured releases, albums, singles, and Shedstar music moments.',
-    image: '/meta/shedstar-music-hero.jpg',
+    image: '/meta/shedstar-music-hero-meta-v2.jpg',
     alt: 'Shedstar music page hero screenshot.',
   },
   {
     slug: 'videos',
     title: 'Shedstar Videos',
     description: 'Watch Shedstar music videos, live clips, behind-the-scenes films, and interviews.',
-    image: '/meta/shedstar-videos-hero.jpg',
+    image: '/meta/shedstar-videos-hero-meta-v2.jpg',
     alt: 'Shedstar videos page hero screenshot.',
   },
   {
     slug: 'tour',
     title: 'Shedstar Tour',
     description: 'See Shedstar tour dates, venues, tickets, VIP packages, and live show details.',
-    image: '/meta/shedstar-tour-hero.jpg',
+    image: '/meta/shedstar-tour-hero-meta-v2.jpg',
     alt: 'Shedstar tour page hero screenshot.',
   },
   {
     slug: 'merch',
     title: 'Shedstar Merch',
     description: 'Shop official Shedstar merchandise, clothing, accessories, and limited drops.',
-    image: '/meta/shedstar-merch-hero.jpg',
+    image: '/meta/shedstar-merch-hero-meta-v2.jpg',
     alt: 'Shedstar merch page hero screenshot.',
   },
   {
     slug: 'ebooks',
     title: 'Shedstar E-Books',
     description: 'Explore Shedstar e-books, digital drops, and exclusive fan reading material.',
-    image: '/meta/shedstar-ebooks-hero.jpg',
+    image: '/meta/shedstar-ebooks-hero-meta-v2.jpg',
     alt: 'Shedstar e-books page hero screenshot.',
   },
   {
     slug: 'images',
     title: 'Shedstar Images',
     description: 'Browse Shedstar gallery images, concert photos, studio shots, and fan moments.',
-    image: '/meta/shedstar-images-hero.jpg',
+    image: '/meta/shedstar-images-hero-meta-v2.jpg',
     alt: 'Shedstar images gallery page hero screenshot.',
   },
   {
     slug: 'news',
     title: 'Shedstar News',
     description: 'Read official Shedstar news, announcements, tour updates, and culture stories.',
-    image: '/meta/shedstar-news-hero.jpg',
+    image: '/meta/shedstar-news-hero-meta-v2.jpg',
     alt: 'Shedstar news page hero screenshot.',
   },
   {
     slug: 'advertise',
     title: 'Advertise With Shedstar',
     description: 'Partner with Shedstar through web, music, video, tour, and fan campaign placements.',
-    image: '/meta/shedstar-advertise-hero.jpg',
+    image: '/meta/shedstar-advertise-hero-meta-v2.jpg',
     alt: 'Shedstar advertising page hero screenshot.',
   },
   {
     slug: 'booking',
     title: 'Book Shedstar',
     description: 'Submit professional booking inquiries for Shedstar events, festivals, and brand appearances.',
-    image: '/meta/shedstar-booking-hero.jpg',
+    image: '/meta/shedstar-booking-hero-meta-v2.jpg',
     alt: 'Shedstar booking page hero screenshot.',
   },
   {
     slug: 'contact',
     title: 'Contact Shedstar',
     description: 'Contact Shedstar management for booking, media, licensing, and partnership inquiries.',
-    image: '/meta/shedstar-contact-hero.jpg',
+    image: '/meta/shedstar-contact-hero-meta-v2.jpg',
     alt: 'Shedstar contact page hero screenshot.',
   },
 ];
@@ -106,7 +106,7 @@ pages.push({
   slug: 'newsletter',
   title: 'Shedstar Newsletter',
   description: 'Join the Shedstar fan newsletter for drops, presales, updates, and exclusive fan access.',
-  image: '/meta/shedstar-newsletter-hero.jpg',
+  image: '/meta/shedstar-newsletter-hero-meta-v2.jpg',
   alt: 'Shedstar newsletter page hero screenshot.',
 });
 
@@ -139,6 +139,7 @@ const writePage = (page, template) => {
   html = setTag(html, 'property=og:title', page.title);
   html = setTag(html, 'property=og:description', page.description);
   html = setTag(html, 'property=og:image', imageUrl);
+  html = setTag(html, 'property=og:image:url', imageUrl);
   html = setTag(html, 'property=og:image:secure_url', imageUrl);
   html = setTag(html, 'property=og:image:type', 'image/jpeg');
   html = setTag(html, 'property=og:image:alt', page.alt);
