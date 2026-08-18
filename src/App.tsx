@@ -36,10 +36,52 @@ export default function App() {
     'gallery', 'news', 'partners', 'booking', 'contact', 'fanclub', 'admin',
   ];
 
+  const pathTabs: Record<string, string> = {
+    '': 'home',
+    home: 'home',
+    about: 'about',
+    music: 'music',
+    videos: 'videos',
+    tour: 'tour',
+    merch: 'merchandise',
+    merchandise: 'merchandise',
+    ebooks: 'ebooks',
+    'e-books': 'ebooks',
+    gallery: 'gallery',
+    images: 'gallery',
+    news: 'news',
+    partners: 'partners',
+    advertise: 'partners',
+    booking: 'booking',
+    contact: 'contact',
+    fanclub: 'fanclub',
+    newsletter: 'fanclub',
+    admin: 'admin',
+  };
+
+  const tabPaths: Record<string, string> = {
+    home: '/',
+    about: '/about',
+    music: '/music',
+    videos: '/videos',
+    tour: '/tour',
+    merchandise: '/merch',
+    ebooks: '/ebooks',
+    gallery: '/images',
+    news: '/news',
+    partners: '/advertise',
+    booking: '/booking',
+    contact: '/contact',
+    fanclub: '/newsletter',
+    admin: '/admin',
+  };
+
   const getInitialTab = () => {
     const params = new URLSearchParams(window.location.search);
+    const pathKey = window.location.pathname.replace(/^\/+|\/+$/g, '').toLowerCase();
     const tab = params.get('tab') || window.location.hash.replace('#', '');
-    return pageTabs.includes(tab) ? tab : 'home';
+    if (tab && pageTabs.includes(tab)) return tab;
+    return pathTabs[pathKey] || 'home';
   };
 
   const [activeTab, setActiveTab] = useState<string>(getInitialTab);
@@ -306,7 +348,7 @@ export default function App() {
 
   const handleNavigate = (tab: string) => {
     setActiveTab(tab);
-    const nextUrl = tab === 'home' ? window.location.pathname : `${window.location.pathname}?tab=${tab}`;
+    const nextUrl = tabPaths[tab] || '/';
     window.history.pushState({}, '', nextUrl);
     window.scrollTo({ top: 0, behavior: 'smooth' });
   };

@@ -4,6 +4,22 @@
   "outputDirectory": "dist",
   "framework": null,
   "rewrites": [
+    { "source": "/about", "destination": "/about/index.html" },
+    { "source": "/music", "destination": "/music/index.html" },
+    { "source": "/videos", "destination": "/videos/index.html" },
+    { "source": "/tour", "destination": "/tour/index.html" },
+    { "source": "/merch", "destination": "/merch/index.html" },
+    { "source": "/merchandise", "destination": "/merchandise/index.html" },
+    { "source": "/ebooks", "destination": "/ebooks/index.html" },
+    { "source": "/images", "destination": "/images/index.html" },
+    { "source": "/gallery", "destination": "/gallery/index.html" },
+    { "source": "/news", "destination": "/news/index.html" },
+    { "source": "/advertise", "destination": "/advertise/index.html" },
+    { "source": "/partners", "destination": "/partners/index.html" },
+    { "source": "/booking", "destination": "/booking/index.html" },
+    { "source": "/contact", "destination": "/contact/index.html" },
+    { "source": "/newsletter", "destination": "/newsletter/index.html" },
+    { "source": "/fanclub", "destination": "/fanclub/index.html" },
     { "source": "/((?!api/).*)", "destination": "/index.html" }
   ]
 }
