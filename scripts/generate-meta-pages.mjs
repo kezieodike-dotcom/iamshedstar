@@ -128,7 +128,7 @@ const setLink = (html, rel, href) => {
 };
 
 const writePage = (page, template) => {
-  const url = page.slug ? `${baseUrl}/${page.slug}` : `${baseUrl}/`;
+  const url = page.slug ? `${baseUrl}/${page.slug}` : baseUrl;
   const imageUrl = `${baseUrl}${page.image}`;
   let html = template
     .replace(/<title>.*?<\/title>/, `<title>${escapeAttr(page.title)}</title>`)
