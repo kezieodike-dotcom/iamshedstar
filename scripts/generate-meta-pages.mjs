@@ -12,7 +12,7 @@ const pages = [
     slug: '',
     title: 'SHEDSTAR - Official Website',
     description: 'Music, videos, tour dates, merch, e-books, booking, and fan updates from Shedstar.',
-    image: '/meta/shedstar-home-hero.jpg',
+    image: '/meta/shedstar-main-hero-v3.jpg',
     alt: 'Shedstar official homepage hero screenshot.',
   },
   {

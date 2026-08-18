@@ -29,7 +29,7 @@ export default function HomeSection({
   onPlayPause,
   isPlaying,
 }: HomeSectionProps) {
-  const HERO_IMG = 'https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcTyIgciF_PbBsep1W9zdeAwB24xXXR6n9dgD91vLqD4pxZoVoLkjisQWIua&s=10';
+  const HERO_IMG = '/meta/shedstar-home-portrait.jpg';
 
   /**
    * Hero video URLs, set in the admin dashboard under Settings. Empty until an
