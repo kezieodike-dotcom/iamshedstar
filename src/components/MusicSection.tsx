@@ -4,8 +4,8 @@
  */
 
 import React, { useState } from 'react';
-import { Play, Pause, Music, Disc, Calendar, ExternalLink, MessageSquare, ChevronDown, ChevronUp, ChevronLeft, ChevronRight } from 'lucide-react';
-import { Song } from '../types';
+import { Play, Pause, Calendar, MessageSquare, ChevronLeft, ChevronRight, Download, ShieldCheck } from 'lucide-react';
+import { CartItem, Song } from '../types';
 import { TapeTitle, SafetyPin, TornPanel } from './Decor';
 
 interface MusicSectionProps {
@@ -14,6 +14,8 @@ interface MusicSectionProps {
   onSelectSong: (song: Song) => void;
   onPlayPause: (play: boolean) => void;
   isPlaying: boolean;
+  onAddToCart: (item: CartItem) => void;
+  onOpenCart: () => void;
 }
 
 export default function MusicSection({
@@ -22,6 +24,8 @@ export default function MusicSection({
   onSelectSong,
   onPlayPause,
   isPlaying,
+  onAddToCart,
+  onOpenCart,
 }: MusicSectionProps) {
   const [activeCategory, setActiveCategory] = useState<'all' | 'album' | 'single' | 'ep'>('all');
   const [selectedLyricsSong, setSelectedLyricsSong] = useState<Song | null>(null);
@@ -44,6 +48,27 @@ export default function MusicSection({
       onSelectSong(song);
       onPlayPause(true);
     }
+  };
+
+  const handleBuySong = (song: Song) => {
+    onAddToCart({
+      product: {
+        id: song.id,
+        title: song.title,
+        description: `Digital download of ${song.title}`,
+        price: 1,
+        images: [song.coverUrl],
+        sizes: ['Digital audio'],
+        colors: ['Default'],
+        category: 'Music download',
+        stock: 999999
+      },
+      quantity: 1,
+      selectedSize: 'Digital audio',
+      selectedColor: 'Default',
+      isMusic: true
+    });
+    onOpenCart();
   };
 
   return (
@@ -161,6 +186,13 @@ export default function MusicSection({
 
                     <div className="flex items-center gap-2">
                       <button
+                        onClick={() => handleBuySong(song)}
+                        className="h-10 px-3 border-2 border-ink bg-white hover:bg-brand hover:text-white transition-colors text-[10px] font-mono uppercase tracking-wider inline-flex items-center gap-1.5"
+                        title="Buy download for one dollar"
+                      >
+                        <Download className="w-3.5 h-3.5" /> $1 Download
+                      </button>
+                      <button
                         onClick={() => setSelectedLyricsSong(selectedLyricsSong?.id === song.id ? null : song)}
                         className={`p-2 rounded-none border-2 border-ink hover:bg-cream transition-colors ${
                           selectedLyricsSong?.id === song.id ? 'text-brand bg-brand-soft' : 'text-muted bg-white'
@@ -198,7 +230,7 @@ export default function MusicSection({
               <div className="flex justify-between items-start mb-6 pb-4 border-b-2 border-ink">
                 <div>
                   <h3 className="text-lg font-display font-bold text-ink">{selectedLyricsSong.title}</h3>
-                  <p className="text-xs text-brand font-mono uppercase mt-1">Lyrics & Stream Links</p>
+                <p className="text-xs text-brand font-mono uppercase mt-1">Lyrics & Shedstar stream</p>
                 </div>
                 <button
                   onClick={() => setSelectedLyricsSong(null)}
@@ -208,31 +240,14 @@ export default function MusicSection({
                 </button>
               </div>
 
-              {/* Streaming Embed Badges */}
+              {/* Music stays on this site; purchases unlock a download after Stripe confirms payment. */}
               <div className="mb-6 flex flex-col gap-2">
-                <p className="text-[10px] font-mono uppercase text-muted tracking-widest">Listen On</p>
-                <div className="flex flex-wrap gap-2">
-                  {selectedLyricsSong.streamingLinks.spotify && (
-                    <a href={selectedLyricsSong.streamingLinks.spotify} target="_blank" rel="noopener noreferrer" className="px-3 py-1.5 bg-white hover:bg-brand hover:text-white border-2 border-ink rounded-none text-xs text-ink font-mono flex items-center gap-1.5 transition-all">
-                      <Disc className="w-3.5 h-3.5" /> Spotify
-                    </a>
-                  )}
-                  {selectedLyricsSong.streamingLinks.appleMusic && (
-                    <a href={selectedLyricsSong.streamingLinks.appleMusic} target="_blank" rel="noopener noreferrer" className="px-3 py-1.5 bg-white hover:bg-brand hover:text-white border-2 border-ink rounded-none text-xs text-ink font-mono flex items-center gap-1.5 transition-all">
-                      <Disc className="w-3.5 h-3.5" /> Apple Music
-                    </a>
-                  )}
-                  {selectedLyricsSong.streamingLinks.audiomack && (
-                    <a href={selectedLyricsSong.streamingLinks.audiomack} target="_blank" rel="noopener noreferrer" className="px-3 py-1.5 bg-white hover:bg-brand hover:text-white border-2 border-ink rounded-none text-xs text-ink font-mono flex items-center gap-1.5 transition-all">
-                      <Disc className="w-3.5 h-3.5" /> Audiomack
-                    </a>
-                  )}
-                  {selectedLyricsSong.streamingLinks.boomplay && (
-                    <a href={selectedLyricsSong.streamingLinks.boomplay} target="_blank" rel="noopener noreferrer" className="px-3 py-1.5 bg-white hover:bg-brand hover:text-white border-2 border-ink rounded-none text-xs text-ink font-mono flex items-center gap-1.5 transition-all">
-                      <Disc className="w-3.5 h-3.5" /> Boomplay
-                    </a>
-                  )}
+                <div className="p-3 bg-brand-soft border-2 border-ink text-xs text-ink leading-relaxed">
+                  <strong>Stream exclusively on Shedstar.</strong> Buy this release for $1 and download it after secure checkout.
                 </div>
+                <button onClick={() => handleBuySong(selectedLyricsSong)} className="btn-brand w-full text-xs inline-flex items-center justify-center gap-2">
+                  <Download className="w-4 h-4" /> Buy download for $1
+                </button>
               </div>
 
               <p className="text-[10px] font-mono uppercase text-muted tracking-widest mb-2">Lyrics</p>
@@ -260,20 +275,14 @@ export default function MusicSection({
               </div>
 
               <div className="flex flex-col gap-2">
-                <h4 className="text-xs font-mono uppercase text-muted tracking-widest">Connect and stream on external networks:</h4>
+                <h4 className="text-xs font-mono uppercase text-muted tracking-widest">Stream every release on Shedstar:</h4>
+                <div className="p-3 border-2 border-ink bg-brand-soft text-xs text-ink leading-relaxed flex items-start gap-2">
+                  <ShieldCheck className="w-4 h-4 text-brand flex-none" /> Your stream stays on this site. Every release is available as a $1 download through secure checkout.
+                </div>
                 <div className="grid grid-cols-2 gap-2 text-xs font-mono">
-                  <a href="https://spotify.com" target="_blank" rel="noopener noreferrer" className="p-3 bg-paper hover:bg-brand hover:text-white border-2 border-ink rounded-none flex items-center justify-between transition-all">
-                    <span>Spotify</span> <ExternalLink className="w-3.5 h-3.5" />
-                  </a>
-                  <a href="https://music.apple.com" target="_blank" rel="noopener noreferrer" className="p-3 bg-paper hover:bg-brand hover:text-white border-2 border-ink rounded-none flex items-center justify-between transition-all">
-                    <span>Apple Music</span> <ExternalLink className="w-3.5 h-3.5" />
-                  </a>
-                  <a href="https://audiomack.com" target="_blank" rel="noopener noreferrer" className="p-3 bg-paper hover:bg-brand hover:text-white border-2 border-ink rounded-none flex items-center justify-between transition-all">
-                    <span>Audiomack</span> <ExternalLink className="w-3.5 h-3.5" />
-                  </a>
-                  <a href="https://boomplay.com" target="_blank" rel="noopener noreferrer" className="p-3 bg-paper hover:bg-brand hover:text-white border-2 border-ink rounded-none flex items-center justify-between transition-all">
-                    <span>Boomplay</span> <ExternalLink className="w-3.5 h-3.5" />
-                  </a>
+                  <button onClick={() => handleBuySong(songs[0])} className="p-3 bg-paper hover:bg-brand hover:text-white border-2 border-ink rounded-none flex items-center justify-between transition-all col-span-2">
+                    <span>Buy featured release for $1</span> <Download className="w-3.5 h-3.5" />
+                  </button>
                 </div>
               </div>
             </div>

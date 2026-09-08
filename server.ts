@@ -1089,7 +1089,65 @@ app.get('/api/health', (req, res) => {
 // 1. Songs Endpoints
 app.get('/api/songs', (req, res) => {
   const db = getDb();
-  res.json(db.songs);
+  res.json(db.songs.map((song: Song) => ({
+    ...song,
+    audioUrl: `/api/songs/${encodeURIComponent(song.id)}/audio`,
+    streamingLinks: {}
+  })));
+});
+
+// Keep listening on Shedstar's own domain. The seeded tracks currently point
+// at source files, but the browser only receives this first-party proxy URL.
+app.get('/api/songs/:id/audio', async (req, res) => {
+  const db = getDb();
+  const song = db.songs.find((item: Song) => item.id === req.params.id);
+  if (!song?.audioUrl) return res.status(404).json({ error: 'Audio not found' });
+
+  try {
+    const upstream = await fetch(song.audioUrl);
+    if (!upstream.ok || !upstream.body) return res.status(502).json({ error: 'Audio unavailable' });
+    res.setHeader('Content-Type', upstream.headers.get('content-type') || 'audio/mpeg');
+    res.setHeader('Cache-Control', 'public, max-age=3600');
+    if (upstream.headers.get('content-length')) res.setHeader('Content-Length', upstream.headers.get('content-length')!);
+    const reader = upstream.body.getReader();
+    res.on('close', () => reader.cancel().catch(() => {}));
+    while (true) {
+      const { done, value } = await reader.read();
+      if (done) break;
+      res.write(value);
+    }
+    res.end();
+  } catch (error: any) {
+    console.error('[songs] audio proxy error:', error.message);
+    if (!res.headersSent) res.status(502).json({ error: 'Audio unavailable' });
+  }
+});
+
+// Paid music downloads are resolved only after a completed Stripe order.
+app.get('/api/songs/:id/download', async (req, res) => {
+  const db = getDb();
+  const song = db.songs.find((item: Song) => item.id === req.params.id);
+  const orderId = typeof req.query.order_id === 'string' ? req.query.order_id : '';
+  const order = (db.orders || []).find((item: Order) => item.id === orderId && item.status === 'paid');
+  const purchased = order?.items.some((item) => item.id === song?.id && item.isMusic);
+  if (!song || !purchased) return res.status(403).json({ error: 'Purchase required' });
+  try {
+    const upstream = await fetch(song.audioUrl);
+    if (!upstream.ok || !upstream.body) return res.status(502).json({ error: 'Download unavailable' });
+    res.setHeader('Content-Type', upstream.headers.get('content-type') || 'audio/mpeg');
+    res.setHeader('Content-Disposition', `attachment; filename="${song.title.replace(/[^a-z0-9]+/gi, '-').toLowerCase()}.mp3"`);
+    const reader = upstream.body.getReader();
+    res.on('close', () => reader.cancel().catch(() => {}));
+    while (true) {
+      const { done, value } = await reader.read();
+      if (done) break;
+      res.write(value);
+    }
+    res.end();
+  } catch (error: any) {
+    console.error('[songs] download proxy error:', error.message);
+    if (!res.headersSent) res.status(502).json({ error: 'Download unavailable' });
+  }
 });
 
 app.post('/api/songs', (req, res) => {
@@ -1530,6 +1588,12 @@ function resolveCartItem(db: any, item: any): OrderItem | null {
     return { id: ebook.id, title: ebook.title, price: ebook.price, quantity, isEBook: true };
   }
 
+  if (item?.isMusic) {
+    const song = (db.songs || []).find((track: Song) => track.id === id);
+    if (!song) return null;
+    return { id: song.id, title: song.title, price: 1, quantity, isEBook: false, isMusic: true };
+  }
+
   const product = (db.products || []).find((p: Product) => p.id === id);
   if (!product) return null;
   return { id: product.id, title: product.title, price: product.price, quantity, isEBook: false };
@@ -1561,7 +1625,7 @@ app.post('/api/checkout/create-session', async (req, res) => {
   }
 
   const amountTotal = Number(orderItems.reduce((sum, i) => sum + i.price * i.quantity, 0).toFixed(2));
-  const hasPhysical = orderItems.some((i) => !i.isEBook);
+  const hasPhysical = orderItems.some((i) => !i.isEBook && !i.isMusic);
 
   // Persist a pending order; its id links Stripe back to fulfillment.
   const order: Order = {
@@ -1587,7 +1651,7 @@ app.post('/api/checkout/create-session', async (req, res) => {
           unit_amount: Math.round(i.price * 100), // Stripe expects the smallest currency unit
           product_data: {
             name: i.title,
-            metadata: { productId: i.id, kind: i.isEBook ? 'ebook' : 'merch' }
+            metadata: { productId: i.id, kind: i.isEBook ? 'ebook' : i.isMusic ? 'music' : 'merch' }
           }
         }
       })),
@@ -1639,6 +1703,7 @@ function fulfillOrder(sessionId?: string, orderId?: string, email?: string): Ord
         else db.stats.salesByProduct.push({ name: ebook.title, value: item.quantity });
       }
     } else {
+      if (item.isMusic) return;
       const product = (db.products || []).find((p: Product) => p.id === item.id);
       if (product) {
         product.stock = Math.max(0, product.stock - item.quantity);
@@ -1692,10 +1757,17 @@ app.get('/api/checkout/verify', async (req, res) => {
     // Attach download links for any e-books in the order.
     const db = getDb();
     const downloadLinks = order.items
-      .filter((i) => i.isEBook)
+      .filter((i) => i.isEBook || i.isMusic)
       .map((i) => {
         const ebook = (db.ebooks || []).find((b: EBook) => b.id === i.id);
-        return { id: i.id, title: ebook?.title || i.title, downloadUrl: ebook?.downloadUrl || '/assets/dummy.pdf' };
+        const song = (db.songs || []).find((track: Song) => track.id === i.id);
+        return {
+          id: i.id,
+          title: ebook?.title || song?.title || i.title,
+          downloadUrl: i.isMusic
+            ? `/api/songs/${encodeURIComponent(i.id)}/download?order_id=${encodeURIComponent(order.id)}`
+            : ebook?.downloadUrl || '/assets/dummy.pdf'
+        };
       });
 
     res.json({

@@ -120,6 +120,7 @@ export interface CartItem {
   selectedSize: string;
   selectedColor: string;
   isEBook?: boolean; // track if this item is an E-Book
+  isMusic?: boolean; // track if this item is a downloadable music release
 }
 
 export interface EBook {
@@ -143,6 +144,7 @@ export interface OrderItem {
   price: number;      // unit price in currency major units (e.g. dollars)
   quantity: number;
   isEBook: boolean;
+  isMusic?: boolean;
 }
 
 export interface Order {
