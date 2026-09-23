@@ -4,7 +4,7 @@
  */
 
 import React from 'react';
-import { Youtube, Instagram, Music, Music2, ArrowUp } from 'lucide-react';
+import { Youtube, Instagram, Music, Music2, ArrowUp, Share2, Check } from 'lucide-react';
 
 interface FooterProps {
   setActiveTab: (tab: string) => void;
@@ -21,8 +21,21 @@ export default function Footer({
   isAdmin,
   onLogoutAdmin,
 }: FooterProps) {
+  const [shared, setShared] = React.useState(false);
   const scrollToTop = () => window.scrollTo({ top: 0, behavior: 'smooth' });
   const currentYear = new Date().getFullYear();
+
+  const shareSite = async () => {
+    const shareData = { title: 'Shedstar | Official Website', text: 'Visit the official Shedstar website.', url: window.location.href };
+    try {
+      if (navigator.share) await navigator.share(shareData);
+      else await navigator.clipboard.writeText(window.location.href);
+      setShared(true);
+      window.setTimeout(() => setShared(false), 2200);
+    } catch {
+      // Sharing can be canceled by the user; no error state is needed.
+    }
+  };
 
   const links = [
     { id: 'about', label: 'About' },
@@ -86,6 +99,10 @@ export default function Footer({
             )}
           </nav>
           <div className="flex flex-col items-start md:items-end gap-5">
+            <button onClick={shareSite} className="btn-ink text-[10px] inline-flex items-center gap-2" title="Share this page">
+              {shared ? <Check className="w-4 h-4" /> : <Share2 className="w-4 h-4" />}
+              {shared ? 'Link Copied' : 'Share This Page'}
+            </button>
             <div className="flex items-center gap-4">
               {socials.map((s) => (
                 <a key={s.label} href={s.href} target="_blank" rel="noopener noreferrer" title={s.label} className="text-brand hover:text-ink transition-colors">

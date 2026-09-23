@@ -285,7 +285,7 @@ export default function EBooksSection({ onAddToCart, onOpenCart }: EBooksSection
 
             <form onSubmit={handleDirectPurchase} className="space-y-4">
               <div className="flex gap-4 items-center bg-cream p-3 border-2 border-ink mb-4">
-                <img src={checkoutBook.coverUrl} alt="" className="w-12 h-16 object-cover border-2 border-ink" />
+                <img src={checkoutBook.coverUrl} alt={`${checkoutBook.title} cover`} className="w-12 h-16 object-cover border-2 border-ink" />
                 <div>
                   <h4 className="font-display text-sm text-ink font-bold truncate max-w-[200px]">{checkoutBook.title}</h4>
                   <p className="font-mono text-xs text-brand">${checkoutBook.price.toFixed(2)} • Instant PDF Access</p>

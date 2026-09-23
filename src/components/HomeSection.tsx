@@ -166,7 +166,7 @@ export default function HomeSection({
         ) : (
           <img
             src={HERO_IMG}
-            alt="Shedstar"
+            alt="Shedstar portrait in the homepage hero"
             className="absolute inset-0 h-full w-full object-cover object-[58%_30%] scale-[1.08] md:scale-[1.12] photo-grunge mix-blend-multiply"
           />
         )}

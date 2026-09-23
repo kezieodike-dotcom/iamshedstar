@@ -4,10 +4,14 @@
  */
 
 import React, { useState } from 'react';
-import { Mail, Phone, MapPin, Send, CheckCircle, ShieldAlert, Instagram, Youtube, Twitter, Disc } from 'lucide-react';
+import { Mail, Phone, MapPin, Send, CheckCircle, ShieldAlert, Instagram, Youtube, Twitter, Disc, Navigation } from 'lucide-react';
 import { TapeTitle, SafetyPin } from './Decor';
 
-export default function ContactSection() {
+interface ContactSectionProps {
+  setActiveTab?: (tab: string) => void;
+}
+
+export default function ContactSection({ setActiveTab }: ContactSectionProps) {
   const [formData, setFormData] = useState({ name: '', email: '', subject: '', message: '' });
   const [status, setStatus] = useState<'idle' | 'submitting' | 'success'>('idle');
 
@@ -24,6 +28,7 @@ export default function ContactSection() {
         setTimeout(() => {
           setStatus('success');
           setFormData({ name: '', email: '', subject: '', message: '' });
+          setActiveTab?.('thank-you');
         }, 1200);
       } else {
         setStatus('idle');
@@ -104,21 +109,26 @@ export default function ContactSection() {
 
           </div>
 
-          {/* Map Section Placeholder */}
-          <div className="relative aspect-video overflow-hidden border-2 border-ink bg-cream-dark flex items-center justify-center p-4">
-            <div className="absolute inset-0 opacity-30 bg-cover bg-center" style={{ backgroundImage: `url('https://images.unsplash.com/photo-1524661135-423995f22d0b?q=80&w=800&auto=format&fit=crop')` }} />
-
-            <div className="relative z-10 text-center flex flex-col items-center gap-2">
-              <MapPin className="w-8 h-8 text-brand animate-bounce" />
-              <h4 className="text-sm font-display font-bold text-ink uppercase">Soho Square, London HQ</h4>
-              <p className="text-[10px] text-muted font-mono">51.5152° N, 0.1321° W</p>
+          <div className="border-2 border-ink bg-paper overflow-hidden">
+            <iframe
+              title="Map showing Shedstar Music Group headquarters in Soho Square, London"
+              src="https://www.google.com/maps?q=Soho+Square,+London&output=embed"
+              className="w-full aspect-video border-0"
+              loading="lazy"
+              referrerPolicy="no-referrer-when-downgrade"
+            />
+            <div className="p-4 flex flex-col sm:flex-row sm:items-center justify-between gap-3">
+              <div>
+                <h4 className="text-sm font-display font-bold text-ink uppercase">Soho Square, London HQ</h4>
+                <p className="text-[10px] text-muted font-mono mt-1">51.5152° N, 0.1321° W</p>
+              </div>
               <a
-                href="https://maps.google.com/?q=Soho+Square,+London"
+                href="https://www.google.com/maps/dir/?api=1&destination=Soho+Square,+London"
                 target="_blank"
                 rel="noopener noreferrer"
-                className="btn-ink text-[10px] mt-2 !px-4 !py-2"
+                className="btn-ink text-[10px] !px-4 !py-2 inline-flex items-center gap-2"
               >
-                Launch Google Maps
+                <Navigation className="w-3.5 h-3.5" /> Get Directions
               </a>
             </div>
           </div>

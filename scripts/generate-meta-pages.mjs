@@ -92,6 +92,20 @@ const pages = [
     image: '/meta/shedstar-contact-hero-meta-v2.jpg',
     alt: 'Shedstar contact page hero screenshot.',
   },
+  {
+    slug: 'privacy',
+    title: 'Privacy Policy | Shedstar',
+    description: 'Read the Shedstar website privacy policy and learn how submitted information is handled.',
+    image: '/meta/shedstar-contact-hero-meta-v2.jpg',
+    alt: 'Shedstar privacy policy page preview.',
+  },
+  {
+    slug: 'thank-you',
+    title: 'Thank You | Shedstar',
+    description: 'Your message has been received by the Shedstar team.',
+    image: '/meta/shedstar-contact-hero-meta-v2.jpg',
+    alt: 'Shedstar contact confirmation page preview.',
+  },
 ];
 
 const aliases = [

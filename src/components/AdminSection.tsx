@@ -1343,7 +1343,7 @@ export default function AdminSection({
                       adminEBooks.map((book) => (
                         <tr key={book.id} className="border-b border-line hover:bg-cream transition-colors">
                           <td className="p-3">
-                            <img src={book.coverUrl} alt="" className="w-8 h-10 object-cover rounded" />
+                            <img src={book.coverUrl} alt={`${book.title} cover`} className="w-8 h-10 object-cover rounded" />
                           </td>
                           <td className="p-3">
                             <p className="text-ink font-bold">{book.title}</p>

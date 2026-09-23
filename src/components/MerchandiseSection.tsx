@@ -215,7 +215,7 @@ export default function MerchandiseSection({
                   <div className="grid grid-cols-4 gap-2">
                     {selectedProduct.images.map((img, i) => (
                       <div key={i} className="aspect-square border-2 border-ink overflow-hidden bg-cream">
-                        <img src={img} alt="detail thumbnail" className="w-full h-full object-cover" />
+                        <img src={img} alt={`${selectedProduct.title} alternate product view ${i + 1}`} className="w-full h-full object-cover" />
                       </div>
                     ))}
                   </div>

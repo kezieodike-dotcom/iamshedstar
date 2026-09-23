@@ -23,6 +23,8 @@ import AdminSection from './components/AdminSection';
 import EBooksSection from './components/EBooksSection';
 import GallerySection from './components/GallerySection';
 import PartnersSection from './components/PartnersSection';
+import PrivacyPolicySection from './components/PrivacyPolicySection';
+import ThankYouSection from './components/ThankYouSection';
 
 // Types
 import {
@@ -33,7 +35,7 @@ import {
 export default function App() {
   const pageTabs = [
     'home', 'about', 'music', 'videos', 'tour', 'merchandise', 'ebooks',
-    'gallery', 'news', 'partners', 'booking', 'contact', 'fanclub', 'admin',
+    'gallery', 'news', 'partners', 'booking', 'contact', 'fanclub', 'privacy', 'thank-you', 'admin',
   ];
 
   const pathTabs: Record<string, string> = {
@@ -56,6 +58,8 @@ export default function App() {
     contact: 'contact',
     fanclub: 'fanclub',
     newsletter: 'fanclub',
+    privacy: 'privacy',
+    'thank-you': 'thank-you',
     admin: 'admin',
   };
 
@@ -73,6 +77,8 @@ export default function App() {
     booking: '/booking',
     contact: '/contact',
     fanclub: '/newsletter',
+    privacy: '/privacy',
+    'thank-you': '/thank-you',
     admin: '/admin',
   };
 
@@ -85,6 +91,33 @@ export default function App() {
   };
 
   const [activeTab, setActiveTab] = useState<string>(getInitialTab);
+
+  useEffect(() => {
+    const metadata: Record<string, { title: string; description: string }> = {
+      home: { title: 'Shedstar | Official Website', description: 'The official home of Shedstar for music, videos, tour dates, merchandise, e-books, booking, and fan updates.' },
+      about: { title: 'About Shedstar | Official Website', description: 'Discover Shedstar\'s story, style, creative world, and visual identity.' },
+      music: { title: 'Shedstar Music | Stream Releases', description: 'Stream Shedstar releases on the official site and explore albums, singles, lyrics, and $1 downloads.' },
+      videos: { title: 'Shedstar Videos | Official Clips', description: 'Watch official Shedstar music videos, live performances, interviews, and behind-the-scenes films.' },
+      tour: { title: 'Shedstar Tour Dates | Official Website', description: 'Find Shedstar tour dates, venues, tickets, and artist presale information.' },
+      merchandise: { title: 'Shedstar Merch | Official Store', description: 'Shop official Shedstar clothing, accessories, vinyl, and limited merchandise drops.' },
+      ebooks: { title: 'Shedstar E-Books | Official Digital Editions', description: 'Explore official Shedstar e-books, lyric annotations, studio stories, and digital editions.' },
+      gallery: { title: 'Shedstar Gallery | Official Images', description: 'Browse Shedstar concert photography, studio sessions, fan moments, travel, and award images.' },
+      news: { title: 'Shedstar News | Official Updates', description: 'Read official Shedstar news, announcements, tour updates, and creative stories.' },
+      partners: { title: 'Advertise With Shedstar | Brand Partnerships', description: 'Partner with Shedstar through music, video, tour, newsletter, and fan campaign placements.' },
+      booking: { title: 'Book Shedstar | Official Booking', description: 'Submit a professional booking inquiry for Shedstar events, festivals, and brand appearances.' },
+      contact: { title: 'Contact Shedstar Management', description: 'Contact Shedstar management for booking, media, licensing, legal, and partnership inquiries.' },
+      fanclub: { title: 'Join The Shedstar Newsletter', description: 'Join the official Shedstar newsletter for music drops, presales, tour updates, and exclusive fan access.' },
+      privacy: { title: 'Privacy Policy | Shedstar', description: 'Read the Shedstar website privacy policy and learn how submitted information is handled.' },
+      'thank-you': { title: 'Thank You | Shedstar', description: 'Your message has been received by the Shedstar team.' },
+      admin: { title: 'Shedstar Admin Dashboard', description: 'Shedstar content and site administration.' },
+    };
+    const current = metadata[activeTab] || metadata.home;
+    document.title = current.title;
+    const description = document.querySelector('meta[name="description"]');
+    description?.setAttribute('content', current.description);
+    const canonical = document.querySelector('link[rel="canonical"]');
+    canonical?.setAttribute('href', `https://www.iamshedstar.com${tabPaths[activeTab] || '/'}`);
+  }, [activeTab]);
 
   // Server Loaded Data
   const [songs, setSongs] = useState<Song[]>([]);
@@ -455,7 +488,15 @@ export default function App() {
         )}
 
         {activeTab === 'contact' && (
-          <ContactSection />
+          <ContactSection setActiveTab={handleNavigate} />
+        )}
+
+        {activeTab === 'privacy' && (
+          <PrivacyPolicySection />
+        )}
+
+        {activeTab === 'thank-you' && (
+          <ThankYouSection setActiveTab={handleNavigate} />
         )}
 
         {activeTab === 'fanclub' && (
@@ -522,7 +563,7 @@ export default function App() {
       {/* Brand Footer layout */}
       <Footer
         setActiveTab={handleNavigate}
-        onOpenPrivacy={() => setPolicyType('privacy')}
+        onOpenPrivacy={() => handleNavigate('privacy')}
         onOpenTerms={() => setPolicyType('terms')}
         isAdmin={isAdmin}
         onLogoutAdmin={handleLogOutAdmin}

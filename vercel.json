@@ -18,6 +18,8 @@
     { "source": "/partners", "destination": "/partners/index.html" },
     { "source": "/booking", "destination": "/booking/index.html" },
     { "source": "/contact", "destination": "/contact/index.html" },
+    { "source": "/privacy", "destination": "/privacy/index.html" },
+    { "source": "/thank-you", "destination": "/thank-you/index.html" },
     { "source": "/newsletter", "destination": "/newsletter/index.html" },
     { "source": "/fanclub", "destination": "/fanclub/index.html" },
     { "source": "/((?!api/).*)", "destination": "/index.html" }
