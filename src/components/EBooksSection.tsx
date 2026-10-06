@@ -71,7 +71,7 @@ export default function EBooksSection({ onAddToCart, onOpenCart }: EBooksSection
     setCheckoutError(null);
 
     try {
-      const res = await fetch('/api/checkout/create-session', {
+      const res = await fetch('/api/checkout', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({

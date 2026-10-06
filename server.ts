@@ -53,7 +53,7 @@ function verifyBachsSignature(rawBody: Buffer, timestampHeader: string | undefin
 
 // Bachs webhooks need the raw request body to verify the signature, so it is
 // registered BEFORE express.json() (which would otherwise consume the body).
-app.post('/api/bachs/webhook', express.raw({ type: 'application/json' }), (req, res) => {
+app.post(['/api/bachs/webhook', '/api/bachs'], express.raw({ type: 'application/json' }), (req, res) => {
   if (!bachsConfigured) {
     return res.status(503).json({ error: 'Bachs is not configured' });
   }
@@ -1593,7 +1593,10 @@ app.post('/api/purchase', (req, res) => {
 // --- BACHS CHECKOUT (real payment gateway) ---
 
 // Expose whether Bachs is wired up (for the client to show a helpful message).
-app.get('/api/checkout/config', (req, res) => {
+app.get(['/api/checkout/config', '/api/checkout'], (req, res, next) => {
+  // Vercel deployments of this project reliably expose one-segment API paths;
+  // let the same /api/checkout path handle verification when an id is present.
+  if (req.query.checkout_id || req.query.session_id) return next();
   res.json({ configured: bachsConfigured, provider: 'bachs', currency: CURRENCY });
 });
 
@@ -1622,7 +1625,7 @@ function resolveCartItem(db: any, item: any): OrderItem | null {
 }
 
 // Create a Bachs Checkout Session from the cart and return its hosted URL.
-app.post('/api/checkout/create-session', async (req, res) => {
+app.post(['/api/checkout/create-session', '/api/checkout'], async (req, res) => {
   if (!bachsConfigured) {
     return res.status(503).json({
       error: 'Bachs is not configured. Add BACHS_API_KEY to the .env file and restart the server.'
@@ -1745,7 +1748,7 @@ function fulfillOrder(checkoutId?: string, orderId?: string, email?: string): Or
 
 // Success page calls this with the Bachs checkout id to confirm + fulfill.
 // This makes fulfillment work locally without webhook forwarding.
-app.get('/api/checkout/verify', async (req, res) => {
+app.get(['/api/checkout/verify', '/api/checkout'], async (req, res) => {
   if (!bachsConfigured) {
     return res.status(503).json({ error: 'Bachs is not configured' });
   }

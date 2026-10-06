@@ -190,7 +190,7 @@ export default function App() {
       if (!checkoutId) return;
       (async () => {
         try {
-          const res = await fetch(`/api/checkout/verify?checkout_id=${encodeURIComponent(checkoutId)}`);
+          const res = await fetch(`/api/checkout?checkout_id=${encodeURIComponent(checkoutId)}`);
           const data = await res.json();
           if (res.ok && data.success) {
             setCart([]); // paid — empty the cart
