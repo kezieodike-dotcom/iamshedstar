@@ -5,7 +5,7 @@
 
 import React, { useState } from 'react';
 import { Play, Pause, Calendar, MessageSquare, ChevronLeft, ChevronRight, Download, ShieldCheck } from 'lucide-react';
-import { CartItem, Song } from '../types';
+import { Song } from '../types';
 import { TapeTitle, SafetyPin, TornPanel } from './Decor';
 
 interface MusicSectionProps {
@@ -14,8 +14,6 @@ interface MusicSectionProps {
   onSelectSong: (song: Song) => void;
   onPlayPause: (play: boolean) => void;
   isPlaying: boolean;
-  onAddToCart: (item: CartItem) => void;
-  onOpenCart: () => void;
 }
 
 export default function MusicSection({
@@ -24,11 +22,11 @@ export default function MusicSection({
   onSelectSong,
   onPlayPause,
   isPlaying,
-  onAddToCart,
-  onOpenCart,
 }: MusicSectionProps) {
   const [activeCategory, setActiveCategory] = useState<'all' | 'album' | 'single' | 'ep'>('all');
   const [selectedLyricsSong, setSelectedLyricsSong] = useState<Song | null>(null);
+  const [checkoutError, setCheckoutError] = useState<string | null>(null);
+  const [isCheckingOut, setIsCheckingOut] = useState(false);
 
   const filteredSongs = activeCategory === 'all' 
     ? songs 
@@ -50,29 +48,34 @@ export default function MusicSection({
     }
   };
 
-  const handleBuySong = (song: Song) => {
-    onAddToCart({
-      product: {
-        id: song.id,
-        title: song.title,
-        description: `Digital download of ${song.title}`,
-        price: 1,
-        images: [song.coverUrl],
-        sizes: ['Digital audio'],
-        colors: ['Default'],
-        category: 'Music download',
-        stock: 999999
-      },
-      quantity: 1,
-      selectedSize: 'Digital audio',
-      selectedColor: 'Default',
-      isMusic: true
-    });
-    onOpenCart();
+  const handleBuySong = async (song: Song) => {
+    setCheckoutError(null);
+    setIsCheckingOut(true);
+    try {
+      const response = await fetch('/api/checkout', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          items: [{ product: { id: song.id, title: song.title }, quantity: 1, isMusic: true }]
+        })
+      });
+      const data = await response.json().catch(() => ({}));
+      if (response.ok && data.url) {
+        window.location.href = data.url;
+      } else {
+        setCheckoutError(data.error || `Checkout unavailable (HTTP ${response.status}). Please try again.`);
+        setIsCheckingOut(false);
+      }
+    } catch (error) {
+      console.error('Music checkout error:', error);
+      setCheckoutError('We could not reach checkout. Check your connection and try again.');
+      setIsCheckingOut(false);
+    }
   };
 
   return (
     <div className="bg-silver grain relative text-ink select-none">
+    {checkoutError && <div className="mx-4 mt-4 p-3 bg-red-50 border-2 border-red-500 text-red-700 text-xs font-mono text-center">{checkoutError}</div>}
     <SafetyPin className="absolute top-10 right-10 rotate-12 hidden sm:block" size={60} />
     <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-14 md:py-24 relative">
 
@@ -245,8 +248,8 @@ export default function MusicSection({
                 <div className="p-3 bg-brand-soft border-2 border-ink text-xs text-ink leading-relaxed">
                   <strong>Stream exclusively on Shedstar.</strong> Buy this release for $1 and download it after secure checkout.
                 </div>
-                <button onClick={() => handleBuySong(selectedLyricsSong)} className="btn-brand w-full text-xs inline-flex items-center justify-center gap-2">
-                  <Download className="w-4 h-4" /> Buy download for $1
+                  <button onClick={() => handleBuySong(selectedLyricsSong)} disabled={isCheckingOut} className="btn-brand w-full text-xs inline-flex items-center justify-center gap-2 disabled:opacity-60">
+                  <Download className="w-4 h-4" /> {isCheckingOut ? 'Opening Checkout…' : 'Buy download for $1'}
                 </button>
               </div>
 

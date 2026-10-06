@@ -431,8 +431,6 @@ export default function App() {
             onSelectSong={handleSelectSong}
             onPlayPause={setIsPlaying}
             isPlaying={isPlaying}
-            onAddToCart={handleAddToCart}
-            onOpenCart={() => setIsCartOpen(true)}
           />
         )}
 

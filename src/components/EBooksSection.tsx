@@ -85,18 +85,18 @@ export default function EBooksSection({ onAddToCart, onOpenCart }: EBooksSection
           ]
         })
       });
-      const data = await res.json();
+      const data = await res.json().catch(() => ({}));
 
       if (res.ok && data.url) {
         // Hand off to Bachs' secure hosted checkout page.
         window.location.href = data.url;
       } else {
-        setCheckoutError(data.error || 'Could not start checkout. Please try again.');
+        setCheckoutError(data.error || `Checkout unavailable (HTTP ${res.status}). Please try again.`);
         setIsSubmitting(false);
       }
     } catch (err) {
       console.error('EBook checkout error:', err);
-      setCheckoutError('Could not contact the payment server. Try again later.');
+      setCheckoutError('We could not reach checkout. Check your connection and try again.');
       setIsSubmitting(false);
     }
   };

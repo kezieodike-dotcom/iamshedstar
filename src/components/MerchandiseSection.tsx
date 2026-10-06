@@ -44,6 +44,7 @@ export default function MerchandiseSection({
   const [checkoutStep, setCheckoutStep] = useState<'idle' | 'review' | 'redirecting'>('idle');
   const [checkoutEmail, setCheckoutEmail] = useState('');
   const [checkoutError, setCheckoutError] = useState<string | null>(null);
+  const [directCheckoutItem, setDirectCheckoutItem] = useState<CartItem | null>(null);
 
   const categories = ['All', 'T-Shirts', 'Hoodies', 'Caps', 'Sweatshirts', 'Bracelets', 'Albums'];
 
@@ -52,6 +53,8 @@ export default function MerchandiseSection({
     : products.filter(p => p.category === activeCategory);
 
   const cartTotal = cart.reduce((sum, item) => sum + (item.product.price * item.quantity), 0);
+  const checkoutItems = directCheckoutItem ? [directCheckoutItem] : cart;
+  const checkoutTotal = checkoutItems.reduce((sum, item) => sum + (item.product.price * item.quantity), 0);
 
   const handleOpenProduct = (prod: Product) => {
     setSelectedProduct(prod);
@@ -77,9 +80,23 @@ export default function MerchandiseSection({
     }, 1000);
   };
 
+  const handleDirectBuy = () => {
+    if (!selectedProduct || selectedProduct.stock <= 0) return;
+    setDirectCheckoutItem({
+      product: selectedProduct,
+      quantity,
+      selectedSize,
+      selectedColor
+    });
+    setSelectedProduct(null);
+    setCheckoutError(null);
+    setCheckoutStep('review');
+    onOpenCart();
+  };
+
   const handleBachsCheckout = async (e: React.FormEvent) => {
     e.preventDefault();
-    if (cart.length === 0) return;
+    if (checkoutItems.length === 0) return;
     setCheckoutStep('redirecting');
     setCheckoutError(null);
 
@@ -87,19 +104,20 @@ export default function MerchandiseSection({
       const response = await fetch('/api/checkout', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ items: cart, email: checkoutEmail || undefined })
+        body: JSON.stringify({ items: checkoutItems, email: checkoutEmail || undefined })
       });
-      const data = await response.json();
+      const data = await response.json().catch(() => ({}));
 
       if (response.ok && data.url) {
         // Hand off to Bachs' secure hosted checkout page.
         window.location.href = data.url;
       } else {
-        setCheckoutError(data.error || 'Could not start checkout. Please try again.');
+        setCheckoutError(data.error || `Checkout unavailable (HTTP ${response.status}). Please try again.`);
         setCheckoutStep('review');
       }
-    } catch {
-      setCheckoutError('Network error contacting the payment server.');
+    } catch (error) {
+      console.error('Bachs checkout error:', error);
+      setCheckoutError('We could not reach checkout. Check your connection and try again.');
       setCheckoutStep('review');
     }
   };
@@ -306,20 +324,14 @@ export default function MerchandiseSection({
 
                 {/* Add to Cart button or feedback */}
                 {selectedProduct.stock > 0 ? (
-                  <button
-                    type="submit"
-                    className="btn-brand w-full text-xs active:scale-95"
-                  >
-                    {addToCartStatus ? (
-                      <>
-                        <Check className="w-4 h-4 stroke-[3px]" /> Added to Cart
-                      </>
-                    ) : (
-                      <>
-                        <ShoppingBag className="w-4.5 h-4.5" /> Add to Shopping Cart
-                      </>
-                    )}
-                  </button>
+                  <div className="flex gap-2">
+                    <button type="submit" className="btn-brand flex-1 text-xs active:scale-95">
+                      {addToCartStatus ? <><Check className="w-4 h-4 stroke-[3px]" /> Added</> : <><ShoppingBag className="w-4.5 h-4.5" /> Add to Cart</>}
+                    </button>
+                    <button type="button" onClick={handleDirectBuy} className="btn-ink flex-1 text-xs active:scale-95">
+                      Buy Now
+                    </button>
+                  </div>
                 ) : (
                   <button
                     type="button"
@@ -408,7 +420,7 @@ export default function MerchandiseSection({
                     </div>
 
                     <button
-                      onClick={() => { setCheckoutError(null); setCheckoutStep('review'); }}
+                      onClick={() => { setDirectCheckoutItem(null); setCheckoutError(null); setCheckoutStep('review'); }}
                       className="btn-brand w-full text-xs active:scale-95"
                     >
                       Proceed to Checkout <ArrowRight className="w-4.5 h-4.5" />
@@ -445,7 +457,7 @@ export default function MerchandiseSection({
                   <div className="p-3 bg-cream border-2 border-ink font-mono text-xs text-muted flex flex-col gap-1">
                     <div className="flex justify-between">
                       <span>Subtotal</span>
-                      <span>${cartTotal.toFixed(2)}</span>
+                      <span>${checkoutTotal.toFixed(2)}</span>
                     </div>
                     <div className="flex justify-between">
                       <span>Shipping</span>
@@ -453,7 +465,7 @@ export default function MerchandiseSection({
                     </div>
                     <div className="flex justify-between pt-1 border-t-2 border-ink font-bold text-ink text-sm">
                       <span>Total</span>
-                      <span className="text-brand">${cartTotal.toFixed(2)} USD</span>
+                      <span className="text-brand">${checkoutTotal.toFixed(2)} USD</span>
                     </div>
                   </div>
 
@@ -480,7 +492,7 @@ export default function MerchandiseSection({
                   >
                     {checkoutStep === 'redirecting'
                       ? 'Redirecting to Bachs…'
-                      : <><CreditCard className="w-4 h-4" /> Pay ${cartTotal.toFixed(2)} with Bachs</>}
+                      : <><CreditCard className="w-4 h-4" /> Pay ${checkoutTotal.toFixed(2)} with Bachs</>}
                   </button>
                 </div>
               </form>
