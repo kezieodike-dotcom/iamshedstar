@@ -1664,6 +1664,8 @@ app.post(['/api/checkout/create-session', '/api/checkout'], async (req, res) => 
   db.orders.push(order);
   saveDb(db);
 
+  let bachsStatus = 502;
+  let bachsMessage = '';
   try {
     const response = await fetch(`${BACHS_API_BASE_URL}/v1/checkout-sessions`, {
       method: 'POST',
@@ -1680,9 +1682,11 @@ app.post(['/api/checkout/create-session', '/api/checkout'], async (req, res) => 
         cancel_url: `${APP_URL}/?checkout=cancel&order_id=${encodeURIComponent(order.id)}`
       })
     });
+    bachsStatus = response.status;
     const session = await response.json() as any;
     if (!response.ok || !session.checkout_url || !session.checkout_id) {
-      throw new Error(session?.error?.message || session?.message || `Bachs returned HTTP ${response.status}`);
+      bachsMessage = session?.error?.message || session?.message || session?.error_code || `Bachs returned HTTP ${response.status}`;
+      throw new Error(bachsMessage);
     }
 
     order.bachsCheckoutId = session.checkout_id;
@@ -1691,7 +1695,10 @@ app.post(['/api/checkout/create-session', '/api/checkout'], async (req, res) => 
     res.json({ url: session.checkout_url, orderId: order.id });
   } catch (err: any) {
     console.error('[bachs] create-session error:', err.message);
-    res.status(500).json({ error: 'Could not start checkout. Please try again.' });
+    res.status(bachsStatus >= 400 ? bachsStatus : 502).json({
+      error: bachsMessage || 'Bachs checkout is temporarily unavailable. Please try again.',
+      code: 'BACHS_CHECKOUT_ERROR'
+    });
   }
 });
 
