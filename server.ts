@@ -7,55 +7,77 @@ import 'dotenv/config';
 import express from 'express';
 import path from 'path';
 import fs from 'fs';
-import Stripe from 'stripe';
+import { createHmac, timingSafeEqual } from 'node:crypto';
 import { Song, Video, Product, Tour, GalleryItem, BlogPost, Booking, ContactMessage, Subscriber, DashboardStats, EBook, AdUnit, AdConfig, Partnership, Order, OrderItem, SiteSettings } from './src/types';
 
 const app = express();
 const PORT = Number(process.env.PORT) || 3000;
 
-// --- Stripe configuration ---
+// --- Bachs configuration ---
 const CURRENCY = (process.env.CURRENCY || 'usd').toLowerCase();
-const APP_URL = (process.env.APP_URL || `http://localhost:${PORT}`).replace(/\/$/, '');
-const STRIPE_SECRET_KEY = process.env.STRIPE_SECRET_KEY || '';
-const STRIPE_WEBHOOK_SECRET = process.env.STRIPE_WEBHOOK_SECRET || '';
+const APP_URL = (
+  process.env.APP_URL ||
+  (process.env.VERCEL ? 'https://www.iamshedstar.com' : `http://localhost:${PORT}`)
+).replace(/\/$/, '');
+const BACHS_API_KEY = process.env.BACHS_API_KEY || '';
+const BACHS_WEBHOOK_SECRET = process.env.BACHS_WEBHOOK_SECRET || '';
+const BACHS_API_BASE_URL = (
+  process.env.BACHS_API_BASE_URL ||
+  (BACHS_API_KEY.startsWith('sk_live_') ? 'https://api.bachs.io' : 'https://sandbox-api.bachs.io')
+).replace(/\/$/, '');
 
-// A key is "configured" only when it's a real Stripe secret key, not the
-// placeholder shipped in .env. Guards every payment route with a clear error.
-const stripeConfigured = STRIPE_SECRET_KEY.startsWith('sk_') && !STRIPE_SECRET_KEY.includes('your_secret_key_here');
-const stripe = stripeConfigured ? new Stripe(STRIPE_SECRET_KEY) : null;
+const bachsConfigured = /^(sk_live_|sk_sandbox_)/.test(BACHS_API_KEY) && !BACHS_API_KEY.includes('your_secret_key_here');
 
-if (!stripeConfigured) {
-  console.warn('[stripe] STRIPE_SECRET_KEY not set â€” checkout endpoints will return a "not configured" error until you add real test keys to .env');
+if (!bachsConfigured) {
+  console.warn('[bachs] BACHS_API_KEY not set - checkout endpoints will return a "not configured" error until you add a Bachs key to .env');
 }
 
-// Stripe webhook needs the raw request body to verify the signature, so it is
+function verifyBachsSignature(rawBody: Buffer, timestampHeader: string | undefined, signatureHeader: string | undefined): boolean {
+  if (!BACHS_WEBHOOK_SECRET || !timestampHeader || !signatureHeader) return false;
+  const timestamp = Number(timestampHeader);
+  if (!Number.isFinite(timestamp) || Math.abs(Date.now() / 1000 - timestamp) > 300) return false;
+
+  const expected = createHmac('sha256', BACHS_WEBHOOK_SECRET)
+    .update(`${timestamp}.${rawBody.toString('utf8')}`, 'utf8')
+    .digest('hex');
+  const candidates = signatureHeader.split(',')
+    .map((part) => part.trim())
+    .filter((part) => part.startsWith('v1='))
+    .map((part) => part.slice(3));
+  const signatures = candidates.length ? candidates : [signatureHeader];
+  return signatures.some((signature) => {
+    if (signature.length !== expected.length) return false;
+    return timingSafeEqual(Buffer.from(expected), Buffer.from(signature));
+  });
+}
+
+// Bachs webhooks need the raw request body to verify the signature, so it is
 // registered BEFORE express.json() (which would otherwise consume the body).
-app.post('/api/stripe/webhook', express.raw({ type: 'application/json' }), (req, res) => {
-  if (!stripe) {
-    return res.status(503).json({ error: 'Stripe not configured' });
+app.post('/api/bachs/webhook', express.raw({ type: 'application/json' }), (req, res) => {
+  if (!bachsConfigured) {
+    return res.status(503).json({ error: 'Bachs is not configured' });
   }
 
-  let event: Stripe.Event;
+  const rawBody = Buffer.isBuffer(req.body) ? req.body : Buffer.from(String(req.body || ''), 'utf8');
   try {
-    if (STRIPE_WEBHOOK_SECRET && !STRIPE_WEBHOOK_SECRET.includes('your_webhook_secret_here')) {
-      const signature = req.headers['stripe-signature'] as string;
-      event = stripe.webhooks.constructEvent(req.body, signature, STRIPE_WEBHOOK_SECRET);
-    } else {
-      // No signing secret configured (e.g. local dev) â€” parse without verifying.
-      event = JSON.parse(req.body.toString('utf-8')) as Stripe.Event;
+    if (BACHS_API_KEY.startsWith('sk_live_') && !BACHS_WEBHOOK_SECRET) {
+      return res.status(503).json({ error: 'Bachs webhook secret is not configured' });
+    }
+    if (BACHS_WEBHOOK_SECRET && !verifyBachsSignature(rawBody, req.headers['x-bachs-timestamp'] as string, req.headers['x-bachs-signature'] as string)) {
+      return res.status(400).json({ error: 'Invalid Bachs webhook signature' });
+    }
+    const event = JSON.parse(rawBody.toString('utf8')) as any;
+    if (event.type === 'collection.succeeded' || event.type === 'checkout.completed') {
+      const data = event.data || event;
+      fulfillOrder(
+        data.checkout_id || event.checkout_id,
+        data.metadata?.order_id || data.metadata?.orderId || data.reference || event.reference,
+        data.customer_details?.email || data.customer?.email || event.customer_details?.email
+      );
     }
   } catch (err: any) {
-    console.error('[stripe] webhook signature verification failed:', err.message);
+    console.error('[bachs] webhook handling failed:', err.message);
     return res.status(400).json({ error: `Webhook Error: ${err.message}` });
-  }
-
-  if (event.type === 'checkout.session.completed') {
-    const session = event.data.object as Stripe.Checkout.Session;
-    try {
-      fulfillOrder(session.id, session.metadata?.orderId, session.customer_details?.email || undefined);
-    } catch (err) {
-      console.error('[stripe] fulfillment error from webhook:', err);
-    }
   }
 
   res.json({ received: true });
@@ -1123,7 +1145,7 @@ app.get('/api/songs/:id/audio', async (req, res) => {
   }
 });
 
-// Paid music downloads are resolved only after a completed Stripe order.
+// Paid music downloads are resolved only after a completed Bachs order.
 app.get('/api/songs/:id/download', async (req, res) => {
   const db = getDb();
   const song = db.songs.find((item: Song) => item.id === req.params.id);
@@ -1568,11 +1590,11 @@ app.post('/api/purchase', (req, res) => {
   });
 });
 
-// --- STRIPE CHECKOUT (real payment gateway) ---
+// --- BACHS CHECKOUT (real payment gateway) ---
 
-// Expose whether Stripe is wired up (for the client to show a helpful message).
+// Expose whether Bachs is wired up (for the client to show a helpful message).
 app.get('/api/checkout/config', (req, res) => {
-  res.json({ configured: stripeConfigured, currency: CURRENCY });
+  res.json({ configured: bachsConfigured, provider: 'bachs', currency: CURRENCY });
 });
 
 // Resolve a cart item to an authoritative DB record so prices come from the
@@ -1599,11 +1621,11 @@ function resolveCartItem(db: any, item: any): OrderItem | null {
   return { id: product.id, title: product.title, price: product.price, quantity, isEBook: false };
 }
 
-// Create a Stripe Checkout Session from the cart and return its hosted URL.
+// Create a Bachs Checkout Session from the cart and return its hosted URL.
 app.post('/api/checkout/create-session', async (req, res) => {
-  if (!stripe) {
+  if (!bachsConfigured) {
     return res.status(503).json({
-      error: 'Stripe is not configured. Add your Stripe test keys to the .env file (STRIPE_SECRET_KEY) and restart the server.'
+      error: 'Bachs is not configured. Add BACHS_API_KEY to the .env file and restart the server.'
     });
   }
 
@@ -1625,9 +1647,7 @@ app.post('/api/checkout/create-session', async (req, res) => {
   }
 
   const amountTotal = Number(orderItems.reduce((sum, i) => sum + i.price * i.quantity, 0).toFixed(2));
-  const hasPhysical = orderItems.some((i) => !i.isEBook && !i.isMusic);
-
-  // Persist a pending order; its id links Stripe back to fulfillment.
+  // Persist a pending order; its id links Bachs back to fulfillment.
   const order: Order = {
     id: `order-${Date.now()}-${Math.floor(Math.random() * 1e6)}`,
     items: orderItems,
@@ -1642,51 +1662,42 @@ app.post('/api/checkout/create-session', async (req, res) => {
   saveDb(db);
 
   try {
-    const session = await stripe.checkout.sessions.create({
-      mode: 'payment',
-      line_items: orderItems.map((i) => ({
-        quantity: i.quantity,
-        price_data: {
-          currency: CURRENCY,
-          unit_amount: Math.round(i.price * 100), // Stripe expects the smallest currency unit
-          product_data: {
-            name: i.title,
-            metadata: { productId: i.id, kind: i.isEBook ? 'ebook' : i.isMusic ? 'music' : 'merch' }
-          }
-        }
-      })),
-      // Let Stripe present all eligible local payment methods per country
-      // (cards + Apple/Google Pay worldwide, plus European methods like iDEAL,
-      // Bancontact, SEPA when enabled in the Stripe Dashboard).
-      automatic_tax: { enabled: false },
-      billing_address_collection: 'auto',
-      ...(hasPhysical ? { shipping_address_collection: { allowed_countries: [
-        'US','GB','IE','FR','DE','ES','IT','NL','BE','LU','PT','AT','FI','SE','DK','NO','PL','CZ','GR','HU','RO','BG','HR','SK','SI','EE','LV','LT','CY','MT',
-        'CA','AU','NZ','JP','SG','HK','AE','ZA','NG','GH','KE','BR','MX','CH','IN'
-      ] } } : {}),
-      customer_email: order.email || undefined,
-      client_reference_id: order.id,
-      metadata: { orderId: order.id },
-      success_url: `${APP_URL}/?checkout=success&session_id={CHECKOUT_SESSION_ID}`,
-      cancel_url: `${APP_URL}/?checkout=cancel&order_id=${order.id}`
+    const response = await fetch(`${BACHS_API_BASE_URL}/v1/checkout-sessions`, {
+      method: 'POST',
+      headers: {
+        Authorization: `Bearer ${BACHS_API_KEY}`,
+        'Content-Type': 'application/json'
+      },
+      body: JSON.stringify({
+        pricing: { currency: CURRENCY.toUpperCase(), amount: amountTotal.toFixed(2) },
+        ...(order.email ? { customer: { email: order.email } } : {}),
+        reference: order.id,
+        metadata: { order_id: order.id },
+        success_url: `${APP_URL}/?checkout=success`,
+        cancel_url: `${APP_URL}/?checkout=cancel&order_id=${encodeURIComponent(order.id)}`
+      })
     });
+    const session = await response.json() as any;
+    if (!response.ok || !session.checkout_url || !session.checkout_id) {
+      throw new Error(session?.error?.message || session?.message || `Bachs returned HTTP ${response.status}`);
+    }
 
-    order.stripeSessionId = session.id;
+    order.bachsCheckoutId = session.checkout_id;
     saveDb(db);
 
-    res.json({ url: session.url, orderId: order.id });
+    res.json({ url: session.checkout_url, orderId: order.id });
   } catch (err: any) {
-    console.error('[stripe] create-session error:', err.message);
+    console.error('[bachs] create-session error:', err.message);
     res.status(500).json({ error: 'Could not start checkout. Please try again.' });
   }
 });
 
 // Fulfill a paid order exactly once: update stock, sales stats, ebook counts.
 // Idempotent â€” safe to call from both the webhook and the success page.
-function fulfillOrder(sessionId?: string, orderId?: string, email?: string): Order | null {
+function fulfillOrder(checkoutId?: string, orderId?: string, email?: string): Order | null {
   const db = getDb();
   const order: Order | undefined = (db.orders || []).find(
-    (o: Order) => (orderId && o.id === orderId) || (sessionId && o.stripeSessionId === sessionId)
+    (o: Order) => (orderId && o.id === orderId) || (checkoutId && o.bachsCheckoutId === checkoutId)
   );
   if (!order) return null;
   if (order.status === 'paid') return order; // already fulfilled
@@ -1732,24 +1743,35 @@ function fulfillOrder(sessionId?: string, orderId?: string, email?: string): Ord
   return order;
 }
 
-// Success page calls this with the Stripe session id to confirm + fulfill.
+// Success page calls this with the Bachs checkout id to confirm + fulfill.
 // This makes fulfillment work locally without webhook forwarding.
 app.get('/api/checkout/verify', async (req, res) => {
-  if (!stripe) {
-    return res.status(503).json({ error: 'Stripe not configured' });
+  if (!bachsConfigured) {
+    return res.status(503).json({ error: 'Bachs is not configured' });
   }
-  const sessionId = req.query.session_id as string;
-  if (!sessionId) {
-    return res.status(400).json({ error: 'Missing session_id' });
+  const checkoutId = (req.query.checkout_id || req.query.session_id) as string;
+  if (!checkoutId) {
+    return res.status(400).json({ error: 'Missing checkout_id' });
   }
 
   try {
-    const session = await stripe.checkout.sessions.retrieve(sessionId);
-    if (session.payment_status !== 'paid') {
-      return res.json({ success: false, status: session.payment_status });
+    const response = await fetch(`${BACHS_API_BASE_URL}/v1/checkout-sessions/${encodeURIComponent(checkoutId)}`, {
+      headers: { Authorization: `Bearer ${BACHS_API_KEY}` }
+    });
+    const session = await response.json() as any;
+    if (!response.ok) {
+      throw new Error(session?.error?.message || session?.message || `Bachs returned HTTP ${response.status}`);
+    }
+    const paid = session.status === 'completed' || session.payment_status === 'succeeded' || session.charge?.status === 'succeeded';
+    if (!paid) {
+      return res.json({ success: false, status: session.payment_status || session.status });
     }
 
-    const order = fulfillOrder(session.id, session.metadata?.orderId, session.customer_details?.email || undefined);
+    const order = fulfillOrder(
+      session.checkout_id || checkoutId,
+      session.reference || session.metadata?.order_id || session.metadata?.orderId,
+      session.customer_details?.email || session.customer?.email || undefined
+    );
     if (!order) {
       return res.status(404).json({ error: 'Order not found' });
     }
@@ -1777,7 +1799,7 @@ app.get('/api/checkout/verify', async (req, res) => {
       message: `Payment received â€” thank you! Your order total was ${order.currency.toUpperCase()} ${order.amountTotal.toFixed(2)}.`
     });
   } catch (err: any) {
-    console.error('[stripe] verify error:', err.message);
+    console.error('[bachs] verify error:', err.message);
     res.status(500).json({ error: 'Could not verify payment.' });
   }
 });

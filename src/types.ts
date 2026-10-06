@@ -154,7 +154,7 @@ export interface Order {
   currency: string;
   status: 'pending' | 'paid';
   email?: string;
-  stripeSessionId?: string;
+  bachsCheckoutId?: string;
   createdAt: string;
   paidAt?: string;
 }

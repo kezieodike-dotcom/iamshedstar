@@ -28,15 +28,15 @@ services:
         value: /var/data
 
       # Set these in the Render dashboard — never commit real keys.
-      # APP_URL must be the live site origin, or Stripe redirects come back
+      # APP_URL must be the live site origin, or Bachs redirects come back
       # to localhost after checkout.
       - key: APP_URL
         sync: false
-      - key: STRIPE_SECRET_KEY
+      - key: BACHS_API_KEY
         sync: false
-      - key: STRIPE_PUBLISHABLE_KEY
+      - key: BACHS_WEBHOOK_SECRET
         sync: false
-      - key: STRIPE_WEBHOOK_SECRET
+      - key: BACHS_API_BASE_URL
         sync: false
       - key: CURRENCY
         value: usd

@@ -240,7 +240,7 @@ export default function MusicSection({
                 </button>
               </div>
 
-              {/* Music stays on this site; purchases unlock a download after Stripe confirms payment. */}
+              {/* Music stays on this site; purchases unlock a download after Bachs confirms payment. */}
               <div className="mb-6 flex flex-col gap-2">
                 <div className="p-3 bg-brand-soft border-2 border-ink text-xs text-ink leading-relaxed">
                   <strong>Stream exclusively on Shedstar.</strong> Buy this release for $1 and download it after secure checkout.

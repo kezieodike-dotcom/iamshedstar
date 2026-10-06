@@ -40,7 +40,7 @@ export default function MerchandiseSection({
   const [quantity, setQuantity] = useState(1);
   const [addToCartStatus, setAddToCartStatus] = useState(false);
 
-  // Checkout process state — hands off to Stripe hosted Checkout
+  // Checkout process state — hands off to Bachs hosted Checkout
   const [checkoutStep, setCheckoutStep] = useState<'idle' | 'review' | 'redirecting'>('idle');
   const [checkoutEmail, setCheckoutEmail] = useState('');
   const [checkoutError, setCheckoutError] = useState<string | null>(null);
@@ -77,7 +77,7 @@ export default function MerchandiseSection({
     }, 1000);
   };
 
-  const handleStripeCheckout = async (e: React.FormEvent) => {
+  const handleBachsCheckout = async (e: React.FormEvent) => {
     e.preventDefault();
     if (cart.length === 0) return;
     setCheckoutStep('redirecting');
@@ -92,7 +92,7 @@ export default function MerchandiseSection({
       const data = await response.json();
 
       if (response.ok && data.url) {
-        // Hand off to Stripe's secure hosted checkout page.
+        // Hand off to Bachs' secure hosted checkout page.
         window.location.href = data.url;
       } else {
         setCheckoutError(data.error || 'Could not start checkout. Please try again.');
@@ -418,14 +418,14 @@ export default function MerchandiseSection({
               </>
             )}
 
-            {/* Stripe Checkout — review & hand-off */}
+            {/* Bachs Checkout — review & hand-off */}
             {(checkoutStep === 'review' || checkoutStep === 'redirecting') && (
-              <form onSubmit={handleStripeCheckout} className="flex-1 p-5 flex flex-col justify-between overflow-y-auto select-text">
+              <form onSubmit={handleBachsCheckout} className="flex-1 p-5 flex flex-col justify-between overflow-y-auto select-text">
                 <div className="flex flex-col gap-4">
                   <div>
                     <h4 className="text-sm font-display font-black uppercase tracking-tight text-ink">Secure Checkout</h4>
                     <p className="text-xs text-muted mt-1">
-                      You'll be redirected to Stripe to pay safely. Cards, Apple Pay &amp; Google Pay are accepted worldwide, plus local methods across Europe.
+                      You'll be redirected to Bachs to pay securely. Available payment methods depend on your location.
                     </p>
                   </div>
 
@@ -438,7 +438,7 @@ export default function MerchandiseSection({
                       placeholder="jane@outlook.com"
                       className="px-4 py-2.5 bg-white border-2 border-ink focus:border-brand text-xs text-ink placeholder-muted outline-none transition-colors"
                     />
-                    <span className="text-[9px] text-muted leading-none mt-0.5">Shipping address &amp; card details are collected securely on Stripe's page.</span>
+                    <span className="text-[9px] text-muted leading-none mt-0.5">Shipping address and payment details are collected securely on Bachs' page.</span>
                   </div>
 
                   {/* Order review */}
@@ -479,8 +479,8 @@ export default function MerchandiseSection({
                     className="btn-brand w-2/3 text-xs disabled:opacity-60"
                   >
                     {checkoutStep === 'redirecting'
-                      ? 'Redirecting to Stripe…'
-                      : <><CreditCard className="w-4 h-4" /> Pay ${cartTotal.toFixed(2)} with Stripe</>}
+                      ? 'Redirecting to Bachs…'
+                      : <><CreditCard className="w-4 h-4" /> Pay ${cartTotal.toFixed(2)} with Bachs</>}
                   </button>
                 </div>
               </form>

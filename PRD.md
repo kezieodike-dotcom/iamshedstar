@@ -64,7 +64,7 @@ Maps the requested features to concrete site sections:
 Plus scaffolded extras already present in the codebase: **Videos**, **News/Blog**, **E-Books store**, **Fan Club / newsletter**, and an **Admin dashboard**.
 
 ### Out of scope (v1 / future)
-- Real payment processing (v1 uses a simulated checkout; Stripe/PayPal is a v2 fast-follow).
+- Real payment processing (v1 uses a simulated checkout; Bachs is the live payment gateway).
 - Native mobile apps.
 - User accounts / fan login (fan club is email-capture only in v1).
 - Live streaming / ticketing engine (we link out to third-party ticket providers).
@@ -192,7 +192,7 @@ Home  ·  About  ·  Music  ·  Videos  ·  Tour  ·  Merch  ·  E-Books  ·  Ne
 ## 9. Security & Privacy
 
 - **Admin auth (blocker for public launch):** the v1 `sessionStorage`-only gate is **not secure** — admin API routes must enforce real server-side authentication (password/token) before go-live. *(Flagged as a launch-blocking hardening task.)*
-- **Payments:** No real card data stored on the server (v1 is simulated; v2 delegates to a PCI-compliant provider like Stripe).
+- **Payments:** No real card data stored on the server; checkout delegates to the Bachs hosted payment page.
 - **PII:** Booking, contact, and subscriber data stored server-side; provide unsubscribe; document handling in the Privacy policy (modal already implemented).
 - **Legal:** Privacy Policy + Terms of Service accessible from the footer (implemented as modals).
 - **Input validation:** Validate and sanitize all form submissions server-side; rate-limit public POST endpoints (booking/contact/newsletter) to prevent spam.
@@ -217,7 +217,7 @@ Home  ·  About  ·  Music  ·  Videos  ·  Tour  ·  Merch  ·  E-Books  ·  Ne
 ## 11. Open Questions
 
 1. **Domain & hosting** — confirmed domain (e.g. shedstar.com) and hosting target (Node host / VPS / platform)?
-2. **Payments in v1** — is simulated checkout acceptable for launch, or is real Stripe integration a launch requirement?
+2. **Payments in v1** — is simulated checkout acceptable for launch, or is the Bachs integration a launch requirement?
 3. **Brand assets** — do we have final logo, brand fonts, and high-res artist photography, or should design produce placeholders?
 4. **Ticketing** — which provider(s) do tour "Buy Tickets" links point to?
 5. **Content ownership** — who on the Shedstar team owns ongoing admin/content updates post-launch?

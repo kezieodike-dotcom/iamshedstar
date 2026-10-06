@@ -158,7 +158,7 @@ export default function App() {
   // Policy Modal state overlays
   const [policyType, setPolicyType] = useState<'privacy' | 'terms' | null>(null);
 
-  // Post-payment (Stripe redirect) result overlay
+  // Post-payment (Bachs redirect) result overlay
   const [orderResult, setOrderResult] = useState<
     | { status: 'success'; message: string; downloadLinks: { id: string; title: string; downloadUrl: string }[] }
     | { status: 'cancel' }
@@ -171,7 +171,7 @@ export default function App() {
     localStorage.setItem('shedstar_cart', JSON.stringify(cart));
   }, [cart]);
 
-  // Handle return from Stripe Checkout (success/cancel query params).
+  // Handle return from Bachs Checkout (success/cancel query params).
   useEffect(() => {
     const params = new URLSearchParams(window.location.search);
     const checkout = params.get('checkout');
@@ -186,11 +186,11 @@ export default function App() {
     }
 
     if (checkout === 'success') {
-      const sessionId = params.get('session_id');
-      if (!sessionId) return;
+      const checkoutId = params.get('checkout_id') || params.get('session_id');
+      if (!checkoutId) return;
       (async () => {
         try {
-          const res = await fetch(`/api/checkout/verify?session_id=${encodeURIComponent(sessionId)}`);
+          const res = await fetch(`/api/checkout/verify?checkout_id=${encodeURIComponent(checkoutId)}`);
           const data = await res.json();
           if (res.ok && data.success) {
             setCart([]); // paid — empty the cart
@@ -569,7 +569,7 @@ export default function App() {
         onLogoutAdmin={handleLogOutAdmin}
       />
 
-      {/* Post-payment result overlay (Stripe redirect return) */}
+      {/* Post-payment result overlay (Bachs redirect return) */}
       {orderResult && (
         <div className="fixed inset-0 z-[60] bg-ink/70 backdrop-blur-md flex items-center justify-center p-4 select-text">
           <div className="bg-paper border-2 border-ink p-6 max-w-md w-full relative shadow-2xl text-ink">
@@ -665,7 +665,7 @@ export default function App() {
                 </p>
                 <h4 className="font-bold text-ink uppercase select-none">2. E-Commerce Protections</h4>
                 <p>
-                  All merchandise ordering and ticketing actions are fully secure. We process billing details securely using top-tier simulated checkout gateways. Credit card numbers or bank keys are never stored on our local server containers.
+                  All merchandise ordering, digital downloads, and ticketing actions are processed through Bachs hosted checkout. Shedstar does not store complete card numbers or bank details on this website.
                 </p>
                 <p className="italic text-muted">
                   For licensing questions or legal complaints, contact us at legal@shedstar.com.

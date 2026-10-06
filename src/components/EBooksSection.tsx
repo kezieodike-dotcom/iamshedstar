@@ -14,7 +14,7 @@ export default function EBooksSection({ onAddToCart, onOpenCart }: EBooksSection
   const [loading, setLoading] = useState<boolean>(true);
   const [selectedBook, setSelectedBook] = useState<EBook | null>(null);
 
-  // Checkout modal states — hands off to Stripe hosted Checkout
+  // Checkout modal states — hands off to Bachs hosted Checkout
   const [checkoutBook, setCheckoutBook] = useState<EBook | null>(null);
   const [isSubmitting, setIsSubmitting] = useState<boolean>(false);
   const [checkoutError, setCheckoutError] = useState<string | null>(null);
@@ -88,7 +88,7 @@ export default function EBooksSection({ onAddToCart, onOpenCart }: EBooksSection
       const data = await res.json();
 
       if (res.ok && data.url) {
-        // Hand off to Stripe's secure hosted checkout page.
+        // Hand off to Bachs' secure hosted checkout page.
         window.location.href = data.url;
       } else {
         setCheckoutError(data.error || 'Could not start checkout. Please try again.');
@@ -306,7 +306,7 @@ export default function EBooksSection({ onAddToCart, onOpenCart }: EBooksSection
 
               <div className="flex items-start gap-2 bg-cream p-3 border-2 border-ink text-[11px] text-muted leading-relaxed">
                 <Sparkles className="w-4 h-4 text-brand flex-none mt-0.5" />
-                <span>Card details are entered securely on Stripe. Cards, Apple Pay &amp; Google Pay accepted worldwide, plus local European methods.</span>
+                <span>Card details are entered securely on Bachs. Available payment methods depend on your location.</span>
               </div>
 
               {checkoutError && (
@@ -321,10 +321,10 @@ export default function EBooksSection({ onAddToCart, onOpenCart }: EBooksSection
                 className="btn-brand w-full mt-6 text-xs disabled:opacity-50"
               >
                 {isSubmitting ? (
-                  'Redirecting to Stripe…'
+                  'Redirecting to Bachs…'
                 ) : (
                   <>
-                    <CreditCard className="w-4 h-4" /> Pay ${checkoutBook.price.toFixed(2)} with Stripe
+                    <CreditCard className="w-4 h-4" /> Pay ${checkoutBook.price.toFixed(2)} with Bachs
                   </>
                 )}
               </button>

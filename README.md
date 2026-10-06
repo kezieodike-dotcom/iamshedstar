@@ -15,8 +15,8 @@ View in AI Studio: https://ai.studio/apps/ceca87cd-c847-4eeb-88f9-cf4fab55dc60
 **Prerequisites:** Node.js
 
 1. `npm install`
-2. Copy `.env.example` to `.env` and fill in your Stripe **test** keys.
-   Until then the checkout endpoints return a clear "Stripe not configured"
+2. Copy `.env.example` to `.env` and fill in your Bachs **sandbox** key.
+   Until then the checkout endpoints return a clear "Bachs not configured"
    error instead of charging anyone.
 3. `npm run dev` — serves the app and the API together on http://localhost:3000
 
@@ -94,7 +94,7 @@ mounted disk.
   volume the filesystem is ephemeral and every booking, contact message,
   subscriber and order is lost on restart. Render requires a paid instance for
   disks; the free plan has none.
-- Set `APP_URL` to the live origin, or Stripe sends customers back to
+- Set `APP_URL` to the live origin, or Bachs sends customers back to
   `localhost` after checkout.
 
 To deploy: push to `main`, then on Render choose **New → Blueprint** and point
