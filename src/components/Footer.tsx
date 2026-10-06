@@ -60,7 +60,7 @@ export default function Footer({
   ];
 
   return (
-    <footer className="bg-cream border-t-4 border-ink px-4 md:px-8 pt-12 pb-8 select-none">
+    <footer className="reference-footer bg-cream border-t-4 border-ink px-4 md:px-8 pt-12 pb-8 select-none">
       <div className="max-w-7xl mx-auto flex flex-col gap-10">
 
         {/* Oversized wordmark + back to top */}

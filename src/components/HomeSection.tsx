@@ -393,7 +393,7 @@ export default function HomeSection({
       {/* TOUR â€” torn blue panel, white rows, white/green ticket buttons, and a
           sage-green CTA overlapping the foot of the panel, as in the video */}
       {upcomingTours.length > 0 && (
-        <section className="relative bg-silver grain px-4 md:px-8 py-14 md:py-20 overflow-hidden">
+        <section className="reference-tour-section relative bg-silver grain px-4 md:px-8 py-14 md:py-20 overflow-hidden">
           <div className="max-w-5xl mx-auto relative">
             <svg
               viewBox="0 0 120 310"
@@ -416,10 +416,10 @@ export default function HomeSection({
               />
             </svg>
             <TornPanel className="px-5 sm:px-10 py-12 md:py-16">
-              <h2 className="poster-title section-title text-white text-center text-5xl sm:text-7xl md:text-8xl mb-10">
+              <h2 className="tour-section-title poster-title section-title text-white text-center text-5xl sm:text-7xl md:text-8xl mb-10">
                 Tour
               </h2>
-              <div className="text-center mb-8">
+              <div className="tour-presale text-center mb-8">
                 <button onClick={() => setActiveTab('fanclub')} className="btn-accent text-base">
                   Get Artist Presale Code
                 </button>
@@ -461,7 +461,7 @@ export default function HomeSection({
             <div className="flex justify-center -mt-7 relative z-10">
               <button onClick={() => setActiveTab('tour')} className="btn-accent btn-cta-wide text-base">Show All Dates</button>
             </div>
-            <div className="mt-12 bg-paper border-2 border-ink p-6 md:p-8 max-w-3xl mx-auto">
+            <div className="tour-vip mt-12 bg-paper border-2 border-ink p-6 md:p-8 max-w-3xl mx-auto">
               <h3 className="poster-title text-ink text-3xl sm:text-4xl">VIP Experience</h3>
               <p className="mt-2 font-display font-black uppercase text-brand text-sm tracking-wide">
                 Shedstar 2026 VIP Tour Package Includes:

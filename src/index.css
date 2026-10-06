@@ -224,6 +224,136 @@ body {
    snapped to center, so users page through with the side arrows. On >= sm the
    card's own width classes take over and several show at once. */
 @media (max-width: 639px) {
+  /* Mobile navigation reference: the source design uses a blue photographic
+     wash, four oversized destinations, and a fixed sage newsletter strip. */
+  .mobile-reference-menu {
+    background-color: #1f74bd;
+    background-image:
+      linear-gradient(rgba(31, 116, 189, 0.9), rgba(31, 116, 189, 0.94)),
+      url('/meta/shedstar-home-portrait.jpg');
+    background-size: cover;
+    background-position: center top;
+  }
+  .mobile-reference-menu .menu-primary {
+    padding-top: 22vh;
+    gap: 6.4vh;
+  }
+  .mobile-reference-menu .menu-primary button {
+    font-size: clamp(2.7rem, 13vw, 3.8rem);
+    line-height: 0.86;
+    letter-spacing: 0.01em;
+  }
+  .mobile-reference-menu .menu-secondary,
+  .mobile-reference-menu .menu-socials {
+    display: none;
+  }
+  .mobile-reference-menu > button:last-child {
+    min-height: 112px;
+    font-size: clamp(1.7rem, 8vw, 2.2rem);
+    letter-spacing: 0.03em;
+  }
+
+  /* Tour home panel reference: rows sit directly on the blue wash, with the
+     desktop presale/VIP blocks removed from the phone composition. */
+  .reference-tour-section {
+    padding: 0 0 2.75rem;
+    background:
+      radial-gradient(80% 34% at 48% 100%, rgba(41, 176, 149, 0.9), transparent 68%),
+      radial-gradient(85% 45% at 52% 78%, rgba(37, 121, 195, 0.88), transparent 70%),
+      linear-gradient(180deg, #bfc0c6 0%, #a9a5b0 31%, #447fae 72%, #2174bd 100%);
+  }
+  .reference-tour-section .tour-section-title,
+  .reference-tour-section .tour-presale,
+  .reference-tour-section .tour-vip {
+    display: none;
+  }
+  .reference-tour-section .max-w-5xl {
+    width: 100%;
+  }
+  .reference-tour-section .max-w-5xl > div:first-of-type {
+    margin: 0;
+  }
+  .reference-tour-section .relative.-rotate-\[0\.6deg\] {
+    transform: none;
+  }
+  .reference-tour-section .relative.-rotate-\[0\.6deg\] > div:first-child {
+    display: none;
+  }
+  .reference-tour-section .relative.-rotate-\[0\.6deg\] > div:nth-child(2) {
+    position: absolute;
+    inset: 0;
+    clip-path: none;
+    background:
+      radial-gradient(85% 35% at 50% 100%, rgba(36, 183, 145, 0.65), transparent 70%),
+      linear-gradient(180deg, rgba(177, 172, 181, 0.95), rgba(31, 116, 189, 0.92));
+  }
+  .reference-tour-section .relative.-rotate-\[0\.6deg\] > div.relative {
+    padding: 3.5rem 2.7rem 4.25rem;
+  }
+  .reference-tour-section .relative.-rotate-\[0\.6deg\] .flex.flex-col > div {
+    min-height: 7.2rem;
+    padding: 1.25rem 0;
+    border-bottom-color: rgba(255, 255, 255, 0.78);
+  }
+  .reference-tour-section .relative.-rotate-\[0\.6deg\] .flex-1 {
+    font-size: 1.05rem;
+    line-height: 1.42;
+    letter-spacing: 0.02em;
+  }
+  .reference-tour-section .relative.-rotate-\[0\.6deg\] .flex-1 svg {
+    display: none;
+  }
+  .reference-tour-section .relative.-rotate-\[0\.6deg\] a,
+  .reference-tour-section .relative.-rotate-\[0\.6deg\] span {
+    min-width: 7.5rem;
+    padding: 1rem 0.7rem;
+    text-align: center;
+    font-size: 0.85rem;
+    line-height: 1;
+  }
+  .reference-tour-section > .max-w-5xl > .flex.justify-center {
+    margin-top: -1rem;
+  }
+  .reference-tour-section .btn-cta-wide {
+    width: 77.6vw;
+    background: #95ae9b;
+    color: #fff;
+  }
+
+  /* The reference ends the phone page with a compact charcoal legal footer. */
+  .reference-footer {
+    background: #393534;
+    border-top: 3px solid #1f74bd;
+    color: #fff;
+    padding: 2.75rem 1.25rem 2.5rem;
+  }
+  .reference-footer > div {
+    gap: 0;
+  }
+  .reference-footer > div > div:first-child,
+  .reference-footer > div > div:nth-child(2) {
+    display: none;
+  }
+  .reference-footer > div > div:last-child {
+    border-top: 0;
+    padding-top: 0;
+    display: block;
+    text-align: center;
+    font-family: Georgia, serif;
+    font-size: 0.95rem;
+    line-height: 1.25;
+    color: rgba(255, 255, 255, 0.82);
+  }
+  .reference-footer > div > div:last-child p {
+    max-width: 20rem;
+    margin: 0 auto 0.35rem;
+  }
+  .reference-footer > div > div:last-child > div {
+    justify-content: center;
+    gap: 0.35rem;
+    flex-wrap: wrap;
+  }
+
   .carousel-1up {
     padding-left: 9%;
     padding-right: 9%;

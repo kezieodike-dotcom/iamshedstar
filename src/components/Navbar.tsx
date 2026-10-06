@@ -160,7 +160,7 @@ export default function Navbar({
           left-aligned links, a grid of socials, and a green newsletter bar
           pinned to the bottom. */}
       {isOpen && (
-        <div className="fixed inset-0 z-50 bg-brand/75 backdrop-blur-[2px] flex flex-col animate-fadeIn">
+        <div className="mobile-reference-menu fixed inset-0 z-50 bg-brand/75 backdrop-blur-[2px] flex flex-col animate-fadeIn">
           <div className="w-full px-6 sm:px-8 pt-5 flex items-center justify-end">
             <button onClick={() => setIsOpen(false)} className="p-1.5 text-white hover:text-ink transition-colors" aria-label="Close menu">
               <X className="w-8 h-8" strokeWidth={1.5} />
@@ -169,7 +169,7 @@ export default function Navbar({
 
           <div className="flex-1 overflow-y-auto px-8 sm:px-10 pt-6 pb-8">
             {/* The four headline destinations, sized as in the design */}
-            <nav className="flex flex-col gap-6 sm:gap-7">
+            <nav className="menu-primary flex flex-col gap-6 sm:gap-7">
               {primary.map((item) => (
                 <button
                   key={item.id}
@@ -183,7 +183,7 @@ export default function Navbar({
               ))}
             </nav>
 
-            <nav className="mt-9 grid grid-cols-2 gap-x-6 gap-y-4 max-w-md">
+            <nav className="menu-secondary mt-9 grid grid-cols-2 gap-x-6 gap-y-4 max-w-md">
               {secondary.map((item) => (
                 <button
                   key={item.id}
@@ -198,7 +198,7 @@ export default function Navbar({
             </nav>
 
             {/* Socials, four to a row */}
-            <div className="mt-12 grid grid-cols-4 gap-x-6 gap-y-6 max-w-xs">
+            <div className="menu-socials mt-12 grid grid-cols-4 gap-x-6 gap-y-6 max-w-xs">
               {socials.map((s) => (
                 <a
                   key={s.label}
