@@ -22,8 +22,9 @@ const APP_URL = (
 const BACHS_API_KEY = process.env.BACHS_API_KEY || '';
 const BACHS_WEBHOOK_SECRET = process.env.BACHS_WEBHOOK_SECRET || '';
 const BACHS_API_BASE_URL = (
-  process.env.BACHS_API_BASE_URL ||
-  (BACHS_API_KEY.startsWith('sk_live_') ? 'https://api.bachs.io' : 'https://sandbox-api.bachs.io')
+  BACHS_API_KEY.startsWith('sk_live_')
+    ? 'https://api.bachs.io'
+    : (process.env.BACHS_API_BASE_URL || 'https://sandbox-api.bachs.io')
 ).replace(/\/$/, '');
 
 const bachsConfigured = /^(sk_live_|sk_sandbox_)/.test(BACHS_API_KEY) && !BACHS_API_KEY.includes('your_secret_key_here');
