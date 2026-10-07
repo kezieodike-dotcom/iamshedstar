@@ -1696,6 +1696,8 @@ app.post(['/api/checkout/create-session', '/api/checkout'], async (req, res) => 
     res.json({ url: session.checkout_url, orderId: order.id });
   } catch (err: any) {
     console.error('[bachs] create-session error:', err.message);
+    db.orders = (db.orders || []).filter((pendingOrder: Order) => pendingOrder.id !== order.id);
+    saveDb(db);
     res.status(bachsStatus >= 400 ? bachsStatus : 502).json({
       error: bachsMessage || 'Bachs checkout is temporarily unavailable. Please try again.',
       code: 'BACHS_CHECKOUT_ERROR'
