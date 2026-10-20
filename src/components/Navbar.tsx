@@ -52,9 +52,9 @@ export default function Navbar({
     { id: 'contact', label: 'Contact' },
   ];
 
-  // The four headline destinations: blue links top-right on desktop, and the
-  // large links in the mobile menu. Everything else is secondary.
-  const primaryIds = ['music', 'videos', 'merchandise', 'tour'];
+  // The headline destinations: blue links top-right on desktop, and the large
+  // links in the mobile menu. Everything else is secondary.
+  const primaryIds = ['music', 'videos', 'merchandise', 'tour', 'ebooks'];
   const primary = navItems.filter((i) => primaryIds.includes(i.id));
   const secondary = navItems.filter((i) => !primaryIds.includes(i.id));
 

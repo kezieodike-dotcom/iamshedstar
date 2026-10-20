@@ -408,16 +408,22 @@ export default function App() {
       <main className={`flex-1 pb-24 ${activeTab === 'home' ? '' : 'pt-16 md:pt-20'}`}>
 
         {activeTab === 'home' && (
-          <HomeSection
-            setActiveTab={handleNavigate}
-            songs={songs}
-            tours={tours}
-            products={products}
-            currentSong={currentSong}
-            onSelectSong={handleSelectSong}
-            onPlayPause={setIsPlaying}
-            isPlaying={isPlaying}
-          />
+          <>
+            <HomeSection
+              setActiveTab={handleNavigate}
+              songs={songs}
+              tours={tours}
+              products={products}
+              currentSong={currentSong}
+              onSelectSong={handleSelectSong}
+              onPlayPause={setIsPlaying}
+              isPlaying={isPlaying}
+            />
+            <EBooksSection
+              onAddToCart={handleAddToCart}
+              onOpenCart={() => setIsCartOpen(true)}
+            />
+          </>
         )}
 
         {activeTab === 'about' && (
