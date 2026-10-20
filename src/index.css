@@ -239,7 +239,7 @@ body {
     gap: 6vh;
   }
   .mobile-reference-menu .menu-primary button {
-    font-size: clamp(2.7rem, 12.8vw, 3.8rem);
+    font-size: clamp(2.5rem, 11.8vw, 3.5rem);
     line-height: 0.88;
     letter-spacing: -0.035em;
   }
