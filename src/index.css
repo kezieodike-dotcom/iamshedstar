@@ -236,12 +236,12 @@ body {
   }
   .mobile-reference-menu .menu-primary {
     padding-top: 10vh;
-    gap: 3.8vh;
+    gap: 6vh;
   }
   .mobile-reference-menu .menu-primary button {
-    font-size: clamp(2.7rem, 13vw, 3.8rem);
-    line-height: 0.86;
-    letter-spacing: 0.01em;
+    font-size: clamp(2.7rem, 12.8vw, 3.8rem);
+    line-height: 0.88;
+    letter-spacing: -0.035em;
   }
   .mobile-reference-menu .menu-secondary,
   .mobile-reference-menu .menu-socials {

@@ -174,7 +174,7 @@ export default function Navbar({
                 <button
                   key={item.id}
                   onClick={() => go(item.id)}
-                  className={`poster-title text-left leading-none text-4xl sm:text-5xl transition-colors ${
+                  className={`font-heavy uppercase text-left leading-none text-4xl sm:text-5xl transition-colors ${
                     activeTab === item.id ? 'text-ink' : 'text-white hover:text-ink'
                   }`}
                 >
