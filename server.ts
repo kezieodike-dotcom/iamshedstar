@@ -1836,6 +1836,7 @@ app.post('/api/ebooks', (req, res) => {
     publishedYear: Number(req.body.publishedYear) || new Date().getFullYear(),
     fileSize: req.body.fileSize || '10.0 MB PDF',
     downloadUrl: req.body.downloadUrl || 'https://www.w3.org/WAI/ER/tests/xhtml/testfiles/resources/pdf/dummy.pdf',
+    audioUrl: typeof req.body.audioUrl === 'string' ? req.body.audioUrl.trim() : '',
     isFeatured: req.body.isFeatured || false,
     salesCount: 0
   };

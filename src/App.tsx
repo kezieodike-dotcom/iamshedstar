@@ -100,7 +100,7 @@ export default function App() {
       videos: { title: 'Shedstar Videos | Official Clips', description: 'Watch official Shedstar music videos, live performances, interviews, and behind-the-scenes films.' },
       tour: { title: 'Shedstar Tour Dates | Official Website', description: 'Find Shedstar tour dates, venues, tickets, and artist presale information.' },
       merchandise: { title: 'Shedstar Merch | Official Store', description: 'Shop official Shedstar clothing, accessories, vinyl, and limited merchandise drops.' },
-      ebooks: { title: 'Shedstar E-Books | Official Digital Editions', description: 'Explore official Shedstar e-books, lyric annotations, studio stories, and digital editions.' },
+      ebooks: { title: 'Shedstar E-Books & Audiobooks | Official Digital Editions', description: 'Explore official Shedstar e-books, audiobooks, lyric annotations, studio stories, and digital editions.' },
       gallery: { title: 'Shedstar Gallery | Official Images', description: 'Browse Shedstar concert photography, studio sessions, fan moments, travel, and award images.' },
       news: { title: 'Shedstar News | Official Updates', description: 'Read official Shedstar news, announcements, tour updates, and creative stories.' },
       partners: { title: 'Advertise With Shedstar | Brand Partnerships', description: 'Partner with Shedstar through music, video, tour, newsletter, and fan campaign placements.' },

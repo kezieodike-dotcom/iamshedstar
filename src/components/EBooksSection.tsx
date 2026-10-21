@@ -1,5 +1,5 @@
-import React, { useEffect, useState } from 'react';
-import { BookOpen, Download, CreditCard, Sparkles, CheckCircle, ShoppingBag, Eye, Award, ChevronLeft, ChevronRight } from 'lucide-react';
+import React, { useEffect, useRef, useState } from 'react';
+import { BookOpen, Download, CreditCard, Sparkles, CheckCircle, ShoppingBag, Award, ChevronLeft, ChevronRight, Headphones, Pause } from 'lucide-react';
 import { EBook, CartItem } from '../types';
 import AdSpace from './AdSpace';
 import { SafetyPin } from './Decor';
@@ -18,6 +18,8 @@ export default function EBooksSection({ onAddToCart, onOpenCart }: EBooksSection
   const [checkoutBook, setCheckoutBook] = useState<EBook | null>(null);
   const [isSubmitting, setIsSubmitting] = useState<boolean>(false);
   const [checkoutError, setCheckoutError] = useState<string | null>(null);
+  const [listeningBookId, setListeningBookId] = useState<string | null>(null);
+  const audioRef = useRef<HTMLAudioElement | null>(null);
 
   const [email, setEmail] = useState<string>('');
 
@@ -36,7 +38,44 @@ export default function EBooksSection({ onAddToCart, onOpenCart }: EBooksSection
 
   useEffect(() => {
     fetchEBooks();
+    return () => {
+      window.speechSynthesis?.cancel();
+      audioRef.current?.pause();
+    };
   }, []);
+
+  const handleListen = (book: EBook) => {
+    if (listeningBookId === book.id) {
+      audioRef.current?.pause();
+      window.speechSynthesis?.cancel();
+      setListeningBookId(null);
+      return;
+    }
+
+    audioRef.current?.pause();
+    window.speechSynthesis?.cancel();
+    setListeningBookId(book.id);
+
+    if (book.audioUrl) {
+      if (!audioRef.current) audioRef.current = new Audio();
+      audioRef.current.src = book.audioUrl;
+      audioRef.current.onended = () => setListeningBookId(null);
+      audioRef.current.play().catch(() => setListeningBookId(null));
+      return;
+    }
+
+    if ('speechSynthesis' in window) {
+      const preview = new SpeechSynthesisUtterance(
+        `${book.title}. Written by ${book.author}. ${book.description}`
+      );
+      preview.rate = 0.95;
+      preview.onend = () => setListeningBookId(null);
+      preview.onerror = () => setListeningBookId(null);
+      window.speechSynthesis.speak(preview);
+    } else {
+      setListeningBookId(null);
+    }
+  };
 
   const handleAddToCart = (book: EBook) => {
     // Transform ebook info to look like a standard Product representation for the cart
@@ -109,10 +148,10 @@ export default function EBooksSection({ onAddToCart, onOpenCart }: EBooksSection
 
       {/* Title — white poster caps, centered */}
       <h1 className="poster-title text-white text-center text-6xl sm:text-7xl md:text-8xl mb-4 drop-shadow-[0_3px_0_rgba(0,0,0,0.18)]">
-        E-Books
+        E-Books &amp; Audiobooks
       </h1>
       <p className="text-center font-display font-bold text-xs uppercase tracking-[0.2em] text-ink/70 max-w-2xl mx-auto mb-12">
-        Exclusive lyric annotations, studio secrets &amp; photo memoirs — straight from Shedstar
+        Read the digital edition or listen while the story reads itself — straight from Shedstar
       </p>
 
       {/* Books carousel */}
@@ -153,12 +192,22 @@ export default function EBooksSection({ onAddToCart, onOpenCart }: EBooksSection
                   </h3>
                   <p className="font-display font-bold text-white text-sm mt-1 drop-shadow-[0_1px_0_rgba(0,0,0,0.2)]">${book.price.toFixed(2)}</p>
                 </button>
-                <button
-                  onClick={() => { setCheckoutBook(book); setCheckoutError(null); }}
-                  className="btn-ink w-full mt-3 text-sm !bg-[#333] hover:!bg-ink tracking-[0.12em]"
-                >
-                  Buy Now!!
-                </button>
+                <div className="flex gap-2 mt-3">
+                  <button
+                    onClick={() => handleListen(book)}
+                    className="btn-brand flex-1 text-[11px] !px-2 tracking-[0.08em]"
+                    aria-label={`${listeningBookId === book.id ? 'Stop' : 'Listen to'} ${book.title}`}
+                  >
+                    {listeningBookId === book.id ? <Pause className="w-3.5 h-3.5" /> : <Headphones className="w-3.5 h-3.5" />}
+                    {listeningBookId === book.id ? 'Stop' : 'Listen'}
+                  </button>
+                  <button
+                    onClick={() => { setCheckoutBook(book); setCheckoutError(null); }}
+                    className="btn-ink flex-1 text-[11px] !px-2 !bg-[#333] hover:!bg-ink tracking-[0.08em]"
+                  >
+                    Buy Now
+                  </button>
+                </div>
                 <button
                   onClick={() => handleAddToCart(book)}
                   className="mt-2 font-display font-bold text-[11px] uppercase tracking-widest text-ink/70 hover:text-ink inline-flex items-center justify-center gap-1"
@@ -237,9 +286,16 @@ export default function EBooksSection({ onAddToCart, onOpenCart }: EBooksSection
                     </div>
                   </div>
 
-                  <div className="flex items-center justify-between gap-4">
+                    <div className="flex items-center justify-between gap-4">
                     <span className="font-display font-black text-2xl text-brand">${selectedBook.price.toFixed(2)}</span>
                     <div className="flex gap-2">
+                        <button
+                          onClick={() => handleListen(selectedBook)}
+                          className="btn-brand px-4 py-2.5 text-xs inline-flex items-center gap-1.5"
+                        >
+                          {listeningBookId === selectedBook.id ? <Pause className="w-3.5 h-3.5" /> : <Headphones className="w-3.5 h-3.5" />}
+                          {listeningBookId === selectedBook.id ? 'Stop' : 'Listen'}
+                        </button>
                       <button
                         onClick={() => {
                           handleAddToCart(selectedBook);
@@ -288,7 +344,7 @@ export default function EBooksSection({ onAddToCart, onOpenCart }: EBooksSection
                 <img src={checkoutBook.coverUrl} alt={`${checkoutBook.title} cover`} className="w-12 h-16 object-cover border-2 border-ink" />
                 <div>
                   <h4 className="font-display text-sm text-ink font-bold truncate max-w-[200px]">{checkoutBook.title}</h4>
-                  <p className="font-mono text-xs text-brand">${checkoutBook.price.toFixed(2)} • Instant PDF Access</p>
+                  <p className="font-mono text-xs text-brand">${checkoutBook.price.toFixed(2)} • Digital + Audio Access</p>
                 </div>
               </div>
 

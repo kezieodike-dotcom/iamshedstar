@@ -1182,12 +1182,12 @@ export default function AdminSection({
           {activeSubTab === 'ebooks' && (
             <div className="flex flex-col gap-6">
               <div className="flex justify-between items-center border-b border-line pb-2">
-                <h2 className="text-xl font-display font-black uppercase tracking-wide text-ink">Manage Shedstar E-Books</h2>
+                  <h2 className="text-xl font-display font-black uppercase tracking-wide text-ink">Manage E-Books &amp; Audiobooks</h2>
                 <button
                   onClick={() => setEditingEBook({
                     title: '', author: 'Shedstar', price: 9.99, description: '',
                     coverUrl: 'https://images.unsplash.com/photo-1544947950-fa07a98d237f?q=80&w=600&auto=format&fit=crop',
-                    pages: 120, fileSize: '12.4 MB PDF', downloadUrl: 'https://www.w3.org/WAI/ER/tests/xhtml/testfiles/resources/pdf/dummy.pdf',
+                    pages: 120, fileSize: '12.4 MB PDF', downloadUrl: 'https://www.w3.org/WAI/ER/tests/xhtml/testfiles/resources/pdf/dummy.pdf', audioUrl: '',
                     isFeatured: false
                   })}
                   className="px-3 py-1 bg-brand hover:bg-brand-dark text-white rounded-full text-xs font-mono font-bold uppercase tracking-wider flex items-center gap-1 transition-all"
@@ -1293,12 +1293,22 @@ export default function AdminSection({
                       />
                     </div>
                     <div className="flex flex-col gap-1">
-                      <label className="text-[10px] text-muted font-mono">Digital Download PDF/EPUB URL</label>
+                    <label className="text-[10px] text-muted font-mono">Digital Download PDF/EPUB URL</label>
                       <input
                         type="text"
                         required
                         value={editingEBook.downloadUrl || ''}
                         onChange={(e) => setEditingEBook({ ...editingEBook, downloadUrl: e.target.value })}
+                        className="px-3 py-2 bg-white border border-line rounded-lg text-xs text-ink focus:border-brand outline-none"
+                      />
+                    </div>
+                    <div className="flex flex-col gap-1">
+                      <label className="text-[10px] text-muted font-mono">Audiobook Audio URL (optional)</label>
+                      <input
+                        type="url"
+                        value={editingEBook.audioUrl || ''}
+                        onChange={(e) => setEditingEBook({ ...editingEBook, audioUrl: e.target.value })}
+                        placeholder="https://cdn.example.com/book-audio.mp3"
                         className="px-3 py-2 bg-white border border-line rounded-lg text-xs text-ink focus:border-brand outline-none"
                       />
                     </div>

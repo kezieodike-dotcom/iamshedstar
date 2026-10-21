@@ -42,7 +42,7 @@ export default function Footer({
     { id: 'music', label: 'Music' },
     { id: 'videos', label: 'Videos' },
     { id: 'merchandise', label: 'Merch' },
-    { id: 'ebooks', label: 'E-Books' },
+    { id: 'ebooks', label: 'E-Books & Audiobooks' },
     { id: 'tour', label: 'Tour Dates' },
     { id: 'gallery', label: 'Gallery' },
     { id: 'news', label: 'News' },

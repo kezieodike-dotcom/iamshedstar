@@ -43,7 +43,7 @@ export default function Navbar({
     { id: 'music', label: 'Music' },
     { id: 'videos', label: 'Videos' },
     { id: 'merchandise', label: 'Merch' },
-    { id: 'ebooks', label: 'E-Books' },
+    { id: 'ebooks', label: 'E-Books & Audiobooks' },
     { id: 'tour', label: 'Tour' },
     { id: 'gallery', label: 'Gallery' },
     { id: 'news', label: 'News' },
