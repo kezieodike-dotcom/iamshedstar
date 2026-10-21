@@ -54,6 +54,19 @@ html {
 body {
   background-color: #cccdd2;
   color: #393534;
+  overflow-x: hidden;
+}
+
+#root {
+  width: 100%;
+  max-width: 100%;
+  overflow-x: clip;
+}
+
+img,
+video,
+svg {
+  max-width: 100%;
 }
 
 ::selection {
@@ -224,6 +237,21 @@ body {
    snapped to center, so users page through with the side arrows. On >= sm the
    card's own width classes take over and several show at once. */
 @media (max-width: 639px) {
+  /* Prevent narrow forms and dashboard grids from forcing the page wider than
+     the viewport. Content remains readable by stacking at phone widths. */
+  [class*="grid-cols-2"],
+  [class*="grid-cols-3"],
+  [class*="grid-cols-4"] {
+    grid-template-columns: minmax(0, 1fr) !important;
+  }
+
+  input,
+  textarea,
+  select,
+  button {
+    max-width: 100%;
+  }
+
   /* Mobile navigation reference: the source design uses a blue photographic
      wash, four oversized destinations, and a fixed sage newsletter strip. */
   .mobile-reference-menu {
@@ -334,7 +362,7 @@ body {
   .reference-footer > div > div:nth-child(2) {
     display: none;
   }
-  .reference-footer > div > div:last-child {
+  .reference-footer .footer-legal {
     border-top: 0;
     padding-top: 0;
     display: block;
@@ -344,14 +372,18 @@ body {
     line-height: 1.25;
     color: rgba(255, 255, 255, 0.82);
   }
-  .reference-footer > div > div:last-child p {
+  .reference-footer .footer-legal p {
     max-width: 20rem;
     margin: 0 auto 0.35rem;
   }
-  .reference-footer > div > div:last-child > div {
+  .reference-footer .footer-legal > div {
     justify-content: center;
     gap: 0.35rem;
     flex-wrap: wrap;
+  }
+  .reference-footer .mobile-admin-link {
+    display: inline-flex;
+    margin-top: 1.25rem;
   }
 
   .carousel-1up {

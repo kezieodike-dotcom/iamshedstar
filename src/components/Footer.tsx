@@ -114,7 +114,7 @@ export default function Footer({
         </div>
 
         {/* Legal */}
-        <div className="flex flex-col sm:flex-row items-center justify-between gap-3 text-[11px] font-mono text-muted border-t border-line pt-5">
+        <div className="footer-legal flex flex-col sm:flex-row items-center justify-between gap-3 text-[11px] font-mono text-muted border-t border-line pt-5">
           <p>© {currentYear} Shedstar Music Group. All Rights Reserved.</p>
           <div className="flex gap-4">
             <button onClick={onOpenPrivacy} className="hover:text-brand transition-colors">Privacy Policy</button>
@@ -122,6 +122,14 @@ export default function Footer({
             <button onClick={onOpenTerms} className="hover:text-brand transition-colors">Terms of Use</button>
           </div>
         </div>
+
+        {/* Keep the private dashboard discoverable in the compact mobile footer. */}
+        <button
+          onClick={() => setActiveTab('admin')}
+          className="mobile-admin-link sm:hidden self-center border border-white/45 px-4 py-2 text-[11px] font-display font-bold uppercase tracking-widest text-white hover:bg-white hover:text-ink transition-colors"
+        >
+          {isAdmin ? 'Admin Dashboard' : 'Admin'}
+        </button>
 
       </div>
     </footer>
