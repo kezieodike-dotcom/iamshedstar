@@ -45,6 +45,13 @@ export default function EBooksSection({ onAddToCart, onOpenCart }: EBooksSection
   }, []);
 
   const handleListen = (book: EBook) => {
+    const orderId = sessionStorage.getItem(`shedstar_ebook_access_${book.id}`);
+    if (!orderId) {
+      setCheckoutError('Purchase is required before listening to this audiobook.');
+      setCheckoutBook(book);
+      return;
+    }
+
     if (listeningBookId === book.id) {
       audioRef.current?.pause();
       window.speechSynthesis?.cancel();
@@ -56,9 +63,9 @@ export default function EBooksSection({ onAddToCart, onOpenCart }: EBooksSection
     window.speechSynthesis?.cancel();
     setListeningBookId(book.id);
 
-    if (book.audioUrl) {
+    if (book.hasAudio || book.audioUrl) {
       if (!audioRef.current) audioRef.current = new Audio();
-      audioRef.current.src = book.audioUrl;
+      audioRef.current.src = `/api/ebooks/${encodeURIComponent(book.id)}/audio?order_id=${encodeURIComponent(orderId)}`;
       audioRef.current.onended = () => setListeningBookId(null);
       audioRef.current.play().catch(() => setListeningBookId(null));
       return;
@@ -248,7 +255,7 @@ export default function EBooksSection({ onAddToCart, onOpenCart }: EBooksSection
       {/* Book Details Modal */}
       {selectedBook && (
         <div className="fixed inset-0 z-50 bg-ink/70 backdrop-blur flex items-center justify-center p-4">
-          <div className="bg-paper border-2 border-ink p-6 max-w-2xl w-full relative shadow-2xl text-ink">
+          <div className="bg-paper border-2 border-ink p-6 max-w-2xl w-full max-h-[90dvh] overflow-y-auto overscroll-contain relative shadow-2xl text-ink">
             <button
               onClick={() => setSelectedBook(null)}
               className="absolute top-4 right-4 text-muted hover:text-ink font-mono text-sm uppercase border-2 border-ink px-2 py-1"
@@ -286,9 +293,9 @@ export default function EBooksSection({ onAddToCart, onOpenCart }: EBooksSection
                     </div>
                   </div>
 
-                    <div className="flex items-center justify-between gap-4">
+                    <div className="flex flex-wrap items-center justify-between gap-4">
                     <span className="font-display font-black text-2xl text-brand">${selectedBook.price.toFixed(2)}</span>
-                    <div className="flex gap-2">
+                    <div className="flex flex-wrap gap-2 w-full sm:w-auto sm:justify-end">
                         <button
                           onClick={() => handleListen(selectedBook)}
                           className="btn-brand px-4 py-2.5 text-xs inline-flex items-center gap-1.5"

@@ -64,7 +64,7 @@ export default function AdminSection({
   const fetchAdminEBooksAndAds = async () => {
     try {
       const [booksRes, adsRes, configRes, partnersRes, settingsRes] = await Promise.all([
-        fetch('/api/ebooks'),
+        fetch('/api/admin/ebooks'),
         fetch('/api/ads'),
         fetch('/api/ads/config'),
         fetch('/api/partnerships'),
@@ -796,6 +796,8 @@ export default function AdminSection({
                       <input
                         type="number"
                         step="0.01"
+                        min="0"
+                        inputMode="decimal"
                         required
                         value={editingProduct.price || 0}
                         onChange={(e) => setEditingProduct({ ...editingProduct, price: parseFloat(e.target.value) })}
@@ -1242,6 +1244,8 @@ export default function AdminSection({
                       <input
                         type="number"
                         step="0.01"
+                        min="0"
+                        inputMode="decimal"
                         required
                         value={editingEBook.price || 0}
                         onChange={(e) => setEditingEBook({ ...editingEBook, price: parseFloat(e.target.value) })}

@@ -1820,7 +1820,42 @@ app.get(['/api/checkout/verify', '/api/checkout'], async (req, res) => {
 // 10a. E-Books Endpoints
 app.get('/api/ebooks', (req, res) => {
   const db = getDb();
+  // Do not expose the source audiobook URL before purchase. Playback goes
+  // through the paid, order-validated stream endpoint below.
+  res.json((db.ebooks || []).map((book: EBook) => ({
+    ...book,
+    audioUrl: undefined,
+    hasAudio: Boolean(book.audioUrl)
+  })));
+});
+
+app.get('/api/admin/ebooks', (req, res) => {
+  const db = getDb();
   res.json(db.ebooks || []);
+});
+
+app.get('/api/ebooks/:id/audio', async (req, res) => {
+  const db = getDb();
+  const orderId = typeof req.query.order_id === 'string' ? req.query.order_id : '';
+  const ebook = (db.ebooks || []).find((book: EBook) => book.id === req.params.id);
+  const order = (db.orders || []).find((candidate: Order) => candidate.id === orderId && candidate.status === 'paid');
+  const purchased = order?.items.some((item) => item.isEBook && item.id === req.params.id);
+
+  if (!ebook || !ebook.audioUrl) return res.status(404).json({ error: 'Audiobook not found' });
+  if (!purchased) return res.status(403).json({ error: 'Purchase required before listening' });
+
+  try {
+    const upstream = await fetch(ebook.audioUrl);
+    if (!upstream.ok) return res.status(502).json({ error: 'Audiobook is temporarily unavailable' });
+    const audio = Buffer.from(await upstream.arrayBuffer());
+    res.setHeader('Content-Type', upstream.headers.get('content-type') || 'audio/mpeg');
+    res.setHeader('Content-Length', String(audio.length));
+    res.setHeader('Cache-Control', 'private, max-age=3600');
+    res.send(audio);
+  } catch (error) {
+    console.error('[ebooks] audio proxy error:', error);
+    res.status(502).json({ error: 'Audiobook is temporarily unavailable' });
+  }
 });
 
 app.post('/api/ebooks', (req, res) => {

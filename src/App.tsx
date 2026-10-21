@@ -193,6 +193,10 @@ export default function App() {
           const res = await fetch(`/api/checkout?checkout_id=${encodeURIComponent(checkoutId)}`);
           const data = await res.json();
           if (res.ok && data.success) {
+            const paidEbooks = (data.order?.items || []).filter((item: { isEBook?: boolean }) => item.isEBook);
+            paidEbooks.forEach((item: { id: string }) => {
+              sessionStorage.setItem(`shedstar_ebook_access_${item.id}`, data.order.id);
+            });
             setCart([]); // paid — empty the cart
             setIsCartOpen(false);
             setOrderResult({

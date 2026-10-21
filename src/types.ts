@@ -135,6 +135,7 @@ export interface EBook {
   fileSize: string;
   downloadUrl: string;
   audioUrl?: string;
+  hasAudio?: boolean;
   isFeatured?: boolean;
   salesCount: number;
 }

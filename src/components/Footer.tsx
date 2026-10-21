@@ -84,7 +84,7 @@ export default function Footer({
               <button
                 key={l.id}
                 onClick={() => setActiveTab(l.id)}
-                className="text-left font-display font-bold text-sm uppercase tracking-wide text-ink hover:text-brand transition-colors"
+                className={`text-left font-display font-bold uppercase tracking-wide text-ink hover:text-brand transition-colors ${l.id === 'admin' ? 'text-[10px]' : 'text-sm'}`}
               >
                 {l.label}
               </button>
@@ -126,7 +126,7 @@ export default function Footer({
         {/* Keep the private dashboard discoverable in the compact mobile footer. */}
         <button
           onClick={() => setActiveTab('admin')}
-          className="mobile-admin-link sm:hidden self-center border border-white/45 px-4 py-2 text-[11px] font-display font-bold uppercase tracking-widest text-white hover:bg-white hover:text-ink transition-colors"
+          className="mobile-admin-link sm:hidden self-center border border-white/45 px-4 py-2 text-[9px] font-display font-bold uppercase tracking-widest text-white hover:bg-white hover:text-ink transition-colors"
         >
           {isAdmin ? 'Admin Dashboard' : 'Admin'}
         </button>
